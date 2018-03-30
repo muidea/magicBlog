@@ -24,10 +24,9 @@ type Route interface {
 // Router 路由器对象
 type Router interface {
 	// 增加路由
-	AddRoute(rt Route)
+	AddRoute(rt Route, filters ...http.Handler)
 	// 清除路由
 	RemoveRoute(rt Route)
-
 	// 分发一条请求
-	Dispatch(res http.ResponseWriter, req *http.Request)
+	Handle(res http.ResponseWriter, req *http.Request)
 }

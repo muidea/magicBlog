@@ -7,22 +7,31 @@ import (
 
 // HTTPServer HTTPServer
 type HTTPServer interface {
+	Use(handler MiddleWareHandler)
 	Bind(router Router)
 	Run()
 }
 
 type httpServer struct {
-	listentAddr string
-	router      Router
+	listenAddr string
+	router     Router
+	filter     MiddleWareChains
 }
 
 // NewHTTPServer 新建HTTPServer
-func NewHTTPServer(listentAddr string) HTTPServer {
-	return &httpServer{listentAddr: listentAddr}
+func NewHTTPServer(listenAddr string) HTTPServer {
+	return &httpServer{listenAddr: listenAddr}
 }
 
 func (s *httpServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	log.Printf("url:%s, method:%s", req.URL.Path, req.Method)
+
+	ctx := NewContext(s.filter.GetHandlers(), s.router, res, req)
+
+	ctx.Run()
+}
+
+func (s *httpServer) Use(handler MiddleWareHandler) {
+	s.filter.Append(handler)
 }
 
 func (s *httpServer) Bind(router Router) {
@@ -30,8 +39,8 @@ func (s *httpServer) Bind(router Router) {
 }
 
 func (s *httpServer) Run() {
-	traceInfo("listening on " + s.listentAddr)
+	traceInfo("listening on " + s.listenAddr)
 
-	err := http.ListenAndServe(s.listentAddr, s)
+	err := http.ListenAndServe(s.listenAddr, s)
 	log.Fatalf("run httpserver fatal, err:%s", err.Error())
 }

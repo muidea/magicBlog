@@ -1,12 +1,17 @@
 package core
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"regexp"
+	"sync"
+)
 
 // 基本HTTP行为定义
 const (
 	GET     = "GET"
-	PUT     = "PUT"
 	POST    = "POST"
+	PUT     = "PUT"
 	DELETE  = "DELETE"
 	OPTIONS = "OPTIONS"
 )
@@ -32,20 +37,118 @@ type Router interface {
 }
 
 // 路由对象
-type route struct {
+type routeItem struct {
+	route   Route
+	filters []MiddleWareHandler
+	regex   *regexp.Regexp
 }
 
+func (s *routeItem) equal(rt Route) bool {
+	return s.route.Pattern() == rt.Pattern()
+}
+
+func (s *routeItem) match(path string) bool {
+	matches := s.regex.FindStringSubmatch(path)
+	if len(matches) > 0 && matches[0] == path {
+		return true
+	}
+
+	return false
+}
+
+var routeReg1 = regexp.MustCompile(`:[^/#?()\.\\]+`)
+var routeReg2 = regexp.MustCompile(`\*\*`)
+
+func newRouteItem(rt Route, filters ...MiddleWareHandler) *routeItem {
+	item := &routeItem{route: rt}
+	item.filters = append(item.filters, filters...)
+
+	pattern := routeReg1.ReplaceAllStringFunc(rt.Pattern(), func(m string) string {
+		return fmt.Sprintf(`(?P<%s>[^/#?]+)`, m[1:])
+	})
+	var index int
+	pattern = routeReg2.ReplaceAllStringFunc(pattern, func(m string) string {
+		index++
+		return fmt.Sprintf(`(?P<_%d>[^#?]*)`, index)
+	})
+	pattern += `\/?`
+	item.regex = regexp.MustCompile(pattern)
+
+	return item
+}
+
+type routeItemSlice []*routeItem
+
 type router struct {
+	routes     map[string]routeItemSlice
+	routesLock sync.RWMutex
 }
 
 func (s *router) AddRoute(rt Route, filters ...MiddleWareHandler) {
+	s.routesLock.Lock()
+	defer s.routesLock.Unlock()
 
+	routeSlice, ok := s.routes[rt.Method()]
+	if ok {
+		for _, val := range routeSlice {
+			if val.equal(rt) {
+				msg := fmt.Sprintf("duplicate route!, pattern:%s, method:%s", rt.Pattern(), rt.Method())
+				panicInfo(msg)
+			}
+		}
+
+		item := newRouteItem(rt, filters...)
+		routeSlice = append(routeSlice, item)
+
+		return
+	}
+
+	item := newRouteItem(rt, filters...)
+	routeSlice = routeItemSlice{}
+	routeSlice = append(routeSlice, item)
+	s.routes[rt.Method()] = routeSlice
 }
 
 func (s *router) RemoveRoute(rt Route) {
+	s.routesLock.Lock()
+	defer s.routesLock.Unlock()
 
+	routeSlice, ok := s.routes[rt.Method()]
+	if !ok {
+		msg := fmt.Sprintf("no found route!, pattern:%s, method:%s", rt.Pattern(), rt.Method())
+		panicInfo(msg)
+	}
+
+	newRoutes := routeItemSlice{}
+	for idx, val := range routeSlice {
+		if val.equal(rt) {
+			if idx > 0 {
+				newRoutes = append(newRoutes, routeSlice[0:idx]...)
+			}
+
+			idx++
+			if idx < len(s.routes) {
+				newRoutes = append(newRoutes, routeSlice[idx:]...)
+			}
+
+			break
+		}
+	}
+
+	s.routes[rt.Method()] = newRoutes
 }
 
 func (s *router) Handle(ctx RequestContext, res ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case GET:
+	case POST:
+	case PUT:
+	case DELETE:
+	case OPTIONS:
+	default:
+	}
+}
 
+func (s *router) handleRequest(ctx RequestContext, res ResponseWriter, req *http.Request) bool {
+	return false
 }

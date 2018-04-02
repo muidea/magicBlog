@@ -85,6 +85,7 @@ type router struct {
 	routesLock sync.RWMutex
 }
 
+// NewRouter 新建Router
 func NewRouter() Router {
 	return &router{routes: make(map[string]routeItemSlice)}
 }

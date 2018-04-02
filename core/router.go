@@ -24,9 +24,28 @@ type Route interface {
 // Router 路由器对象
 type Router interface {
 	// 增加路由
-	AddRoute(rt Route, filters ...http.Handler)
+	AddRoute(rt Route, filters ...MiddleWareHandler)
 	// 清除路由
 	RemoveRoute(rt Route)
 	// 分发一条请求
-	Handle(res http.ResponseWriter, req *http.Request)
+	Handle(ctx Context, res http.ResponseWriter, req *http.Request)
+}
+
+// 路由对象
+type route struct {
+}
+
+type router struct {
+}
+
+func (s *router) AddRoute(rt Route, filters ...MiddleWareHandler) {
+
+}
+
+func (s *router) RemoveRoute(rt Route) {
+
+}
+
+func (s *router) Handle(ctx RequestContext, res ResponseWriter, req *http.Request) {
+
 }

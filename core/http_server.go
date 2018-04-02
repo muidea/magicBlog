@@ -25,7 +25,7 @@ func NewHTTPServer(listenAddr string) HTTPServer {
 
 func (s *httpServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
-	ctx := NewContext(s.filter.GetHandlers(), s.router, res, req)
+	ctx := NewRequestContext(s.filter.GetHandlers(), s.router, res, req)
 
 	ctx.Run()
 }

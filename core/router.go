@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strings"
 	"sync"
 )
 
@@ -84,6 +85,10 @@ type router struct {
 	routesLock sync.RWMutex
 }
 
+func NewRouter() Router {
+	return &router{routes: make(map[string]routeItemSlice)}
+}
+
 func (s *router) AddRoute(rt Route, filters ...MiddleWareHandler) {
 	s.routesLock.Lock()
 	defer s.routesLock.Unlock()
@@ -138,17 +143,25 @@ func (s *router) RemoveRoute(rt Route) {
 	s.routes[rt.Method()] = newRoutes
 }
 
-func (s *router) Handle(ctx RequestContext, res ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case GET:
-	case POST:
-	case PUT:
-	case DELETE:
-	case OPTIONS:
-	default:
+func (s *router) Handle(ctx Context, res http.ResponseWriter, req *http.Request) {
+	routeSlice, ok := s.routes[strings.ToUpper(req.Method)]
+	if !ok {
+		// No found
+		return
 	}
-}
 
-func (s *router) handleRequest(ctx RequestContext, res ResponseWriter, req *http.Request) bool {
-	return false
+	var routeCtx RequestContext
+	for _, val := range routeSlice {
+		if val.match(req.URL.Path) {
+			routeCtx = NewRouteContext(ctx, val.filters, val.route, res, req)
+			break
+		}
+	}
+
+	if routeCtx == nil {
+		// No found
+		return
+	}
+
+	routeCtx.Run()
 }

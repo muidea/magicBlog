@@ -82,8 +82,8 @@ type routeContext struct {
 }
 
 // NewRouteContext 新建Context
-func NewRouteContext(filters []MiddleWareHandler, route Route, res ResponseWriter, req *http.Request, reqCtx Context) RequestContext {
-	return &routeContext{filters: filters, route: route, rw: res, req: req, index: 0, context: reqCtx}
+func NewRouteContext(reqCtx Context, filters []MiddleWareHandler, route Route, res http.ResponseWriter, req *http.Request) RequestContext {
+	return &routeContext{filters: filters, route: route, rw: NewResponseWriter(res), req: req, index: 0, context: reqCtx}
 }
 
 func (c *routeContext) Next() {

@@ -20,7 +20,7 @@ type httpServer struct {
 
 // NewHTTPServer 新建HTTPServer
 func NewHTTPServer(listenAddr string) HTTPServer {
-	return &httpServer{listenAddr: listenAddr}
+	return &httpServer{listenAddr: listenAddr, filter: NewMiddleWareChains()}
 }
 
 func (s *httpServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {

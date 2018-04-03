@@ -147,7 +147,7 @@ func (s *router) RemoveRoute(rt Route) {
 func (s *router) Handle(ctx Context, res http.ResponseWriter, req *http.Request) {
 	routeSlice, ok := s.routes[strings.ToUpper(req.Method)]
 	if !ok {
-		// No found
+		http.NotFound(res, req)
 		return
 	}
 
@@ -160,7 +160,7 @@ func (s *router) Handle(ctx Context, res http.ResponseWriter, req *http.Request)
 	}
 
 	if routeCtx == nil {
-		// No found
+		http.NotFound(res, req)
 		return
 	}
 

@@ -2,6 +2,7 @@ package core
 
 import (
 	"net/http"
+	"reflect"
 	"sync"
 )
 
@@ -20,6 +21,19 @@ type MiddleWareChains interface {
 type chainsImpl struct {
 	handlers    []MiddleWareHandler
 	handlesLock sync.RWMutex
+}
+
+func validateHandler(handler interface{}) {
+	if reflect.TypeOf(handler).Kind() != reflect.Func {
+		panic("middleware handler must be a callable func")
+	}
+
+	reflect.TypeOf(handler).NumField()
+}
+
+// NewMiddleWareChains 新建MiddleWareChains
+func NewMiddleWareChains() MiddleWareChains {
+	return &chainsImpl{handlers: []MiddleWareHandler{}}
 }
 
 func (s *chainsImpl) GetHandlers() []MiddleWareHandler {

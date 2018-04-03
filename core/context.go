@@ -57,8 +57,10 @@ func (c *requestContext) Run() {
 		}
 	}
 
-	if !c.Written() {
+	if !c.Written() && c.router != nil {
 		c.router.Handle(c, c.rw, c.req)
+	} else {
+		http.NotFound(c.rw, c.req)
 	}
 }
 
@@ -108,7 +110,7 @@ func (c *routeContext) Run() {
 	}
 
 	if !c.Written() {
-
+		//c.route.Handler(c.res, c.req)
 	}
 }
 

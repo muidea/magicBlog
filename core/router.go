@@ -91,6 +91,11 @@ func NewRouter() Router {
 }
 
 func (s *router) AddRoute(rt Route, filters ...MiddleWareHandler) {
+	ValidateRouteHandler(rt.Handler())
+	for _, val := range filters {
+		ValidateMiddleWareHandler(val)
+	}
+
 	s.routesLock.Lock()
 	defer s.routesLock.Unlock()
 

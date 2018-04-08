@@ -1,6 +1,10 @@
 package core
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+	"reflect"
+)
 
 // Context request base context
 type Context interface {
@@ -19,6 +23,155 @@ type RequestContext interface {
 	Written() bool
 
 	Run()
+}
+
+// ValidateMiddleWareHandler 校验MiddleWareHandler
+func ValidateMiddleWareHandler(handler interface{}) {
+	log.Print("ValidateMiddleWareHandler")
+	handlerType := reflect.TypeOf(handler)
+	if handlerType.Kind() != reflect.Ptr {
+		panic("middleware handler must be a callable interface")
+	}
+
+	handlerMethod, ok := handlerType.MethodByName("Handle")
+	if !ok {
+		panic("middleware handler isn\\'t have Handle func")
+	}
+
+	methodType := handlerMethod.Type
+	paramNum := methodType.NumIn()
+	if paramNum != 4 {
+		panic("middleware handler invalid handle func param number")
+	}
+
+	// param0 := methodType.In(0).String()
+	param1 := methodType.In(1)
+	if param1.Kind() != reflect.Interface {
+		panic("middleware handler invalid handle func param0 type")
+	}
+	if param1.Name() != "RequestContext" {
+		panic("middleware handler invalid handle func param0 type")
+	}
+	param2 := methodType.In(2)
+	if param2.Kind() != reflect.Interface {
+		panic("middleware handler invalid handle func param1 type")
+	}
+	if param2.String() != "http.ResponseWriter" {
+		panic("middleware handler invalid handle func param1 type")
+	}
+
+	param3 := methodType.In(3)
+	if param3.Kind() != reflect.Ptr {
+		panic("middleware handler invalid handle func param2 type")
+	}
+	if param3.String() != "*http.Request" {
+		panic("middleware handler invalid handle func param2 type")
+	}
+}
+
+// InvokeMiddleWareHandler 执行MiddleWareHandle
+func InvokeMiddleWareHandler(handler interface{}, ctx RequestContext, res http.ResponseWriter, req *http.Request) {
+	log.Print("InvokeMiddleWareHandler")
+	params := make([]reflect.Value, 4)
+	params[0] = reflect.ValueOf(handler)
+	params[1] = reflect.ValueOf(ctx)
+	params[2] = reflect.ValueOf(res)
+	params[3] = reflect.ValueOf(req)
+
+	handlerType := reflect.TypeOf(handler)
+	// 已经验证通过，所以这里就不用继续判断
+	//if handlerType.Kind() != reflect.Ptr {
+	//	panic("middleware handler must be a callable interface")
+	//}
+
+	handlerMethod, ok := handlerType.MethodByName("Handle")
+	if !ok {
+		panic("middleware handler isn\\'t have Handle func")
+	}
+
+	fv := handlerMethod.Func
+	fv.Call(params)
+}
+
+// ValidateRouteHandler 校验RouteHandler
+func ValidateRouteHandler(handler interface{}) {
+	log.Print("ValidateRouteHandler")
+	handlerType := reflect.TypeOf(handler)
+	if handlerType.Kind() != reflect.Func {
+		panic("route handler must be a callable func")
+	}
+
+	paramNum := handlerType.NumIn()
+	if paramNum == 3 {
+		param0 := handlerType.In(0)
+		if param0.Kind() != reflect.Interface {
+			panic("route handler invalid handle func param0 type")
+		}
+		if param0.Name() != "RequestContext" {
+			panic("route handler invalid handle func param0 type")
+		}
+		param1 := handlerType.In(1)
+		if param1.Kind() != reflect.Interface {
+			panic("route handler invalid handle func param1 type")
+		}
+		if param1.String() != "http.ResponseWriter" {
+			panic("route handler invalid handle func param1 type")
+		}
+
+		param2 := handlerType.In(2)
+		if param2.Kind() != reflect.Ptr {
+			panic("route handler invalid handle func param2 type")
+		}
+		if param2.String() != "*http.Request" {
+			panic("route handler invalid handle func param2 type")
+		}
+	} else if paramNum == 2 {
+		param0 := handlerType.In(0)
+		if param0.Kind() != reflect.Interface {
+			panic("route handler invalid handle func param0 type")
+		}
+		if param0.String() != "http.ResponseWriter" {
+			panic("route handler invalid handle func param0 type")
+		}
+
+		param1 := handlerType.In(1)
+		if param1.Kind() != reflect.Ptr {
+			panic("route handler invalid handle func param0 type")
+		}
+		if param1.String() != "*http.Request" {
+			panic("route handler invalid handle func param0 type")
+		}
+	} else {
+		panic("illegal callable func")
+	}
+}
+
+// InvokeRouteHandler 执行RouteHandle
+func InvokeRouteHandler(handler interface{}, ctx Context, res http.ResponseWriter, req *http.Request) {
+	log.Print("InvokeRouteHandler")
+	handlerType := reflect.TypeOf(handler)
+	if handlerType.Kind() != reflect.Func {
+		panic("route handler must be a callable func")
+	}
+
+	var params []reflect.Value
+
+	paramNum := handlerType.NumIn()
+	if paramNum == 3 {
+		params = make([]reflect.Value, 3)
+		params[0] = reflect.ValueOf(ctx)
+		params[1] = reflect.ValueOf(res)
+		params[2] = reflect.ValueOf(req)
+	} else if paramNum == 2 {
+		params = make([]reflect.Value, 2)
+		params[0] = reflect.ValueOf(res)
+		params[1] = reflect.ValueOf(req)
+	} else {
+		panic("illegal callable func")
+	}
+
+	fv := reflect.ValueOf(handler)
+	fv.Call(params)
 }
 
 type requestContext struct {
@@ -49,7 +202,7 @@ func (c *requestContext) Run() {
 	totalSizxe := len(c.filters)
 	for c.index < totalSizxe {
 		handler := c.filters[c.index]
-		handler.Handle(c, c.rw, c.req)
+		InvokeMiddleWareHandler(handler, c, c.rw, c.req)
 
 		c.index++
 		if c.Written() {
@@ -101,7 +254,7 @@ func (c *routeContext) Run() {
 	totalSizxe := len(c.filters)
 	for c.index < totalSizxe {
 		handler := c.filters[c.index]
-		handler.Handle(c, c.rw, c.req)
+		InvokeMiddleWareHandler(handler, c, c.rw, c.req)
 
 		c.index++
 		if c.Written() {
@@ -110,7 +263,7 @@ func (c *routeContext) Run() {
 	}
 
 	if !c.Written() {
-		//c.route.Handler(c.res, c.req)
+		InvokeRouteHandler(c.route.Handler(), c.context, c.rw, c.req)
 	}
 }
 

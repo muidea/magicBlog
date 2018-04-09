@@ -1,22 +1,22 @@
 package main
 
 import (
-	"muidea.com/magicBlog/core"
 	"muidea.com/magicBlog/test"
+	engine "muidea.com/magicEngine"
 )
 
 func main() {
 
-	router := core.NewRouter()
+	router := engine.NewRouter()
 
 	test.Append(router)
 
-	svr := core.NewHTTPServer(":8010")
+	svr := engine.NewHTTPServer(":8010")
 	svr.Bind(router)
 
 	svr.Use(&test.Hello{})
 
-	//svr.Use(&test.Test{})
+	svr.Use(&test.Test{})
 
 	svr.Run()
 }

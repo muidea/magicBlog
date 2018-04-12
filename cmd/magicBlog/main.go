@@ -7,7 +7,7 @@ import (
 	engine "muidea.com/magicEngine"
 )
 
-var serviceAddress = ":8010"
+var serviceAddress = ":8018"
 var centerServer = "http://127.0.0.1:8080/api/remote"
 var account = "test"
 var authToken = "token"

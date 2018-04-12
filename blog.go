@@ -43,11 +43,14 @@ func (s *Blog) Startup(router engine.Router) {
 	mainRoute := newRoute("/", "GET", s.mainPage)
 	router.AddRoute(mainRoute)
 
-	detailRoute := newRoute("/detail/:id", "GET", s.detailPage)
-	router.AddRoute(detailRoute)
+	catalogListRoute := newRoute("/catalog/", "GET", s.catalogListPage)
+	router.AddRoute(catalogListRoute)
 
 	catalogRoute := newRoute("/catalog/:id", "GET", s.catalogPage)
 	router.AddRoute(catalogRoute)
+
+	detailRoute := newRoute("/detail/:id", "GET", s.detailPage)
+	router.AddRoute(detailRoute)
 }
 
 // Teardown 销毁
@@ -57,6 +60,10 @@ func (s *Blog) Teardown() {
 
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("mainPage")
+}
+
+func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
+	log.Print("catalogListPage")
 }
 
 func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {

@@ -1,4 +1,4 @@
-package magicblog
+package core
 
 import (
 	"log"
@@ -30,12 +30,14 @@ func newRoute(pattern, method string, handler interface{}) engine.Route {
 }
 
 // NewBlog 新建Blog
-func NewBlog(centerServer, account, authToken string) Blog {
+func NewBlog(centerServer, account, password string) Blog {
 	return Blog{}
 }
 
 // Blog Blog对象
 type Blog struct {
+	account  string
+	password string
 }
 
 // Startup 启动
@@ -49,8 +51,8 @@ func (s *Blog) Startup(router engine.Router) {
 	catalogRoute := newRoute("/catalog/:id", "GET", s.catalogPage)
 	router.AddRoute(catalogRoute)
 
-	detailRoute := newRoute("/detail/:id", "GET", s.detailPage)
-	router.AddRoute(detailRoute)
+	contentRoute := newRoute("/content/:id", "GET", s.contentPage)
+	router.AddRoute(contentRoute)
 }
 
 // Teardown 销毁
@@ -70,6 +72,6 @@ func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogPage")
 }
 
-func (s *Blog) detailPage(res http.ResponseWriter, req *http.Request) {
-	log.Print("detailPage")
+func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
+	log.Print("contentPage")
 }

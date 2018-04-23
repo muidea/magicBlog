@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"muidea.com/magicCommon/model"
 	engine "muidea.com/magicEngine"
 )
 
@@ -30,14 +31,37 @@ func newRoute(pattern, method string, handler interface{}) engine.Route {
 }
 
 // NewBlog 新建Blog
-func NewBlog(centerServer, account, password string) Blog {
-	return Blog{}
+func NewBlog(centerServer, name, account, password string) (Blog, bool) {
+	blog := Blog{centerAgent: NewCenterAgent()}
+
+	agent := NewCenterAgent()
+	if !agent.Start(centerServer, name, account, password) {
+		return blog, false
+	}
+	blogCatalog, ok := agent.FetchCatalog(name)
+	if !ok {
+		ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.")
+		if !ok {
+			log.Print("create blog root catalog failed.")
+			return blog, false
+		}
+	}
+	blogCatalog, ok = agent.FetchCatalog(name)
+	if !ok {
+		log.Print("fetch blog root ctalog failed.")
+		return blog, false
+	}
+
+	blog.centerAgent = agent
+	blog.blogCatalogView = blogCatalog
+
+	return blog, true
 }
 
 // Blog Blog对象
 type Blog struct {
-	account  string
-	password string
+	centerAgent     Agent
+	blogCatalogView model.CatalogDetailView
 }
 
 // Startup 启动
@@ -57,7 +81,9 @@ func (s *Blog) Startup(router engine.Router) {
 
 // Teardown 销毁
 func (s *Blog) Teardown() {
-
+	if s.centerAgent != nil {
+		s.centerAgent.Stop()
+	}
 }
 
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {

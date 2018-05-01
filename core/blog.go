@@ -77,6 +77,9 @@ func (s *Blog) Startup(router engine.Router) {
 
 	contentRoute := newRoute("/content/:id", "GET", s.contentPage)
 	router.AddRoute(contentRoute)
+
+	aboutRoute := newRoute("/about", "GET", s.aboutPage)
+	router.AddRoute(aboutRoute)
 }
 
 // Teardown 销毁
@@ -100,4 +103,8 @@ func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contentPage")
+}
+
+func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
+	log.Print("aboutPage")
 }

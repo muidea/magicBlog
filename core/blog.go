@@ -1,6 +1,7 @@
 package core
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 
@@ -68,6 +69,8 @@ type Blog struct {
 func (s *Blog) Startup(router engine.Router) {
 	mainRoute := newRoute("/", "GET", s.mainPage)
 	router.AddRoute(mainRoute)
+	mainRoute = newRoute("/index.html", "GET", s.mainPage)
+	router.AddRoute(mainRoute)
 
 	catalogListRoute := newRoute("/catalog/", "GET", s.catalogListPage)
 	router.AddRoute(catalogListRoute)
@@ -80,6 +83,11 @@ func (s *Blog) Startup(router engine.Router) {
 
 	aboutRoute := newRoute("/about", "GET", s.aboutPage)
 	router.AddRoute(aboutRoute)
+	aboutRoute = newRoute("/about.html", "GET", s.aboutPage)
+	router.AddRoute(aboutRoute)
+
+	noFoundRoute := newRoute("/404.html", "GET", s.noFoundPage)
+	router.AddRoute(noFoundRoute)
 }
 
 // Teardown 销毁
@@ -91,6 +99,12 @@ func (s *Blog) Teardown() {
 
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("mainPage")
+
+	t, err := template.ParseFiles("template/index.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
 }
 
 func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
@@ -107,4 +121,20 @@ func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 
 func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("aboutPage")
+
+	t, err := template.ParseFiles("template/about.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
+}
+
+func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
+	log.Print("noFoundPage")
+
+	t, err := template.ParseFiles("template/404.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
 }

@@ -8,7 +8,7 @@ import (
 	engine "muidea.com/magicEngine"
 )
 
-var serviceAddress = ":8018"
+var serviceAddress = ":8866"
 var centerServer = "http://127.0.0.1:8888"
 var blogName = "magicBlog"
 var account = "magicBlog"

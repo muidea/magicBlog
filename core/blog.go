@@ -69,8 +69,6 @@ type Blog struct {
 func (s *Blog) Startup(router engine.Router) {
 	mainRoute := newRoute("/", "GET", s.mainPage)
 	router.AddRoute(mainRoute)
-	mainRoute = newRoute("/index.html", "GET", s.mainPage)
-	router.AddRoute(mainRoute)
 
 	catalogListRoute := newRoute("/catalog/", "GET", s.catalogListPage)
 	router.AddRoute(catalogListRoute)
@@ -81,10 +79,11 @@ func (s *Blog) Startup(router engine.Router) {
 	contentRoute := newRoute("/content/:id", "GET", s.contentPage)
 	router.AddRoute(contentRoute)
 
-	aboutRoute := newRoute("/about", "GET", s.aboutPage)
+	aboutRoute := newRoute("/about/", "GET", s.aboutPage)
 	router.AddRoute(aboutRoute)
-	aboutRoute = newRoute("/about.html", "GET", s.aboutPage)
-	router.AddRoute(aboutRoute)
+
+	contactRoute := newRoute("/contact/", "GET", s.contactPage)
+	router.AddRoute(contactRoute)
 
 	noFoundRoute := newRoute("/404.html", "GET", s.noFoundPage)
 	router.AddRoute(noFoundRoute)
@@ -109,10 +108,22 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 
 func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogListPage")
+
+	t, err := template.ParseFiles("template/post.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
 }
 
 func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogPage")
+
+	t, err := template.ParseFiles("template/post.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
 }
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
@@ -123,6 +134,16 @@ func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("aboutPage")
 
 	t, err := template.ParseFiles("template/about.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
+}
+
+func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
+	log.Print("contactPage")
+
+	t, err := template.ParseFiles("template/contact.html")
 	if err != nil {
 		log.Println(err)
 	}

@@ -54,15 +54,16 @@ func NewBlog(centerServer, name, account, password string) (Blog, bool) {
 	}
 
 	blog.centerAgent = agent
-	blog.blogCatalogView = blogCatalog
+	blog.blogInfo = blogCatalog
 
 	return blog, true
 }
 
 // Blog Blog对象
 type Blog struct {
-	centerAgent     Agent
-	blogCatalogView model.CatalogDetailView
+	centerAgent Agent
+	blogInfo    model.CatalogDetailView
+	blogContent []model.SummaryView
 }
 
 // Startup 启动
@@ -96,30 +97,95 @@ func (s *Blog) Teardown() {
 	}
 }
 
+func (s *Blog) getIndexView() (model.SummaryView, bool) {
+	for _, v := range s.blogContent {
+		if v.Name == "Index" && v.Type == model.CATALOG {
+			return v, true
+		}
+	}
+
+	return model.SummaryView{}, false
+}
+
+func (s *Blog) getCatalogView() (model.SummaryView, bool) {
+	for _, v := range s.blogContent {
+		if v.Name == "Catalog" && v.Type == model.CATALOG {
+			return v, true
+		}
+	}
+
+	return model.SummaryView{}, false
+}
+
+func (s *Blog) getAboutView() (model.SummaryView, bool) {
+	for _, v := range s.blogContent {
+		if v.Name == "About" && v.Type == model.ARTICLE {
+			return v, true
+		}
+	}
+
+	return model.SummaryView{}, false
+}
+
+func (s *Blog) getContactView() (model.SummaryView, bool) {
+	for _, v := range s.blogContent {
+		if v.Name == "Contact" && v.Type == model.ARTICLE {
+			return v, true
+		}
+	}
+
+	return model.SummaryView{}, false
+}
+
+func (s *Blog) get404View() (model.SummaryView, bool) {
+	for _, v := range s.blogContent {
+		if v.Name == "404" && v.Type == model.ARTICLE {
+			return v, true
+		}
+	}
+
+	return model.SummaryView{}, false
+}
+
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("mainPage")
 
-	t, err := template.ParseFiles("template/index.html")
-	if err != nil {
-		log.Println(err)
+	indexView, ok := s.getIndexView()
+	if !ok {
+		t, err := template.ParseFiles("template/default/index.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
 	}
-	t.Execute(res, nil)
+
+	s.centerAgent.QuerySummary(indexView.ID)
+
 }
 
 func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogListPage")
 
-	t, err := template.ParseFiles("template/post.html")
-	if err != nil {
-		log.Println(err)
+	catalogView, ok := s.getCatalogView()
+	if !ok {
+		t, err := template.ParseFiles("template/default/catalog.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
 	}
-	t.Execute(res, nil)
+
+	s.centerAgent.QuerySummary(catalogView.ID)
 }
 
 func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogPage")
 
-	t, err := template.ParseFiles("template/post.html")
+	t, err := template.ParseFiles("template/default/catalog.html")
 	if err != nil {
 		log.Println(err)
 	}
@@ -128,34 +194,61 @@ func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contentPage")
+
+	t, err := template.ParseFiles("template/default/content.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, nil)
 }
 
 func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("aboutPage")
 
-	t, err := template.ParseFiles("template/about.html")
-	if err != nil {
-		log.Println(err)
+	aboutView, ok := s.getContactView()
+	if !ok {
+		t, err := template.ParseFiles("template/default/about.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
 	}
-	t.Execute(res, nil)
+
+	s.centerAgent.QueryArticle(aboutView.ID)
 }
 
 func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contactPage")
 
-	t, err := template.ParseFiles("template/contact.html")
-	if err != nil {
-		log.Println(err)
+	contactView, ok := s.getContactView()
+	if !ok {
+		t, err := template.ParseFiles("template/default/contact.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
 	}
-	t.Execute(res, nil)
+
+	s.centerAgent.QueryArticle(contactView.ID)
 }
 
 func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("noFoundPage")
 
-	t, err := template.ParseFiles("template/404.html")
-	if err != nil {
-		log.Println(err)
+	noFoundView, ok := s.get404View()
+	if !ok {
+		t, err := template.ParseFiles("template/default/404.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
 	}
-	t.Execute(res, nil)
+
+	s.centerAgent.QueryArticle(noFoundView.ID)
 }

@@ -4,7 +4,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
+	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 	engine "muidea.com/magicEngine"
 )
@@ -53,8 +55,11 @@ func NewBlog(centerServer, name, account, password string) (Blog, bool) {
 		return blog, false
 	}
 
+	blogContent := agent.QuerySummary(blogCatalog.ID)
+
 	blog.centerAgent = agent
 	blog.blogInfo = blogCatalog
+	blog.blogContent = blogContent
 
 	return blog, true
 }
@@ -161,8 +166,22 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.centerAgent.QuerySummary(indexView.ID)
+	summary := s.centerAgent.QuerySummary(indexView.ID)
+	if len(summary) == 0 {
+		t, err := template.ParseFiles("template/default/index.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
 
+		return
+	}
+
+	t, err := template.ParseFiles("template/index.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, summary)
 }
 
 func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
@@ -179,33 +198,79 @@ func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.centerAgent.QuerySummary(catalogView.ID)
+	summary := s.centerAgent.QuerySummary(catalogView.ID)
+	if len(summary) == 0 {
+		t, err := template.ParseFiles("template/default/catalog.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
+	}
+
+	t, err := template.ParseFiles("template/catalog.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, summary)
 }
 
 func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogPage")
 
-	t, err := template.ParseFiles("template/default/catalog.html")
+	_, value := net.SplitRESTAPI(req.URL.Path)
+	id, err := strconv.Atoi(value)
+	if err != nil {
+		http.Redirect(res, req, "catalog/", http.StatusMovedPermanently)
+		return
+	}
+
+	summary := s.centerAgent.QuerySummary(id)
+	t, err := template.ParseFiles("template/catalog.html")
 	if err != nil {
 		log.Println(err)
 	}
-	t.Execute(res, nil)
+	t.Execute(res, summary)
 }
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contentPage")
 
-	t, err := template.ParseFiles("template/default/content.html")
+	_, value := net.SplitRESTAPI(req.URL.Path)
+	id, err := strconv.Atoi(value)
+	if err != nil {
+		t, err := template.ParseFiles("template/default/content.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
+	}
+
+	article, ok := s.centerAgent.QueryArticle(id)
+	if !ok {
+		t, err := template.ParseFiles("template/default/content.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
+	}
+
+	t, err := template.ParseFiles("template/content.html")
 	if err != nil {
 		log.Println(err)
 	}
-	t.Execute(res, nil)
+	t.Execute(res, article)
 }
 
 func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("aboutPage")
 
-	aboutView, ok := s.getContactView()
+	aboutView, ok := s.getAboutView()
 	if !ok {
 		t, err := template.ParseFiles("template/default/about.html")
 		if err != nil {
@@ -216,7 +281,22 @@ func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.centerAgent.QueryArticle(aboutView.ID)
+	article, ok := s.centerAgent.QueryArticle(aboutView.ID)
+	if !ok {
+		t, err := template.ParseFiles("template/default/about.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
+	}
+
+	t, err := template.ParseFiles("template/about.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, article)
 }
 
 func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
@@ -233,7 +313,22 @@ func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.centerAgent.QueryArticle(contactView.ID)
+	article, ok := s.centerAgent.QueryArticle(contactView.ID)
+	if !ok {
+		t, err := template.ParseFiles("template/default/contact.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
+	}
+
+	t, err := template.ParseFiles("template/contact.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, article)
 }
 
 func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
@@ -250,5 +345,20 @@ func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.centerAgent.QueryArticle(noFoundView.ID)
+	article, ok := s.centerAgent.QueryArticle(noFoundView.ID)
+	if !ok {
+		t, err := template.ParseFiles("template/default/404.html")
+		if err != nil {
+			log.Println(err)
+		}
+		t.Execute(res, nil)
+
+		return
+	}
+
+	t, err := template.ParseFiles("template/404.html")
+	if err != nil {
+		log.Println(err)
+	}
+	t.Execute(res, article)
 }

@@ -228,7 +228,7 @@ func (s *center) QuerySummary(catalogID int) []model.SummaryView {
 	}
 
 	result := &queryResult{}
-	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/summary/", catalogID, s.onlineView.AuthToken, s.sessionID)
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/summary", catalogID, s.onlineView.AuthToken, s.sessionID)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
@@ -266,7 +266,7 @@ func (s *center) QueryCatalog(catalogID int) (model.CatalogDetailView, bool) {
 	}
 
 	result := &queryResult{}
-	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog/", catalogID, s.onlineView.AuthToken, s.sessionID)
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog", catalogID, s.onlineView.AuthToken, s.sessionID)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
@@ -290,7 +290,7 @@ func (s *center) QueryCatalog(catalogID int) (model.CatalogDetailView, bool) {
 	}
 
 	if result.ErrorCode == common_result.Success {
-		return result.Catalog, false
+		return result.Catalog, true
 	}
 
 	log.Printf("query catalog failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
@@ -304,7 +304,7 @@ func (s *center) QueryArticle(id int) (model.ArticleDetailView, bool) {
 	}
 
 	result := &queryResult{}
-	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog/", id, s.onlineView.AuthToken, s.sessionID)
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/article", id, s.onlineView.AuthToken, s.sessionID)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
@@ -328,7 +328,7 @@ func (s *center) QueryArticle(id int) (model.ArticleDetailView, bool) {
 	}
 
 	if result.ErrorCode == common_result.Success {
-		return result.Article, false
+		return result.Article, true
 	}
 
 	log.Printf("query article failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
@@ -342,7 +342,7 @@ func (s *center) QueryLink(id int) (model.LinkDetailView, bool) {
 	}
 
 	result := &queryResult{}
-	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/link/", id, s.onlineView.AuthToken, s.sessionID)
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/link", id, s.onlineView.AuthToken, s.sessionID)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
@@ -380,7 +380,7 @@ func (s *center) QueryMedia(id int) (model.MediaDetailView, bool) {
 	}
 
 	result := &queryResult{}
-	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/media/", id, s.onlineView.AuthToken, s.sessionID)
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/media", id, s.onlineView.AuthToken, s.sessionID)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
@@ -404,7 +404,7 @@ func (s *center) QueryMedia(id int) (model.MediaDetailView, bool) {
 	}
 
 	if result.ErrorCode == common_result.Success {
-		return result.Media, false
+		return result.Media, true
 	}
 
 	log.Printf("query media failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)

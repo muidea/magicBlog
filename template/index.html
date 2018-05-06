@@ -79,6 +79,20 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-10 offset-lg-1 col-md-10 offset-md-1">
+                {{range .}}
+                <div class="post-preview">
+                        <a href="/content/{{.ID}}">
+                            <h2 class="post-title">
+                                {{.Name}}
+                            </h2>
+                            <h3 class="post-subtitle">
+                                Problems look mighty small from 150 miles up
+                            </h3>
+                        </a>
+                        <p class="post-meta">Posted by <a href="#">{{.Creater.Name}}</a> on {{.CreateDate}}</p>
+                    </div>
+                    <hr>    
+                {{end}}
                 <div class="post-preview">
                     <a href="post.html">
                         <h2 class="post-title">

@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Magic Blog - Content</title>
+    <title>Magic Blog - {{.Name}}</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -30,7 +30,6 @@
         }
     }
     </style>
-
 </head>
 
 <body>
@@ -67,7 +66,7 @@
             <div class="row">
                 <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
                     <div class="page-heading">
-                        <h1>About Me</h1>
+                        <h1>{{.Name}}</h1>
                         <span class="subheading">This is what I do.</span>
                     </div>
                 </div>
@@ -83,7 +82,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1" id="preview">
                 {{.Content}}
             </div>
         </div>
@@ -112,6 +111,15 @@
 
     <!-- Theme JavaScript -->
     <script src="/js/clean-blog.min.js"></script>
+
+    <!-- Markdown js -->
+    <script src="/lib/markdown/markdown.js"></script>
+
+    <script>
+        console.log($("#preview").html())
+        $("#preview").html(markdown.toHTML($("#preview").html()))
+        console.log(markdown.toHTML($("#preview").html()))
+    </script>
 
 </body>
 

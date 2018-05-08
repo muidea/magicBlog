@@ -30,7 +30,6 @@
         }
     }
     </style>
-
 </head>
 
 <body>
@@ -78,7 +77,7 @@
     <!-- Main Content -->
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1" id="preview">
                 {{.Content}}
             </div>
         </div>
@@ -109,6 +108,14 @@
     <!-- Theme JavaScript -->
     <script src="/js/clean-blog.min.js"></script>
 
+    <!-- Markdown js -->
+    <script src="/lib/markdown/markdown.js"></script>
+
+    <script>
+        console.log($("#preview").html())
+        $("#preview").html(markdown.toHTML($("#preview").html()))
+        console.log(markdown.toHTML($("#preview").html()))
+    </script>
 </body>
 
 </html>

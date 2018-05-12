@@ -1,17 +1,20 @@
-import React from 'react';
-import { connect } from 'dva';
-import styles from './Catalogs.css';
+import React from 'react'
+import { connect } from 'dva'
+import { MainLayout } from '../components/Layout'
+import styles from './Catalogs.css'
 
-function Catalogs() {
+const Catalogs = () => {
   return (
-    <div className={styles.normal}>
-      Route Component: Catalogs
-    </div>
-  );
+    <MainLayout>
+      <div className={styles.normal}>
+        Route Component: Catalogs
+      </div>
+    </MainLayout>
+  )
 }
 
 function mapStateToProps() {
-  return {};
+  return {}
 }
 
-export default connect(mapStateToProps)(Catalogs);
+export default connect(mapStateToProps)(Catalogs)

@@ -2,6 +2,8 @@
   "parser": "babel-eslint",
   "extends": "airbnb",
   "rules": {
+    "semi": [2, "never"],
+    "code": 0,
     "arrow-body-style": [0],
     "consistent-return": [0],
     "generator-star-spacing": [0],

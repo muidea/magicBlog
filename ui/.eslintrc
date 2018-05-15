@@ -1,6 +1,6 @@
 {
   "parser": "babel-eslint",
-  "extends": "airbnb",
+  "extends": "umi",
   "rules": {
     "semi": [2, "never"],
     "code": 0,

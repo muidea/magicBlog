@@ -1,19 +1,19 @@
 import React from 'react'
 import { connect } from 'dva'
 import { FrameLayout } from './../components'
-import styles from './IndexPage.css'
+import styles from './CatalogPage.css'
 
-function IndexPage({location}) {
+function CatalogPage({location}) {
   return (
     <FrameLayout location={location}>
       <div className={styles.normal}>
-        <h1 className={styles.title}>IndexPage</h1>
+        <h1 className={styles.title}>CatalogPage</h1>
       </div>
     </FrameLayout>
   )
 }
 
-IndexPage.propTypes = {
+CatalogPage.propTypes = {
 }
 
-export default connect()(IndexPage)
+export default connect()(CatalogPage)

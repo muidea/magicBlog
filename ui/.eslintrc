@@ -1,6 +1,6 @@
 {
   "parser": "babel-eslint",
-  "extends": "umi",
+  "extends": "eslint-config-umi",
   "rules": {
     "semi": [2, "never"],
     "code": 0,

@@ -5,19 +5,23 @@ import dynamic from 'dva/dynamic'
 import App from 'routes/app'
 
 function RouterConfig({ history, app }) {
+  const error = dynamic({
+    app,
+    component: () => import('./routes/error'),
+  })  
   const routes = [
     {
       path: '/',
       models: () => [import('models/index')],
-      component: () => import('routes/IndexPage'),
+      component: () => import('routes/index'),
     }, {
       path: '/catalog',
       models: () => [import('models/catalog')],
-      component: () => import('routes/CatalogPage'),
+      component: () => import('routes/catalog'),
     }, {
       path: '/content',
       models: () => [import('models/content')],
-      component: () => import('routes/ContentPage'),
+      component: () => import('routes/content'),
     },
   ]
 
@@ -37,6 +41,7 @@ function RouterConfig({ history, app }) {
               />
             ))
           }
+          <Route component={error} />
         </Switch>
       </App>
     </Router>

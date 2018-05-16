@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import styles from './ContentPage.css'
+import styles from './index.css'
 
 function ContentPage({content}) {
   const { msg } = content

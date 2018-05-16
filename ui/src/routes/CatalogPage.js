@@ -3,8 +3,10 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import styles from './CatalogPage.css'
 
-function CatalogPage({location, catalog}) {
+function CatalogPage({app, catalog}) {
   const { msg } = catalog
+
+  console.log(app)
 
   return (
     <div className={styles.normal}>
@@ -15,8 +17,8 @@ function CatalogPage({location, catalog}) {
 }
 
 CatalogPage.propTypes = {
-  location: PropTypes.object,
+  app: PropTypes.object,
   catalog: PropTypes.object,
 }
 
-export default connect(({ catalog, location }) => ({ catalog, location }))(CatalogPage)
+export default connect(({ app, catalog }) => ({ app, catalog }))(CatalogPage)

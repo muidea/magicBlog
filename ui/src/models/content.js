@@ -1,10 +1,10 @@
 
 export default {
 
-    namespace: 'app',
+    namespace: 'content',
   
     state: {
-      msg: 'Hey application'
+      msg: 'hello content'
     },
   
     subscriptions: {

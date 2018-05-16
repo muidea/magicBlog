@@ -3,7 +3,9 @@ export default {
 
     namespace: 'catalog',
   
-    state: {},
+    state: {
+      msg: 'hello catalog'
+    },
   
     subscriptions: {
       setup({ dispatch, history }) {  // eslint-disable-line

@@ -1,19 +1,22 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import { FrameLayout } from './../components'
 import styles from './CatalogPage.css'
 
-function CatalogPage({location}) {
+function CatalogPage({location, catalog}) {
+  const { msg } = catalog
+
   return (
-    <FrameLayout location={location}>
-      <div className={styles.normal}>
-        <h1 className={styles.title}>CatalogPage</h1>
-      </div>
-    </FrameLayout>
+    <div className={styles.normal}>
+      <h1 className={styles.title}>CatalogPage</h1>
+      <p>{msg}</p>
+    </div>
   )
 }
 
 CatalogPage.propTypes = {
+  location: PropTypes.object,
+  catalog: PropTypes.object,
 }
 
-export default connect()(CatalogPage)
+export default connect(({ catalog, location }) => ({ catalog, location }))(CatalogPage)

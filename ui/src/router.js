@@ -1,17 +1,48 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Router, Route, Switch } from 'dva/router'
-import IndexPage from './routes/IndexPage'
-import CatalogPage from './routes/CatalogPage'
+import dynamic from 'dva/dynamic'
+import App from './routes/app'
 
-function RouterConfig({ history }) {
+function RouterConfig({ history, app }) {
+  const routes = [
+    {
+      path: '/',
+      models: () => [import('./models/index')],
+      component: () => import('./routes/IndexPage'),
+    }, {
+      path: '/catalog',
+      models: () => [import('./models/catalog')],
+      component: () => import('./routes/CatalogPage'),
+    },
+  ]
+
   return (
     <Router history={history}>
-      <Switch>
-        <Route path="/" exact component={IndexPage} />
-        <Route path="/catalogs" exact component={CatalogPage} />
-      </Switch>
+      <App history={history}>
+        <Switch>
+          {
+            routes.map(({ path, ...dynamics }, key) => (
+              <Route key={key}
+                exact
+                path={path}
+                component={dynamic({
+                  app,
+                  ...dynamics,
+                })}
+              />
+            ))
+          }
+        </Switch>
+      </App>
     </Router>
   )
+}
+
+
+RouterConfig.propTypes = {
+  history: PropTypes.object,
+  app: PropTypes.object,
 }
 
 export default RouterConfig

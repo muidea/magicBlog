@@ -1,10 +1,9 @@
 
 export default {
 
-    namespace: 'index',
+    namespace: 'app',
   
     state: {
-      msg: 'hello index'
     },
   
     subscriptions: {

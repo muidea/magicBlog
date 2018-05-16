@@ -1,19 +1,22 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import { FrameLayout } from './../components'
 import styles from './IndexPage.css'
 
-function IndexPage({location}) {
+function IndexPage({location, index}) {
+  const { msg } = index
   return (
-    <FrameLayout location={location}>
-      <div className={styles.normal}>
-        <h1 className={styles.title}>IndexPage</h1>
-      </div>
-    </FrameLayout>
+    <div className={styles.normal}>
+      <h1 className={styles.title}>IndexPage</h1>
+      <p>{msg}</p>
+    </div>
   )
 }
-
+ 
 IndexPage.propTypes = {
+  location: PropTypes.object,
+  index: PropTypes.object,
 }
 
-export default connect()(IndexPage)
+export default connect(({ index, location }) => ({ index, location }))(IndexPage)
+

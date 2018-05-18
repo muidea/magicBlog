@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import { FrameLayout } from 'components'
 
-function App({ children, dispatch, history, app }) {
-  const { location } = history
+function App({ children, location, app }) {
   const { msg } = app
   return (
     <FrameLayout location={location}>

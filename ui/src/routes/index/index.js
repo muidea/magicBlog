@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import styles from './index.css'
 
-function IndexPage({index}) {
+function IndexPage({ index }) {
   const { msg } = index
   return (
     <div className={styles.normal}>
@@ -12,7 +12,7 @@ function IndexPage({index}) {
     </div>
   )
 }
- 
+
 IndexPage.propTypes = {
   index: PropTypes.object,
 }

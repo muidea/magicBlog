@@ -8,7 +8,7 @@ import './index.css'
 const app = dva({
   ...createLoading({ effects: true }),
   history: createHistory(),
-  onError (error) {
+  onError(error) {
     message.error(error.message)
   },
 })

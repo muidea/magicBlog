@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import styles from './index.css'
 
-function ContentPage({content}) {
+function ContentPage({ content }) {
   const { msg } = content
 
   return (

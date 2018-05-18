@@ -12,13 +12,13 @@ const FrameLayout = ({ children, location }) => {
           {children}
         </div>
       </div>
-  </div>
+    </div>
   )
 }
 
 FrameLayout.propTypes = {
   children: PropTypes.object,
-  location: PropTypes.object
+  location: PropTypes.object,
 }
 
 export default FrameLayout

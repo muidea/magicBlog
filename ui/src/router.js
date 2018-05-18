@@ -8,7 +8,7 @@ function RouterConfig({ history, app }) {
   const error = dynamic({
     app,
     component: () => import('./routes/error'),
-  })  
+  })
   const routes = [
     {
       path: '/',
@@ -25,13 +25,15 @@ function RouterConfig({ history, app }) {
     },
   ]
 
+  const { location } = history
   return (
     <Router history={history}>
-      <App history={history} app={app}>
+      <App location={location} app={app}>
         <Switch>
           {
             routes.map(({ path, ...dynamics }, key) => (
-              <Route key={key}
+              <Route
+                key={key}
                 exact
                 path={path}
                 component={dynamic({

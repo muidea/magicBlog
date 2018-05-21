@@ -1,0 +1,40 @@
+@import "~antd/dist/antd.less";
+
+.content {
+    height: 280px;
+    width: 100%;
+    background: url(../assets/home-bg.jpg) no-repeat center 0;    
+}
+
+.menu {
+    background: transparent
+}
+
+.info {
+    height: 200px;
+    width: 100%;
+    padding: 2%;
+    text-align: center;
+    & > h1 {
+        color: antiquewhite;
+        font-size: 60px;
+    }
+    & > span {
+        color: antiquewhite;
+    }
+}
+
+:global {
+    .ant-menu-horizontal {
+        & > .ant-menu-item {
+            & > a {
+            color: aliceblue;
+            }
+
+            & > a:hover {
+                color: antiquewhite;
+            }
+        }
+    }
+
+}

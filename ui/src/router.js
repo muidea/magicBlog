@@ -1,59 +1,28 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Router, Route, Switch } from 'dva/router'
-import dynamic from 'dva/dynamic'
-import App from 'routes/app'
+import { MainLayout } from './components'
+import IndexPage from './routes/index'
+import CatalogPage from './routes/catalog'
+import ContactPage from './routes/contact'
+import AboutPage from './routes/about'
+import ContentPage from './routes/content'
+import ErrorPage from './routes/error'
 
-function RouterConfig({ history, app }) {
-  const error = dynamic({
-    app,
-    component: () => import('./routes/error'),
-  })
-  const routes = [
-    {
-      path: '/',
-      models: () => [import('models/index')],
-      component: () => import('routes/index'),
-    }, {
-      path: '/catalog',
-      models: () => [import('models/catalog')],
-      component: () => import('routes/catalog'),
-    }, {
-      path: '/content',
-      models: () => [import('models/content')],
-      component: () => import('routes/content'),
-    },
-  ]
-
-  const { location } = history
+function RouterConfig({ history }) {
   return (
     <Router history={history}>
-      <App location={location} app={app}>
+      <MainLayout history={history}>
         <Switch>
-          {
-            routes.map(({ path, ...dynamics }, key) => (
-              <Route
-                key={key}
-                exact
-                path={path}
-                component={dynamic({
-                  app,
-                  ...dynamics,
-                })}
-              />
-            ))
-          }
-          <Route component={error} />
+          <Route exact path="/" component={IndexPage} />
+          <Route exact path="/catalog" component={CatalogPage} />
+          <Route exact path="/contact" component={ContactPage} />
+          <Route exact path="/about" component={AboutPage} />
+          <Route exact path="/content" component={ContentPage} />
+          <Route component={ErrorPage} />
         </Switch>
-      </App>
+      </MainLayout>
     </Router>
   )
-}
-
-
-RouterConfig.propTypes = {
-  history: PropTypes.object,
-  app: PropTypes.object,
 }
 
 export default RouterConfig

@@ -1,19 +1,30 @@
+import { querySummary } from 'services/index'
+import queryString from 'query-string'
 
 export default {
 
   namespace: 'index',
 
   state: {
-    msg: 'hello index',
+    msg: 'Hey application',
   },
 
   subscriptions: {
-    setup({ dispatch, history }) {  // eslint-disable-line
+    setup({ dispatch, history }) {
+      history.listen((location) => {
+        if (location.pathname === '/') {
+          dispatch({
+            type: 'querySummary',
+            payload: queryString.parse(location.search),
+          })
+        }
+      })
     },
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {  // eslint-disable-line
+    *querySummary({ payload }, { call, put }) {
+      yield call(querySummary, { payload })
       yield put({ type: 'save' })
     },
   },
@@ -23,5 +34,4 @@ export default {
       return { ...state, ...action.payload }
     },
   },
-
 }

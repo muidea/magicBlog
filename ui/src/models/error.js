@@ -1,7 +1,7 @@
 
 export default {
 
-  namespace: 'content',
+  namespace: 'error',
 
   state: {
     msg: 'Hey application',

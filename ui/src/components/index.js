@@ -1,5 +1,9 @@
-import FrameLayout from './FrameLayout'
+import Header from './Header'
+import Footer from './Footer'
+import MainLayout from './MainLayout'
 
 export {
-  FrameLayout,
+  Header,
+  Footer,
+  MainLayout,
 }

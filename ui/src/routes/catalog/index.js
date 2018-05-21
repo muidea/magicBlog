@@ -1,21 +1,15 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import styles from './index.css'
+import styles from './index.less'
 
-function CatalogPage({ catalog }) {
-  const { msg } = catalog
-
+function CatalogPage() {
   return (
     <div className={styles.normal}>
       <h1 className={styles.title}>CatalogPage</h1>
-      <p>{msg}</p>
     </div>
   )
 }
 
-CatalogPage.propTypes = {
-  catalog: PropTypes.object,
-}
+CatalogPage.propTypes = {}
 
-export default connect(({ catalog }) => ({ catalog }))(CatalogPage)
+export default connect()(CatalogPage)

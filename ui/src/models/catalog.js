@@ -4,11 +4,11 @@ export default {
   namespace: 'catalog',
 
   state: {
-    msg: 'hello catalog',
+    msg: 'Hey application',
   },
 
   subscriptions: {
-    setup({ dispatch, history }) {  // eslint-disable-line
+      setup({ dispatch, history }) {  // eslint-disable-line
     },
   },
 
@@ -23,5 +23,4 @@ export default {
       return { ...state, ...action.payload }
     },
   },
-
 }

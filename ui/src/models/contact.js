@@ -1,7 +1,7 @@
 
 export default {
 
-  namespace: 'content',
+  namespace: 'contact',
 
   state: {
     msg: 'Hey application',

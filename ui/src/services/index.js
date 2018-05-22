@@ -1,6 +1,8 @@
-import request from '../utils/request'
+import { request, config } from 'utils'
 
-export async function querySummary() {
-  // return request('/api/users')
-  return undefined
+const { api } = config
+const { indexPage } = api
+
+export async function queryIndex() {
+  return request(indexPage)
 }

@@ -1,4 +1,4 @@
-import { querySummary } from 'services/index'
+import { queryIndex } from 'services/index'
 import queryString from 'query-string'
 
 export default {
@@ -6,7 +6,7 @@ export default {
   namespace: 'index',
 
   state: {
-    msg: 'Hey application',
+    summaryList: [],
   },
 
   subscriptions: {
@@ -14,7 +14,7 @@ export default {
       history.listen((location) => {
         if (location.pathname === '/') {
           dispatch({
-            type: 'querySummary',
+            type: 'queryIndex',
             payload: queryString.parse(location.search),
           })
         }
@@ -23,9 +23,10 @@ export default {
   },
 
   effects: {
-    *querySummary({ payload }, { call, put }) {
-      yield call(querySummary, { payload })
-      yield put({ type: 'save' })
+    *queryIndex({ payload }, { call, put }) {
+      const result = yield call(queryIndex, { payload })
+      const { data } = result
+      yield put({ type: 'save', payload: { summaryList: data } })
     },
   },
 

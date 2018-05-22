@@ -11,7 +11,7 @@ export default {
             "routes": `${__dirname}/src/routes`,
             "models": `${__dirname}/src/models`,
             "services": `${__dirname}/src/services`,
-            "utils": `${__dirname}/src/assets/utils`
+            "utils": `${__dirname}/src/utils`
           }
         }]
       ]
@@ -25,7 +25,7 @@ export default {
             "routes": `${__dirname}/src/routes`,
             "models": `${__dirname}/src/models`,
             "services": `${__dirname}/src/services`,
-            "utils": `${__dirname}/src/assets/utils`
+            "utils": `${__dirname}/src/utils`
           }
         }]
       ]
@@ -34,5 +34,12 @@ export default {
   dllPlugin: {
     exclude: ["babel-runtime", "roadhog", "cross-env"],
     include: ["dva/router", "dva/saga", "dva/fetch"]
+  },
+   proxy: {
+    "/api/v1/": {
+      "target": "http://127.0.0.1:8866/",
+      "changeOrigin": true,
+      "pathRewrite": { "^/api/v1/": "/" }
+    },
   }
 }

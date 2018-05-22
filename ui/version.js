@@ -17,7 +17,6 @@ const writeVersion = () => new Promise((resolve, reject) => {
       reject()
     }
     resolve()
-    console.log(`version: ${config.version}`)
   })
 })
 

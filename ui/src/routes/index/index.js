@@ -8,10 +8,13 @@ import styles from './index.css'
 function IndexPage({ index }) {
   const { summaryList } = index
 
-  const DescText = ({ creater, createDate }) => (
-    <span>
-      Post by {creater.name} on { createDate }
-    </span>
+  const DescText = ({ description, creater, createDate }) => (
+    <div>
+      <div>{description}</div>
+      <span>
+        Post by {creater.name} on { createDate }
+      </span>
+    </div>
   )
 
   const MoreInfo = () => (
@@ -31,7 +34,11 @@ function IndexPage({ index }) {
             <List.Item>
               <List.Item.Meta
                 title={<a href="/contact"><h1>{item.name}</h1></a>}
-                description={<DescText creater={item.creater} createDate={item.createDate} />}
+                description={<DescText
+                  description={item.description}
+                  creater={item.creater}
+                  createDate={item.createDate}
+                />}
               />
             </List.Item>
           )}

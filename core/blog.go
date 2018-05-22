@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -155,65 +156,35 @@ func (s *Blog) get404View() (model.SummaryView, bool) {
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("mainPage")
 
+	summary := []model.SummaryView{}
 	indexView, ok := s.getIndexView()
-	if !ok {
-		t, err := template.ParseFiles("template/default/index.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
+	if ok {
+		summary = s.centerAgent.QuerySummary(indexView.ID)
 	}
 
-	summary := s.centerAgent.QuerySummary(indexView.ID)
-	if len(summary) == 0 {
-		t, err := template.ParseFiles("template/default/index.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
-	}
-
-	t, err := template.ParseFiles("template/index.html")
+	block, err := json.Marshal(summary)
 	if err != nil {
-		log.Println(err)
+		panic("json.Marshal, failed, err:" + err.Error())
 	}
-	t.Execute(res, summary)
+
+	res.Write(block)
 }
 
 func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogListPage")
 
+	summary := []model.SummaryView{}
 	catalogView, ok := s.getCatalogView()
-	if !ok {
-		t, err := template.ParseFiles("template/default/catalog.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
+	if ok {
+		summary = s.centerAgent.QuerySummary(catalogView.ID)
 	}
 
-	summary := s.centerAgent.QuerySummary(catalogView.ID)
-	if len(summary) == 0 {
-		t, err := template.ParseFiles("template/default/catalog.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
-	}
-
-	t, err := template.ParseFiles("template/catalog.html")
+	block, err := json.Marshal(summary)
 	if err != nil {
-		log.Println(err)
+		panic("json.Marshal, failed, err:" + err.Error())
 	}
-	t.Execute(res, summary)
+
+	res.Write(block)
 }
 
 func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
@@ -227,11 +198,12 @@ func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 	}
 
 	summary := s.centerAgent.QuerySummary(id)
-	t, err := template.ParseFiles("template/catalog.html")
+	block, err := json.Marshal(summary)
 	if err != nil {
-		log.Println(err)
+		panic("json.Marshal, failed, err:" + err.Error())
 	}
-	t.Execute(res, summary)
+
+	res.Write(block)
 }
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {

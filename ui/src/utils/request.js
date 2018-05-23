@@ -21,7 +21,24 @@ function checkStatus(response) {
  * @param  {object} [options] The options we want to pass to "fetch"
  * @return {object}           An object containing either "data" or "err"
  */
-export default function request(url, options) {
+export default function request(options) {
+  if (options.url) {
+    if (options.data) {
+      const { id } = options.data
+      let { url } = options
+      if (id !== undefined) {
+        delete options.data.id
+        url = url.replace(':id', id)
+      }
+
+      options = {
+        ...options,
+        url,
+      }
+    }
+  }
+
+  const { url } = options
   return fetch(url, options)
     .then(checkStatus)
     .then(parseJSON)

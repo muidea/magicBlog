@@ -21,7 +21,7 @@ app.model(require('models/index'))
 app.model(require('models/catalog'))
 app.model(require('models/contact'))
 app.model(require('models/about'))
-app.model(require('models/content'))
+app.model(require('models/article'))
 app.model(require('models/error'))
 
 // 4. Router

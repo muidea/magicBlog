@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -211,126 +210,82 @@ func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
-	if err != nil {
-		t, err := template.ParseFiles("template/default/content.html")
-		if err != nil {
-			log.Println(err)
+	if err == nil {
+		article, ok := s.centerAgent.QueryArticle(id)
+		if ok {
+			block, err := json.Marshal(article)
+			if err != nil {
+				panic("json.Marshal, failed, err:" + err.Error())
+			}
+
+			res.Write(block)
+			return
 		}
-		t.Execute(res, nil)
-
-		return
+	} else {
+		panic("strconv.Atoi, failed, err:" + err.Error())
 	}
 
-	article, ok := s.centerAgent.QueryArticle(id)
-	if !ok {
-		t, err := template.ParseFiles("template/default/content.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
-	}
-
-	t, err := template.ParseFiles("template/content.html")
-	if err != nil {
-		log.Println(err)
-	}
-	t.Execute(res, article)
+	res.WriteHeader(http.StatusFailedDependency)
 }
 
 func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("aboutPage")
 
 	aboutView, ok := s.getAboutView()
-	if !ok {
-		t, err := template.ParseFiles("template/default/about.html")
-		if err != nil {
-			log.Println(err)
+	if ok {
+		article, ok := s.centerAgent.QueryArticle(aboutView.ID)
+		if ok {
+			block, err := json.Marshal(article)
+			if err != nil {
+				panic("json.Marshal, failed, err:" + err.Error())
+			}
+
+			res.Write(block)
+			return
 		}
-		t.Execute(res, nil)
-
-		return
 	}
 
-	article, ok := s.centerAgent.QueryArticle(aboutView.ID)
-	if !ok {
-		t, err := template.ParseFiles("template/default/about.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
-	}
-
-	t, err := template.ParseFiles("template/about.html")
-	if err != nil {
-		log.Println(err)
-	}
-	t.Execute(res, article)
+	res.WriteHeader(http.StatusNotFound)
 }
 
 func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contactPage")
 
 	contactView, ok := s.getContactView()
-	if !ok {
-		t, err := template.ParseFiles("template/default/contact.html")
-		if err != nil {
-			log.Println(err)
+	if ok {
+		article, ok := s.centerAgent.QueryArticle(contactView.ID)
+
+		if ok {
+			block, err := json.Marshal(article)
+			if err != nil {
+				panic("json.Marshal, failed, err:" + err.Error())
+			}
+
+			res.Write(block)
+			return
 		}
-		t.Execute(res, nil)
-
-		return
 	}
 
-	article, ok := s.centerAgent.QueryArticle(contactView.ID)
-	if !ok {
-		t, err := template.ParseFiles("template/default/contact.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
-	}
-
-	t, err := template.ParseFiles("template/contact.html")
-	if err != nil {
-		log.Println(err)
-	}
-	t.Execute(res, article)
+	res.WriteHeader(http.StatusNotFound)
 }
 
 func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("noFoundPage")
 
 	noFoundView, ok := s.get404View()
-	if !ok {
-		t, err := template.ParseFiles("template/default/404.html")
-		if err != nil {
-			log.Println(err)
+	if ok {
+		article, ok := s.centerAgent.QueryArticle(noFoundView.ID)
+
+		if ok {
+			block, err := json.Marshal(article)
+			if err != nil {
+				panic("json.Marshal, failed, err:" + err.Error())
+			}
+
+			res.Write(block)
+			return
 		}
-		t.Execute(res, nil)
-
-		return
 	}
 
-	article, ok := s.centerAgent.QueryArticle(noFoundView.ID)
-	if !ok {
-		t, err := template.ParseFiles("template/default/404.html")
-		if err != nil {
-			log.Println(err)
-		}
-		t.Execute(res, nil)
-
-		return
-	}
-
-	t, err := template.ParseFiles("template/404.html")
-	if err != nil {
-		log.Println(err)
-	}
-	t.Execute(res, article)
+	res.WriteHeader(http.StatusNotFound)
 }

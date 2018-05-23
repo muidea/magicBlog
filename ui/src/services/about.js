@@ -1,5 +1,12 @@
-import request from '../utils/request'
+import { request, config } from 'utils'
 
-export async function query() {
-  return request('/api/users')
+const { api } = config
+const { aboutPage } = api
+
+export async function queryAbout(params) {
+  return request({
+    url: aboutPage,
+    method: 'get',
+    data: params,
+  })
 }

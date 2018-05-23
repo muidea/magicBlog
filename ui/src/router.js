@@ -5,7 +5,7 @@ import IndexPage from './routes/index'
 import CatalogPage from './routes/catalog'
 import ContactPage from './routes/contact'
 import AboutPage from './routes/about'
-import ContentPage from './routes/content'
+import ArticlePage from './routes/article'
 import ErrorPage from './routes/error'
 
 function RouterConfig({ history }) {
@@ -15,9 +15,10 @@ function RouterConfig({ history }) {
         <Switch>
           <Route exact path="/" component={IndexPage} />
           <Route exact path="/catalog" component={CatalogPage} />
+          <Route exact path="/catalog/:id" component={CatalogPage} />
           <Route exact path="/contact" component={ContactPage} />
           <Route exact path="/about" component={AboutPage} />
-          <Route exact path="/content" component={ContentPage} />
+          <Route exact path="/article/:id" component={ArticlePage} />
           <Route component={ErrorPage} />
         </Switch>
       </MainLayout>

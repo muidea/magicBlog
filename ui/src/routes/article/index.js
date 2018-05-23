@@ -5,8 +5,8 @@ import { Row, Col } from 'antd'
 import { RichView, EditableTagGroup } from '../../components'
 import styles from './index.less'
 
-function AboutPage({ about }) {
-  const { name, creater, createDate, catalog, content } = about
+function ArticlePage({ article }) {
+  const { name, creater, createDate, catalog, content } = article
 
   return (
     <div className={styles.normal}>
@@ -17,8 +17,8 @@ function AboutPage({ about }) {
   )
 }
 
-AboutPage.propTypes = {
-  about: PropTypes.object,
+ArticlePage.propTypes = {
+  article: PropTypes.object,
 }
 
-export default connect(({ about }) => ({ about }))(AboutPage)
+export default connect(({ article }) => ({ article }))(ArticlePage)

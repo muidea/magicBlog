@@ -1,5 +1,12 @@
-import request from '../utils/request'
+import { request, config } from 'utils'
 
-export async function query() {
-  return request('/api/users')
+const { api } = config
+const { noFoundPage } = api
+
+export async function queryNoFound(params) {
+  return request({
+    url: noFoundPage,
+    method: 'get',
+    data: params,
+  })
 }

@@ -16,7 +16,9 @@
     "dva": "^2.2.3",
     "dva-loading": "^2.0.1",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "react-rte": "^0.16.1",
+    "path-to-regexp": "^2.2.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",

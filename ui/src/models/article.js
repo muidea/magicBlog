@@ -1,9 +1,9 @@
-import { queryAbout } from 'services/about'
-import queryString from 'query-string'
+import { queryArticle } from 'services/article'
+import pathToRegexp from 'path-to-regexp'
 
 export default {
 
-  namespace: 'about',
+  namespace: 'article',
 
   state: {
     name: '',
@@ -16,19 +16,17 @@ export default {
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen((location) => {
-        if (location.pathname === '/about') {
-          dispatch({
-            type: 'queryAbout',
-            payload: queryString.parse(location.search),
-          })
+        const match = pathToRegexp('/article/:i').exec(location.pathname)
+        if (match) {
+          dispatch({ type: 'queryArticle', payload: { id: match[1] } })
         }
       })
     },
   },
 
   effects: {
-    *queryAbout({ payload }, { call, put }) {
-      const result = yield call(queryAbout, { payload })
+    *queryArticle({ payload }, { call, put }) {
+      const result = yield call(queryArticle, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { ...data } })

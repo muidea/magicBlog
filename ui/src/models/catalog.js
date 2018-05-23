@@ -1,20 +1,34 @@
+import { queryCatalog } from 'services/catalog'
+import queryString from 'query-string'
 
 export default {
 
   namespace: 'catalog',
 
   state: {
-    msg: 'Hey application',
+    summaryList: [],
   },
 
   subscriptions: {
-      setup({ dispatch, history }) {  // eslint-disable-line
+    setup({ dispatch, history }) {
+      history.listen((location) => {
+        if (location.pathname === '/catalog') {
+          dispatch({
+            type: 'queryCatalog',
+            payload: queryString.parse(location.search),
+          })
+        }
+      })
     },
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {  // eslint-disable-line
-      yield put({ type: 'save' })
+    *queryCatalog({ payload }, { call, put }) {
+      const result = yield call(queryCatalog, { payload })
+      const { data } = result
+      if (data !== null && data !== undefined) {
+        yield put({ type: 'save', payload: { summaryList: data } })
+      }
     },
   },
 

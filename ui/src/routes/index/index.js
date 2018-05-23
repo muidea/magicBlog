@@ -1,50 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import { Link } from 'dva/router'
-import { Row, List, Col } from 'antd'
-import styles from './index.css'
+import { SummaryList } from '../../components'
 
 function IndexPage({ index }) {
   const { summaryList } = index
-
-  const DescText = ({ description, creater, createDate }) => (
-    <div>
-      <div>{description}</div>
-      <span>
-        Post by {creater.name} on { createDate }
-      </span>
-    </div>
-  )
-
-  const MoreInfo = () => (
-    <Row type="flex" justify="end">
-      <Col><Link to="/catalog">More</Link></Col>
-    </Row>
-  )
-
   return (
-    <Row className={styles.normal}>
-      <Col span={16} offset={4}>
-        <List
-          itemLayout="horizontal"
-          dataSource={summaryList}
-          footer={<MoreInfo />}
-          renderItem={item => (
-            <List.Item>
-              <List.Item.Meta
-                title={<a href="/contact"><h1>{item.name}</h1></a>}
-                description={<DescText
-                  description={item.description}
-                  creater={item.creater}
-                  createDate={item.createDate}
-                />}
-              />
-            </List.Item>
-          )}
-        />
-      </Col>
-    </Row>
+    <SummaryList summaryList={summaryList} />
   )
 }
 

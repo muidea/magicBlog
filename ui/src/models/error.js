@@ -1,20 +1,38 @@
+import { queryNoFound } from 'services/error'
+import queryString from 'query-string'
 
 export default {
 
   namespace: 'error',
 
   state: {
-    msg: 'Hey application',
+    name: '',
+    creater: { id: 0, name: '' },
+    createDate: '',
+    catalog: [],
+    content: '',
   },
 
   subscriptions: {
-      setup({ dispatch, history }) {  // eslint-disable-line
+    setup({ dispatch, history }) {
+      history.listen((location) => {
+        if (location.pathname === '/error') {
+          dispatch({
+            type: 'queryNoFound',
+            payload: queryString.parse(location.search),
+          })
+        }
+      })
     },
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {  // eslint-disable-line
-      yield put({ type: 'save' })
+    *queryNoFound({ payload }, { call, put }) {
+      const result = yield call(queryNoFound, { payload })
+      const { data } = result
+      if (data !== null && data !== undefined) {
+        yield put({ type: 'save', payload: { ...data } })
+      }
     },
   },
 

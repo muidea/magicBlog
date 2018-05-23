@@ -1,11 +1,11 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { contactPage } = api
+const { articlePage } = api
 
-export async function queryContact(params) {
+export async function queryArticle(params) {
   return request({
-    url: contactPage,
+    url: articlePage,
     method: 'get',
     data: params,
   })

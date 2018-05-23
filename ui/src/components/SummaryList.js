@@ -4,7 +4,7 @@ import { Link } from 'dva/router'
 
 function SummaryList({ summaryList }) {
   const TitleText = ({ id, type, name }) => (
-    <Link to={`${type}/${id}`} ><h1>{name}</h1></Link>
+    <Link to={`/${type}/${id}`} ><h1>{name}</h1></Link>
   )
   const DescText = ({ description, creater, createDate }) => (
     <div>

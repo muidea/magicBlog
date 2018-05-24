@@ -5,7 +5,7 @@ import defaultFormat from './common'
 import styles from './view.less'
 
 const RichView = ({ value }) => {
-  let val = createEmptyValue()
+  const val = createEmptyValue()
   value = val.setContentFromString(value, defaultFormat)
 
   return (<RichTextEditor className={styles.root} value={value} readOnly />)

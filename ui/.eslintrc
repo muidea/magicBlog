@@ -2,6 +2,7 @@
   "parser": "babel-eslint",
   "extends": "airbnb",
   "rules": {
+    "max-len": [2, {"code": 150, "tabWidth": 4, "ignoreUrls": true}],
     "semi": [2, "never"],
     "generator-star-spacing": [0],
     "consistent-return": [0],

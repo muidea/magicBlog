@@ -23,6 +23,7 @@ app.model(require('models/contact'))
 app.model(require('models/about'))
 app.model(require('models/article'))
 app.model(require('models/error'))
+app.model(require('models/maintain'))
 
 // 4. Router
 app.router(require('./router'))

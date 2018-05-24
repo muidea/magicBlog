@@ -4,6 +4,7 @@ import MainLayout from './MainLayout'
 import SummaryList from './SummaryList'
 import { RichEditor, RichView } from './RichEditor'
 import EditableTagGroup from './EditableTagGroup'
+import { LoginForm, LoginPanel } from './Login'
 
 export {
   Header,
@@ -13,4 +14,6 @@ export {
   RichEditor,
   RichView,
   EditableTagGroup,
+  LoginForm,
+  LoginPanel,
 }

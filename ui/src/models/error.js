@@ -16,12 +16,10 @@ export default {
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen((location) => {
-        if (location.pathname === '/error') {
-          dispatch({
-            type: 'queryNoFound',
-            payload: queryString.parse(location.search),
-          })
-        }
+        dispatch({
+          type: 'queryNoFound',
+          payload: queryString.parse(location.search),
+        })
       })
     },
   },

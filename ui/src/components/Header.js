@@ -18,13 +18,13 @@ function Header({ history }) {
             <Link to="/"><Icon type="home" />Home</Link >
           </Menu.Item>
           <Menu.Item key="/catalog">
-            <Link to="/catalog"><Icon type="bars" />Post</Link>
+            <Link to="/catalog"><Icon type="appstore-o" />Post</Link>
           </Menu.Item>
           <Menu.Item key="/contact">
-            <Link to="/contact"><Icon type="file" />Contact</Link>
+            <Link to="/contact"><Icon type="profile" />Contact</Link>
           </Menu.Item>
           <Menu.Item key="/about">
-            <Link to="/about"><Icon type="file" />About</Link>
+            <Link to="/about"><Icon type="idcard" />About</Link>
           </Menu.Item>
         </Menu>
       </Row>

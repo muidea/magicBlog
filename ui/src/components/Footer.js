@@ -1,12 +1,13 @@
 import React from 'react'
-import { Divider } from 'antd'
+import { Link } from 'dva/router'
+import { Divider, Icon, BackTop } from 'antd'
 import styles from './Footer.less'
 
 const Footer = () => (
   <div className={styles.footer}>
-    <Divider />
+    <Divider /><BackTop />
     <div>
-      copy right muidea.com
+      <Icon type="copyright" /> 2018 muidea.com <Divider type="vertical" /> <Link to="/maintain">管理</Link>
     </div>
   </div>)
 

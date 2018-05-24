@@ -1,5 +1,6 @@
-import { queryCatalog } from 'services/catalog'
+import { queryCatalog, querySingleCatalog } from 'services/catalog'
 import queryString from 'query-string'
+import pathToRegexp from 'path-to-regexp'
 
 export default {
 
@@ -17,6 +18,13 @@ export default {
             type: 'queryCatalog',
             payload: queryString.parse(location.search),
           })
+        } else {
+          const match = pathToRegexp('/catalog/:i').exec(location.pathname)
+          if (match) {
+            if (match) {
+              dispatch({ type: 'querySingleCatalog', payload: { id: match[1] } })
+            }
+          }
         }
       })
     },
@@ -24,7 +32,15 @@ export default {
 
   effects: {
     *queryCatalog({ payload }, { call, put }) {
-      const result = yield call(queryCatalog, { payload })
+      const result = yield call(queryCatalog, { ...payload })
+      const { data } = result
+      if (data !== null && data !== undefined) {
+        yield put({ type: 'save', payload: { summaryList: data } })
+      }
+    },
+
+    *querySingleCatalog({ payload }, { call, put }) {
+      const result = yield call(querySingleCatalog, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { summaryList: data } })

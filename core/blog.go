@@ -159,14 +159,16 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	indexView, ok := s.getIndexView()
 	if ok {
 		summary = s.centerAgent.QuerySummary(indexView.ID)
+		block, err := json.Marshal(summary)
+		if err == nil {
+			res.Write(block)
+			return
+		}
+
+		log.Print("mainPage, json.Marshal, failed, err:" + err.Error())
 	}
 
-	block, err := json.Marshal(summary)
-	if err != nil {
-		panic("json.Marshal, failed, err:" + err.Error())
-	}
-
-	res.Write(block)
+	http.Redirect(res, req, "/default/index.html", http.StatusMovedPermanently)
 }
 
 func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
@@ -176,14 +178,16 @@ func (s *Blog) catalogListPage(res http.ResponseWriter, req *http.Request) {
 	catalogView, ok := s.getCatalogView()
 	if ok {
 		summary = s.centerAgent.QuerySummary(catalogView.ID)
+		block, err := json.Marshal(summary)
+		if err == nil {
+			res.Write(block)
+			return
+		}
+
+		log.Print("catalogListPage, json.Marshal, failed, err:" + err.Error())
 	}
 
-	block, err := json.Marshal(summary)
-	if err != nil {
-		panic("json.Marshal, failed, err:" + err.Error())
-	}
-
-	res.Write(block)
+	http.Redirect(res, req, "/default/catalog.html", http.StatusMovedPermanently)
 }
 
 func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
@@ -191,18 +195,20 @@ func (s *Blog) catalogPage(res http.ResponseWriter, req *http.Request) {
 
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
-	if err != nil {
-		http.Redirect(res, req, "catalog/", http.StatusMovedPermanently)
-		return
+	if err == nil {
+		summary := s.centerAgent.QuerySummary(id)
+		block, err := json.Marshal(summary)
+		if err == nil {
+			res.Write(block)
+			return
+		}
+
+		log.Print("catalogPage, json.Marshal, failed, err:" + err.Error())
+	} else {
+		log.Print("catalogPage, strconv.atoi failed, err:" + err.Error())
 	}
 
-	summary := s.centerAgent.QuerySummary(id)
-	block, err := json.Marshal(summary)
-	if err != nil {
-		panic("json.Marshal, failed, err:" + err.Error())
-	}
-
-	res.Write(block)
+	http.Redirect(res, req, "/404.html", http.StatusMovedPermanently)
 }
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
@@ -214,18 +220,18 @@ func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 		article, ok := s.centerAgent.QueryArticle(id)
 		if ok {
 			block, err := json.Marshal(article)
-			if err != nil {
-				panic("json.Marshal, failed, err:" + err.Error())
+			if err == nil {
+				res.Write(block)
+				return
 			}
 
-			res.Write(block)
-			return
+			log.Print("contentPage, json.Marshal, failed, err:" + err.Error())
+		} else {
+			log.Printf("contentPage, nofound article content, id:%d", id)
 		}
-	} else {
-		panic("strconv.Atoi, failed, err:" + err.Error())
 	}
 
-	res.WriteHeader(http.StatusFailedDependency)
+	http.Redirect(res, req, "/404.html", http.StatusMovedPermanently)
 }
 
 func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
@@ -236,16 +242,18 @@ func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 		article, ok := s.centerAgent.QueryArticle(aboutView.ID)
 		if ok {
 			block, err := json.Marshal(article)
-			if err != nil {
-				panic("json.Marshal, failed, err:" + err.Error())
+			if err == nil {
+				res.Write(block)
+				return
 			}
 
-			res.Write(block)
-			return
+			log.Print("aboutPage, json.Marshal, failed, err:" + err.Error())
+		} else {
+			log.Printf("aboutPage, nofound about content, id:%d", aboutView.ID)
 		}
 	}
 
-	res.WriteHeader(http.StatusNotFound)
+	http.Redirect(res, req, "/default/about.html", http.StatusMovedPermanently)
 }
 
 func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
@@ -257,16 +265,18 @@ func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 
 		if ok {
 			block, err := json.Marshal(article)
-			if err != nil {
-				panic("json.Marshal, failed, err:" + err.Error())
+			if err == nil {
+				res.Write(block)
+				return
 			}
 
-			res.Write(block)
-			return
+			log.Print("contactPage, json.Marshal, failed, err:" + err.Error())
+		} else {
+			log.Printf("contactPage, nofound contact content, id:%d", contactView.ID)
 		}
 	}
 
-	res.WriteHeader(http.StatusNotFound)
+	http.Redirect(res, req, "/default/contact.html", http.StatusMovedPermanently)
 }
 
 func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
@@ -278,14 +288,16 @@ func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 
 		if ok {
 			block, err := json.Marshal(article)
-			if err != nil {
-				panic("json.Marshal, failed, err:" + err.Error())
+			if err == nil {
+				res.Write(block)
+				return
 			}
 
-			res.Write(block)
-			return
+			log.Print("noFoundPage, json.Marshal, failed, err:" + err.Error())
+		} else {
+			log.Printf("noFoundPage, nofound 404 content, id:%d", noFoundView.ID)
 		}
 	}
 
-	res.WriteHeader(http.StatusNotFound)
+	http.Redirect(res, req, "/default/404.html", http.StatusMovedPermanently)
 }

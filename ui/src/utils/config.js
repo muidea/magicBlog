@@ -7,6 +7,7 @@ module.exports = {
   api: {
     indexPage: `${APIV1}/`,
     catalogPage: `${APIV1}/catalog/`,
+    singleCatalogPage: `${APIV1}/catalog/:id`,
     contactPage: `${APIV1}/contact/`,
     aboutPage: `${APIV1}/about/`,
     articlePage: `${APIV1}/content/:id`,

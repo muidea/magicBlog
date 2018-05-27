@@ -16,6 +16,7 @@ import (
 type Agent interface {
 	Start(bashURL, name, account, password string) bool
 	Stop()
+	VerifyAccount(account, password string) (model.AccountOnlineView, bool)
 	CreateCatalog(name, description string) bool
 	FetchCatalog(name string) (model.CatalogDetailView, bool)
 	QuerySummary(catalogID int) []model.SummaryView
@@ -58,6 +59,14 @@ func (s *center) Start(bashURL, name, account, password string) bool {
 
 func (s *center) Stop() {
 
+}
+
+func (s *center) VerifyAccount(account, password string) (model.AccountOnlineView, bool) {
+	if s.account == account && s.password == password {
+		return s.onlineView, true
+	}
+
+	return model.AccountOnlineView{}, false
 }
 
 func (s *center) login() bool {

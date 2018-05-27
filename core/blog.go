@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	common_result "muidea.com/magicCommon/common"
 	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 	engine "muidea.com/magicEngine"
@@ -93,6 +94,15 @@ func (s *Blog) Startup(router engine.Router) {
 
 	noFoundRoute := newRoute("/404.html", "GET", s.noFoundPage)
 	router.AddRoute(noFoundRoute)
+
+	statusRoute := newRoute("/maintain/status", "GET", s.statusAction)
+	router.AddRoute(statusRoute)
+
+	loginRoute := newRoute("/maintain/login", "POST", s.loginAction)
+	router.AddRoute(loginRoute)
+
+	logoutRoute := newRoute("/maintain/logout", "POST", s.logoutAction)
+	router.AddRoute(logoutRoute)
 }
 
 // Teardown 销毁
@@ -300,4 +310,139 @@ func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 	}
 
 	http.Redirect(res, req, "/default/404.html", http.StatusMovedPermanently)
+}
+
+func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("statusAction")
+
+	type loginParam struct {
+		Account  string `json:"account"`
+		Password string `json:"password"`
+	}
+	type loginResult struct {
+		common_result.Result
+		OnlineUser model.AccountOnlineView `json:"onlineUser"`
+	}
+
+	param := loginParam{}
+	result := loginResult{}
+	for {
+		err := net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		userView, ok := s.centerAgent.VerifyAccount(param.Account, param.Password)
+		if !ok {
+			log.Print("illegal account or password")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效账号或密码"
+			break
+		}
+
+		result.OnlineUser = userView
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("loginAction")
+
+	type loginParam struct {
+		Account  string `json:"account"`
+		Password string `json:"password"`
+	}
+	type loginResult struct {
+		common_result.Result
+		OnlineUser model.AccountOnlineView `json:"onlineUser"`
+	}
+
+	param := loginParam{}
+	result := loginResult{}
+	for {
+		err := net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		userView, ok := s.centerAgent.VerifyAccount(param.Account, param.Password)
+		if !ok {
+			log.Print("illegal account or password")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效账号或密码"
+			break
+		}
+
+		result.OnlineUser = userView
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("logoutAction")
+
+	type loginParam struct {
+		Account  string `json:"account"`
+		Password string `json:"password"`
+	}
+	type loginResult struct {
+		common_result.Result
+		OnlineUser model.AccountOnlineView `json:"onlineUser"`
+	}
+
+	param := loginParam{}
+	result := loginResult{}
+	for {
+		err := net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		userView, ok := s.centerAgent.VerifyAccount(param.Account, param.Password)
+		if !ok {
+			log.Print("illegal account or password")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效账号或密码"
+			break
+		}
+
+		result.OnlineUser = userView
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
 }

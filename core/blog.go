@@ -35,11 +35,11 @@ func newRoute(pattern, method string, handler interface{}) engine.Route {
 }
 
 // NewBlog 新建Blog
-func NewBlog(centerServer, name, account, password string) (Blog, bool) {
+func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	blog := Blog{centerAgent: NewCenterAgent()}
 
 	agent := NewCenterAgent()
-	if !agent.Start(centerServer, name, account, password) {
+	if !agent.Start(centerServer, endpointID, authToken) {
 		return blog, false
 	}
 	blogCatalog, ok := agent.FetchCatalog(name)
@@ -335,7 +335,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		userView, ok := s.centerAgent.VerifyAccount(param.Account, param.Password)
+		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
 		if !ok {
 			log.Print("illegal account or password")
 			result.ErrorCode = common_result.Failed
@@ -380,7 +380,7 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		userView, ok := s.centerAgent.VerifyAccount(param.Account, param.Password)
+		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
 		if !ok {
 			log.Print("illegal account or password")
 			result.ErrorCode = common_result.Failed
@@ -425,7 +425,7 @@ func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		userView, ok := s.centerAgent.VerifyAccount(param.Account, param.Password)
+		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
 		if !ok {
 			log.Print("illegal account or password")
 			result.ErrorCode = common_result.Failed

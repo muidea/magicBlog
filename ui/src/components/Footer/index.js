@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'dva/router'
 import { Divider, BackTop } from 'antd'
 import { config } from 'utils'
-import styles from './Footer.less'
+import styles from './index.less'
 
 const { footerText } = config
 

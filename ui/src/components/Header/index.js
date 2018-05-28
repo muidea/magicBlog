@@ -1,7 +1,7 @@
 import React from 'react'
 import { Menu, Icon, Row } from 'antd'
 import { Link } from 'dva/router'
-import styles from './Header.less'
+import styles from './index.less'
 
 function Header({ history }) {
   const { location } = history

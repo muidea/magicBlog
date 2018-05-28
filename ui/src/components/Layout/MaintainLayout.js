@@ -1,10 +1,10 @@
 import React from 'react'
 import { Row, Col } from 'antd'
-import Header from './Header'
-import Footer from './Footer'
-import styles from './MainLayout.less'
+import Header from '../Header'
+import Footer from '../Footer'
+import styles from './MaintainLayout.less'
 
-function MainLayout({ history, children }) {
+function MaintainLayout({ history, children }) {
   return (
     <div>
       <div className={styles.header}>
@@ -20,4 +20,4 @@ function MainLayout({ history, children }) {
   )
 }
 
-export default MainLayout
+export default MaintainLayout

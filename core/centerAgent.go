@@ -17,6 +17,8 @@ type Agent interface {
 	Start(bashURL, endpointID, authToken string) bool
 	Stop()
 	LoginAccount(account, password string) (model.AccountOnlineView, bool)
+	LogoutAccount(authToken, sessionID string) bool
+	StatusAccount(authToken, sessionID string) (model.AccountOnlineView, bool)
 	CreateCatalog(name, description string) bool
 	FetchCatalog(name string) (model.CatalogDetailView, bool)
 	QuerySummary(catalogID int) []model.SummaryView
@@ -45,7 +47,7 @@ func (s *center) Start(bashURL, endpointID, authToken string) bool {
 	s.endpointID = endpointID
 	s.authToken = authToken
 
-	sessionID, ok := s.Verify()
+	sessionID, ok := s.verify()
 	if !ok {
 		return false
 	}
@@ -59,14 +61,14 @@ func (s *center) Stop() {
 
 }
 
-func (s *center) Verify() (string, bool) {
+func (s *center) verify() (string, bool) {
 	type verifyResult struct {
 		common_result.Result
 		SessionID string `json:"sessionID"`
 	}
 
 	result := &verifyResult{}
-	url := fmt.Sprintf("%s/%s/%s?authToken=%s", s.baseURL, "authority/endpoint", s.endpointID, s.authToken)
+	url := fmt.Sprintf("%s/%s/%s?authToken=%s", s.baseURL, "authority/endpoint/verify", s.endpointID, s.authToken)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
@@ -81,6 +83,7 @@ func (s *center) Verify() (string, bool) {
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
+		return "", false
 	}
 
 	err = json.Unmarshal(content, result)
@@ -154,6 +157,84 @@ func (s *center) LoginAccount(account, password string) (model.AccountOnlineView
 	}
 
 	log.Printf("login failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
+	return result.OnlineUser, false
+}
+
+func (s *center) LogoutAccount(authToken, sessionID string) bool {
+	type logoutResult struct {
+		common_result.Result
+	}
+
+	result := &logoutResult{}
+	url := fmt.Sprintf("%s/%s/?authToken=%s&sessionID=%s", s.baseURL, "cas/user", authToken, sessionID)
+	response, err := s.httpClient.Get(url)
+	if err != nil {
+		log.Printf("post request failed, err:%s", err.Error())
+		return false
+	}
+
+	if response.StatusCode != http.StatusOK {
+		log.Printf("logout account failed, statusCode:%d", response.StatusCode)
+		return false
+	}
+
+	content, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Printf("read respose data failed, err:%s", err.Error())
+		return false
+	}
+
+	err = json.Unmarshal(content, result)
+	if err != nil {
+		log.Printf("unmarshal data failed, err:%s", err.Error())
+		return false
+	}
+
+	if result.ErrorCode == common_result.Success {
+		return true
+	}
+
+	log.Printf("logout account failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
+	return false
+}
+
+func (s *center) StatusAccount(authToken, sessionID string) (model.AccountOnlineView, bool) {
+	type statusResult struct {
+		common_result.Result
+		OnlineUser model.AccountOnlineView `json:"onlineUser"`
+		SessionID  string                  `json:"sessionID"`
+	}
+
+	result := &statusResult{}
+	url := fmt.Sprintf("%s/%s/?authToken=%s&sessionID=%s", s.baseURL, "cas/user", authToken, sessionID)
+	response, err := s.httpClient.Get(url)
+	if err != nil {
+		log.Printf("post request failed, err:%s", err.Error())
+		return result.OnlineUser, false
+	}
+
+	if response.StatusCode != http.StatusOK {
+		log.Printf("status account failed, statusCode:%d", response.StatusCode)
+		return result.OnlineUser, false
+	}
+
+	content, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Printf("read respose data failed, err:%s", err.Error())
+		return result.OnlineUser, false
+	}
+
+	err = json.Unmarshal(content, result)
+	if err != nil {
+		log.Printf("unmarshal data failed, err:%s", err.Error())
+		return result.OnlineUser, false
+	}
+
+	if result.ErrorCode == common_result.Success {
+		return result.OnlineUser, true
+	}
+
+	log.Printf("status account failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
 	return result.OnlineUser, false
 }
 
@@ -262,7 +343,7 @@ func (s *center) QuerySummary(catalogID int) []model.SummaryView {
 		Summary []model.SummaryView `json:"summary"`
 	}
 
-	result := &queryResult{}
+	result := &queryResult{Summary: []model.SummaryView{}}
 	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/summary", catalogID, s.authToken, s.sessionID)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
@@ -278,6 +359,7 @@ func (s *center) QuerySummary(catalogID int) []model.SummaryView {
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
+		return result.Summary
 	}
 
 	err = json.Unmarshal(content, result)
@@ -316,6 +398,7 @@ func (s *center) QueryCatalog(catalogID int) (model.CatalogDetailView, bool) {
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
+		return result.Catalog, false
 	}
 
 	err = json.Unmarshal(content, result)
@@ -354,6 +437,7 @@ func (s *center) QueryArticle(id int) (model.ArticleDetailView, bool) {
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
+		return result.Article, false
 	}
 
 	err = json.Unmarshal(content, result)
@@ -392,6 +476,7 @@ func (s *center) QueryLink(id int) (model.LinkDetailView, bool) {
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
+		return result.Link, false
 	}
 
 	err = json.Unmarshal(content, result)
@@ -430,6 +515,7 @@ func (s *center) QueryMedia(id int) (model.MediaDetailView, bool) {
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
+		return result.Media, false
 	}
 
 	err = json.Unmarshal(content, result)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"muidea.com/magicCenter/application/common"
 	common_result "muidea.com/magicCommon/common"
 	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
@@ -315,31 +316,20 @@ func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("statusAction")
 
-	type loginParam struct {
-		Account  string `json:"account"`
-		Password string `json:"password"`
-	}
-	type loginResult struct {
+	type statusResult struct {
 		common_result.Result
 		OnlineUser model.AccountOnlineView `json:"onlineUser"`
 	}
 
-	param := loginParam{}
-	result := loginResult{}
+	result := statusResult{}
 	for {
-		err := net.ParsePostJSON(req, param)
-		if err != nil {
-			log.Printf("ParsePostJSON failed, err:%s", err.Error())
-			result.ErrorCode = common_result.Failed
-			result.Reason = "非法请求"
-			break
-		}
-
-		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		userView, ok := s.centerAgent.StatusAccount(authToken, sessionID)
 		if !ok {
-			log.Print("illegal account or password")
+			log.Print("statusAccount failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
-			result.Reason = "无效账号或密码"
+			result.Reason = "无效Token或会话"
 			break
 		}
 
@@ -382,7 +372,7 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 
 		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
 		if !ok {
-			log.Print("illegal account or password")
+			log.Print("login failed, illegal account or password")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效账号或密码"
 			break
@@ -405,35 +395,22 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("logoutAction")
 
-	type loginParam struct {
-		Account  string `json:"account"`
-		Password string `json:"password"`
-	}
-	type loginResult struct {
+	type logoutResult struct {
 		common_result.Result
-		OnlineUser model.AccountOnlineView `json:"onlineUser"`
 	}
 
-	param := loginParam{}
-	result := loginResult{}
+	result := logoutResult{}
 	for {
-		err := net.ParsePostJSON(req, param)
-		if err != nil {
-			log.Printf("ParsePostJSON failed, err:%s", err.Error())
-			result.ErrorCode = common_result.Failed
-			result.Reason = "非法请求"
-			break
-		}
-
-		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		ok := s.centerAgent.LogoutAccount(authToken, sessionID)
 		if !ok {
-			log.Print("illegal account or password")
+			log.Print("logout failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
-			result.Reason = "无效账号或密码"
+			result.Reason = "无效Token或会话"
 			break
 		}
 
-		result.OnlineUser = userView
 		result.ErrorCode = common_result.Success
 		break
 	}

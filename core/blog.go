@@ -102,7 +102,7 @@ func (s *Blog) Startup(router engine.Router) {
 	loginRoute := newRoute("/maintain/login", "POST", s.loginAction)
 	router.AddRoute(loginRoute)
 
-	logoutRoute := newRoute("/maintain/logout", "POST", s.logoutAction)
+	logoutRoute := newRoute("/maintain/logout", "DELETE", s.logoutAction)
 	router.AddRoute(logoutRoute)
 }
 
@@ -325,6 +325,13 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 	for {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("statusAccount failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
 		userView, ok := s.centerAgent.StatusAccount(authToken, sessionID)
 		if !ok {
 			log.Print("statusAccount failed, illegal authToken or sessionID")
@@ -357,9 +364,10 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 	type loginResult struct {
 		common_result.Result
 		OnlineUser model.AccountOnlineView `json:"onlineUser"`
+		SessionID  string                  `json:"sessionID"`
 	}
 
-	param := loginParam{}
+	param := &loginParam{}
 	result := loginResult{}
 	for {
 		err := net.ParsePostJSON(req, param)

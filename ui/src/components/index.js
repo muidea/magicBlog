@@ -1,6 +1,6 @@
 import Header from './Header'
 import Footer from './Footer'
-import { MainLayout, MaintainLayout } from './Layout'
+import { MainLayout } from './Layout'
 import SummaryList from './SummaryList'
 import { RichEditor, RichView } from './RichEditor'
 import EditableTagGroup from './EditableTagGroup'
@@ -10,7 +10,6 @@ export {
   Header,
   Footer,
   MainLayout,
-  MaintainLayout,
   SummaryList,
   RichEditor,
   RichView,

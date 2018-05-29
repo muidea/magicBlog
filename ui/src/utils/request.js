@@ -38,7 +38,20 @@ export default function request(options) {
     }
   }
 
-  const { url } = options
+  const { url, method } = options
+  if (method === 'post') {
+    options = {
+      body: JSON.stringify(options.data),
+      cache: 'no-cache',
+      headers: {
+        'user-agent': 'Mozilla/4.0 MDN Example',
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+      mode: 'cors',
+    }
+  }
+
   return fetch(url, options)
     .then(checkStatus)
     .then(parseJSON)

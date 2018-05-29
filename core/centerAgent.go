@@ -69,6 +69,7 @@ func (s *center) verify() (string, bool) {
 
 	result := &verifyResult{}
 	url := fmt.Sprintf("%s/%s/%s?authToken=%s", s.baseURL, "authority/endpoint/verify", s.endpointID, s.authToken)
+	log.Print(url)
 	response, err := s.httpClient.Get(url)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())

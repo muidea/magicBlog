@@ -37,7 +37,7 @@ export default {
   },
    proxy: {
     "/api/v1/": {
-      "target": "http://127.0.0.1:8866/",
+      "target": "http://localhost:8866/",
       "changeOrigin": true,
       "pathRewrite": { "^/api/v1/": "/" }
     },

@@ -50,6 +50,18 @@ export default {
       }
     },
 
+    *logoutUser({ payload }, { call, put }) {
+      const result = yield call(logoutUser, { ...payload })
+      const { data } = result
+      console.log(result)
+
+      if (data !== null && data !== undefined) {
+        const { errorCode, onlineUser } = data
+
+        yield put({ type: 'save', payload: { isLogin: errorCode === 0, onlineUser } })
+      }
+    },
+
   },
 
   reducers: {

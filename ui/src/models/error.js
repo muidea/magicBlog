@@ -16,17 +16,19 @@ export default {
   subscriptions: {
     setup({ dispatch, history }) {
       history.listen((location) => {
-        dispatch({
-          type: 'queryNoFound',
-          payload: queryString.parse(location.search),
-        })
+        if (location.pathname === '/404') {
+          dispatch({
+            type: 'queryNoFound',
+            payload: queryString.parse(location.search),
+          })
+        }
       })
     },
   },
 
   effects: {
     *queryNoFound({ payload }, { call, put }) {
-      const result = yield call(queryNoFound, { payload })
+      const result = yield call(queryNoFound, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { ...data } })

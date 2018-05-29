@@ -24,7 +24,7 @@ export default {
 
   effects: {
     *queryIndex({ payload }, { call, put }) {
-      const result = yield call(queryIndex, { payload })
+      const result = yield call(queryIndex, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { summaryList: data } })

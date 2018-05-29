@@ -1,5 +1,5 @@
 import React from 'react'
-import { Router, Route, Switch } from 'dva/router'
+import { Router, Route, Redirect, Switch } from 'dva/router'
 import { MainLayout } from './components'
 import IndexPage from './routes/index'
 import CatalogPage from './routes/catalog'
@@ -21,7 +21,8 @@ function RouterConfig({ history }) {
           <Route exact path="/about" component={AboutPage} />
           <Route exact path="/article/:id" component={ArticlePage} />
           <Route exact path="/maintain" component={MaintainPage} />
-          <Route component={ErrorPage} />
+          <Route exact path="/404" component={ErrorPage} />
+          <Redirect to="/404" />
         </Switch>
       </MainLayout>
     </Router>

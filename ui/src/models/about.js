@@ -28,7 +28,7 @@ export default {
 
   effects: {
     *queryAbout({ payload }, { call, put }) {
-      const result = yield call(queryAbout, { payload })
+      const result = yield call(queryAbout, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { ...data } })

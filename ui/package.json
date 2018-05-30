@@ -17,6 +17,7 @@
     "dva-loading": "^2.0.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-helmet": "^5.2.0",
     "react-rte": "^0.16.1",
     "path-to-regexp": "^2.2.0",
     "axios": "^0.18.0",

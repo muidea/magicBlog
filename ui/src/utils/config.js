@@ -1,8 +1,8 @@
 const APIV1 = '/api/v1'
 
 module.exports = {
-  name: 'MagicCenter',
-  prefix: 'magicCenter',
+  name: 'MagicBlog',
+  prefix: 'magicBlog',
   footerText: 'MagicBlog © 2017 muidea.com',
   api: {
     indexPage: `${APIV1}/`,

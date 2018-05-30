@@ -16,7 +16,7 @@ import (
 type Agent interface {
 	Start(bashURL, endpointID, authToken string) bool
 	Stop()
-	LoginAccount(account, password string) (model.AccountOnlineView, bool)
+	LoginAccount(account, password string) (model.AccountOnlineView, string, string, bool)
 	LogoutAccount(authToken, sessionID string) bool
 	StatusAccount(authToken, sessionID string) (model.AccountOnlineView, bool)
 	CreateCatalog(name, description string) bool
@@ -101,7 +101,7 @@ func (s *center) verify() (string, bool) {
 	return "", false
 }
 
-func (s *center) LoginAccount(account, password string) (model.AccountOnlineView, bool) {
+func (s *center) LoginAccount(account, password string) (model.AccountOnlineView, string, string, bool) {
 	type loginParam struct {
 		Account  string `json:"account"`
 		Password string `json:"password"`
@@ -118,7 +118,7 @@ func (s *center) LoginAccount(account, password string) (model.AccountOnlineView
 	data, err := json.Marshal(param)
 	if err != nil {
 		log.Printf("marshal login param failed, err:%s", err.Error())
-		return result.OnlineUser, false
+		return result.OnlineUser, "", "", false
 	}
 
 	bufferReader := bytes.NewBuffer(data)
@@ -126,39 +126,39 @@ func (s *center) LoginAccount(account, password string) (model.AccountOnlineView
 	request, err := http.NewRequest("POST", url, bufferReader)
 	if err != nil {
 		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
-		return result.OnlineUser, false
+		return result.OnlineUser, "", "", false
 	}
 
 	request.Header.Set("content-type", "application/json")
 	response, err := s.httpClient.Do(request)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
-		return result.OnlineUser, false
+		return result.OnlineUser, "", "", false
 	}
 
 	if response.StatusCode != http.StatusOK {
 		log.Printf("login failed, statusCode:%d", response.StatusCode)
-		return result.OnlineUser, false
+		return result.OnlineUser, "", "", false
 	}
 
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.OnlineUser, false
+		return result.OnlineUser, "", "", false
 	}
 
 	err = json.Unmarshal(content, result)
 	if err != nil {
 		log.Printf("unmarshal data failed, err:%s", err.Error())
-		return result.OnlineUser, false
+		return result.OnlineUser, "", "", false
 	}
 
 	if result.ErrorCode == common_result.Success {
-		return result.OnlineUser, true
+		return result.OnlineUser, result.OnlineUser.AuthToken, result.SessionID, true
 	}
 
 	log.Printf("login failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
-	return result.OnlineUser, false
+	return result.OnlineUser, "", "", false
 }
 
 func (s *center) LogoutAccount(authToken, sessionID string) bool {

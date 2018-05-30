@@ -1,6 +1,6 @@
 import React from 'react'
 import { Row, Col } from 'antd'
-import Header from '../Header'
+import { NormalHeader } from '../Header'
 import Footer from '../Footer'
 import styles from './MainLayout.less'
 
@@ -8,7 +8,7 @@ function MainLayout({ history, children }) {
   return (
     <div>
       <div className={styles.header}>
-        <Header history={history} />
+        <NormalHeader history={history} />
       </div>
       <Row className={styles.content}>
         <Col span={16} offset={4}>

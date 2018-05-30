@@ -1,42 +1,19 @@
-import { queryStatus, loginUser, logoutUser } from 'services/maintain'
-import queryString from 'query-string'
+import { routerRedux } from 'dva/router'
+import { loginUser, logoutUser } from 'services/maintain'
 
 export default {
 
   namespace: 'maintain',
 
   state: {
-    isLogin: false,
-    authToken: '',
-    sessionID: '',
-    onlineUser: {},
   },
 
   subscriptions: {
-    setup({ dispatch, history }) {
-      history.listen((location) => {
-        if (location.pathname === '/maintain') {
-          dispatch({
-            type: 'queryStatus',
-            payload: queryString.parse(location.search),
-          })
-        }
-      })
+    setup() {
     },
   },
 
   effects: {
-    *queryStatus({ payload }, { call, put, select }) {
-      const { authToken, sessionID } = yield select(_ => _.maintain)
-      const result = yield call(queryStatus, { authToken, sessionID })
-      const { data } = result
-
-      if (data !== null && data !== undefined) {
-        const { errorCode, onlineUser } = data
-
-        yield put({ type: 'save', payload: { isLogin: errorCode === 0, onlineUser } })
-      }
-    },
 
     *loginUser({ payload }, { call, put }) {
       const result = yield call(loginUser, { ...payload })
@@ -44,9 +21,15 @@ export default {
       console.log(result)
 
       if (data !== null && data !== undefined) {
-        const { errorCode, onlineUser } = data
-
-        yield put({ type: 'save', payload: { isLogin: errorCode === 0, onlineUser } })
+        const { errorCode, reason, onlineUser, authToken, sessionID } = data
+        if (errorCode === 0) {
+          yield put({ type: 'app/save', payload: { isLogin: errorCode === 0, authToken, sessionID, onlineUser } })
+          yield put(routerRedux.push({
+            pathname: '/',
+          }))
+        } else {
+          throw reason
+        }
       }
     },
 

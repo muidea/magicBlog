@@ -364,6 +364,7 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 	type loginResult struct {
 		common_result.Result
 		OnlineUser model.AccountOnlineView `json:"onlineUser"`
+		AuthToken  string                  `json:"authToken"`
 		SessionID  string                  `json:"sessionID"`
 	}
 
@@ -378,7 +379,7 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		userView, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
+		userView, authToken, sessionID, ok := s.centerAgent.LoginAccount(param.Account, param.Password)
 		if !ok {
 			log.Print("login failed, illegal account or password")
 			result.ErrorCode = common_result.Failed
@@ -387,6 +388,8 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 		}
 
 		result.OnlineUser = userView
+		result.AuthToken = authToken
+		result.SessionID = sessionID
 		result.ErrorCode = common_result.Success
 		break
 	}

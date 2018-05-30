@@ -17,13 +17,7 @@ const app = dva({
 // app.use({});
 
 // 3. Model
-app.model(require('models/index'))
-app.model(require('models/catalog'))
-app.model(require('models/contact'))
-app.model(require('models/about'))
-app.model(require('models/article'))
-app.model(require('models/error'))
-app.model(require('models/maintain'))
+app.model(require('models/app'))
 
 // 4. Router
 app.router(require('./router'))

@@ -1,11 +1,11 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { maintainStatus, maintainLogin, maintainLogout } = api
+const { userStatus, userLogin, userLogout } = api
 
 export async function queryStatus(params) {
   return request({
-    url: maintainStatus,
+    url: userStatus,
     method: 'get',
     data: params,
   })
@@ -13,7 +13,7 @@ export async function queryStatus(params) {
 
 export async function loginUser(params) {
   return request({
-    url: maintainLogin,
+    url: userLogin,
     method: 'post',
     data: params,
   })
@@ -21,7 +21,7 @@ export async function loginUser(params) {
 
 export async function logoutUser(params) {
   return request({
-    url: maintainLogout,
+    url: userLogout,
     method: 'delete',
     data: params,
   })

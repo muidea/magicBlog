@@ -5,11 +5,11 @@ import { Row, Col } from 'antd'
 import { LoginPanel } from '../../components'
 import MaintainPanel from './maintain'
 
-function MaintainPage({ app, maintain, loading, dispatch }) {
+function MaintainPage({ app, loading, dispatch }) {
   const { isLogin } = app
 
   const onLogin = (value) => {
-    dispatch({ type: 'maintain/loginUser', payload: { ...value } })
+    dispatch({ type: 'app/loginUser', payload: { ...value } })
   }
 
   return (
@@ -23,9 +23,8 @@ function MaintainPage({ app, maintain, loading, dispatch }) {
 }
 
 MaintainPage.propTypes = {
-  maintain: PropTypes.object,
   loading: PropTypes.object,
   dispatch: PropTypes.func,
 }
 
-export default connect(({ app, maintain, loading, dispatch }) => ({ app, maintain, loading, dispatch }))(MaintainPage)
+export default connect(({ app, loading, dispatch }) => ({ app, loading, dispatch }))(MaintainPage)

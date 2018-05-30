@@ -7,7 +7,11 @@ import { withRouter } from 'dva/router'
 import { MainLayout, MaintainLayout } from '../components'
 
 const App = ({ children, app, history, dispatch, loading }) => {
-  const { isLogin, onlineUser } = app
+  const { isLogin, onlineUser, authToken, sessionID } = app
+  const onLogoutHandler = () => {
+    dispatch({ type: 'app/logoutUser', payload: { authToken, sessionID } })
+  }
+
   return (
     <div>
       <Helmet>
@@ -20,7 +24,7 @@ const App = ({ children, app, history, dispatch, loading }) => {
       </MainLayout>
       }
       { isLogin &&
-      <MaintainLayout history={history} user={onlineUser} dispatch={dispatch} loading={loading}>
+      <MaintainLayout history={history} user={onlineUser} logoutHandler={onLogoutHandler} dispatch={dispatch} loading={loading}>
         { children }
       </MaintainLayout>
       }

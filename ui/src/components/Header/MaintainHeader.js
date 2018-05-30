@@ -6,8 +6,14 @@ import styles from './index.less'
 
 const { SubMenu } = Menu
 
-function MaintainHeader({ history, user }) {
+function MaintainHeader({ history, user, logoutHandler }) {
   const { location } = history
+
+  const onMenuClick = ({ key }) => {
+    if (key === 'logout') {
+      logoutHandler()
+    }
+  }
 
   return (
     <div className={styles.maintain_content}>
@@ -16,6 +22,7 @@ function MaintainHeader({ history, user }) {
           selectedKeys={[location.pathname]}
           mode="horizontal"
           className={styles.menu}
+          onClick={onMenuClick}
         >
           <Menu.Item key="/">
             <Link to="/"><Icon type="home" />Home</Link >
@@ -54,6 +61,7 @@ function MaintainHeader({ history, user }) {
 MaintainHeader.propTypes = {
   history: PropTypes.object,
   user: PropTypes.object,
+  logoutHandler: PropTypes.func,
 }
 
 export default MaintainHeader

@@ -1,6 +1,8 @@
 import { routerRedux } from 'dva/router'
 import queryString from 'query-string'
 import { querySummary } from 'services/maintain'
+import { queryCatalog } from 'services/catalog'
+import { queryArticle } from 'services/article'
 
 export default {
 
@@ -8,6 +10,7 @@ export default {
 
   state: {
     summaryList: [],
+    currentSelect: { summary: {}, content: {} },
   },
 
   subscriptions: {
@@ -37,6 +40,19 @@ export default {
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { summaryList: data } })
+      }
+    },
+
+    *querySelectContent({ payload }, { call, put }) {
+      const { id, type } = payload
+      if (type === 'catalog') {
+        const result = yield call(queryCatalog, { id })
+        const { data } = result
+        yield put({ type: 'save', payload: { currentSelect: { summary: payload, content: data } } })
+      } else if (type === 'article') {
+        const result = yield call(queryArticle, { id })
+        const { data } = result
+        yield put({ type: 'save', payload: { currentSelect: { summary: payload, content: data } } })
       }
     },
   },

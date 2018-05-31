@@ -1,11 +1,11 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { indexPage } = api
+const { indexQuery } = api
 
 export async function queryIndex(params) {
   return request({
-    url: indexPage,
+    url: indexQuery,
     method: 'get',
     data: params,
   })

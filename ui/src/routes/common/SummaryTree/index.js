@@ -4,7 +4,7 @@ import { Tree, Icon } from 'antd'
 
 const { TreeNode } = Tree
 
-function SummaryTree({ summaryList }) {
+function SummaryTree({ summaryList, onSelect }) {
   const getNodeIcon = (type) => {
     if (type === 'catalog') {
       return <Icon type="tags-0" />
@@ -31,14 +31,14 @@ function SummaryTree({ summaryList }) {
     })
   }
 
-  const onSelect = (selectedKeys, info) => {
-    console.log('selected', selectedKeys, info)
+  const onSelectItem = (selectedKeys, { selectedNodes }) => {
+    onSelect(selectedNodes[0].props.dataRef)
   }
 
   return (
     <Tree
       showIcon
-      onSelect={onSelect}
+      onSelect={onSelectItem}
     >
       { renderTreeNodes(summaryList) }
     </Tree>
@@ -47,6 +47,7 @@ function SummaryTree({ summaryList }) {
 
 SummaryTree.propTypes = {
   summaryList: PropTypes.array,
+  onSelect: PropTypes.func,
 }
 
 export default SummaryTree

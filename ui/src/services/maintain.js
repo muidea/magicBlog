@@ -1,11 +1,11 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { summaryList } = api
+const { summaryQuery } = api
 
 export async function querySummary(params) {
   return request({
-    url: summaryList,
+    url: summaryQuery,
     method: 'get',
     data: params,
   })

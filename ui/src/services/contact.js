@@ -1,11 +1,11 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { contactPage } = api
+const { contactQuery } = api
 
 export async function queryContact(params) {
   return request({
-    url: contactPage,
+    url: contactQuery,
     method: 'get',
     data: params,
   })

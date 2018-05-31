@@ -1,7 +1,7 @@
 import { Header, Footer, MainLayout, MaintainLayout } from './Layout'
-import SummaryList from './SummaryList'
-import SummaryTree from './SummaryTree'
-import SummaryContent from './SummaryContent'
+import { ArticleView } from './ArticlePanel'
+import { SummaryList, SummaryTree } from './SummaryPanel'
+import ContentPanel from './ContentPanel'
 import { LoginForm, LoginPanel } from './Login'
 
 export {
@@ -9,9 +9,10 @@ export {
     Footer,
     MainLayout,
     MaintainLayout,
+    ArticleView,
     SummaryList,
     SummaryTree,
-    SummaryContent,
+    ContentPanel,
     LoginForm,
     LoginPanel,
 }

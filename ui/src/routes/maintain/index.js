@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import { Row, Col } from 'antd'
-import { SummaryTree, SummaryContent } from '../common'
+import { SummaryTree, ContentPanel } from '../common'
 
 function MaintainPage({ maintain, dispatch }) {
   const { summaryList, currentSelect } = maintain
@@ -17,7 +17,7 @@ function MaintainPage({ maintain, dispatch }) {
         <SummaryTree summaryList={summaryList} onSelect={onSelect} />
       </Col>
       <Col md={20} lg={20} xl={20}>
-        <SummaryContent contentData={currentSelect} />
+        <ContentPanel contentData={currentSelect} />
       </Col>
     </Row>
   )

@@ -1,9 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import SummaryList from '../SummaryList'
-import ArticleView from '../ArticleView'
+import { SummaryList } from '../SummaryPanel'
+import { ArticleView } from '../ArticlePanel'
 
-function SummaryContent({ contentData }) {
+function ContentPanel({ contentData }) {
   const { summary, content } = contentData
   const { type } = summary
 
@@ -22,8 +22,8 @@ function SummaryContent({ contentData }) {
   )
 }
 
-SummaryContent.propTypes = {
+ContentPanel.propTypes = {
   contentData: PropTypes.object,
 }
 
-export default SummaryContent
+export default ContentPanel

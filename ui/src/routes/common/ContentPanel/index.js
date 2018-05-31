@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { SummaryList } from '../SummaryPanel'
 import { ArticleView } from '../ArticlePanel'
+import EditBar from './EditBar'
 
 function ContentPanel({ contentData }) {
   const { summary, content } = contentData
@@ -17,8 +18,17 @@ function ContentPanel({ contentData }) {
     }
   }
 
+  const getBar = (typeValue) => {
+    if (typeValue === 'catalog') {
+      return <EditBar />
+    }
+  }
+
   return (
-      getContent(type, content)
+    <div>
+      { getContent(type, content) }
+      { getBar(type) }
+    </div>
   )
 }
 

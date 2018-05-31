@@ -104,6 +104,9 @@ func (s *Blog) Startup(router engine.Router) {
 
 	logoutRoute := newRoute("/maintain/logout", "DELETE", s.logoutAction)
 	router.AddRoute(logoutRoute)
+
+	summaryRoute := newRoute("/maintain/summary", "GET", s.summaryAction)
+	router.AddRoute(summaryRoute)
 }
 
 // Teardown 销毁
@@ -433,4 +436,61 @@ func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+type summaryInfo struct {
+	ID         int         `json:"id"`
+	Name       string      `json:"name"`
+	Type       string      `json:"type"`
+	SubSummary interface{} `json:"subSummary"`
+}
+
+func (s *Blog) fetchSubSummary(id int) []summaryInfo {
+	summaryList := []summaryInfo{}
+
+	subSummary := s.centerAgent.QuerySummary(id)
+	for _, val := range subSummary {
+		info := summaryInfo{}
+		info.ID = val.ID
+		info.Name = val.Name
+		info.Type = val.Type
+
+		if val.Type == model.CATALOG {
+			subList := s.fetchSubSummary(val.ID)
+			info.SubSummary = subList
+		}
+
+		summaryList = append(summaryList, info)
+	}
+
+	return summaryList
+}
+
+func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("summaryAction")
+
+	summaryList := []summaryInfo{}
+
+	for _, val := range s.blogContent {
+		info := summaryInfo{}
+		info.ID = val.ID
+		info.Name = val.Name
+		info.Type = val.Type
+
+		if val.Type == model.CATALOG {
+			subList := s.fetchSubSummary(val.ID)
+			info.SubSummary = subList
+		}
+
+		summaryList = append(summaryList, info)
+	}
+
+	block, err := json.Marshal(summaryList)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("summaryAction, json.Marshal, failed, err:" + err.Error())
+	http.Redirect(res, req, "/default/index.html", http.StatusMovedPermanently)
 }

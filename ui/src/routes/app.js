@@ -4,9 +4,9 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import { Helmet } from 'react-helmet'
 import { withRouter } from 'dva/router'
-import { MainLayout, MaintainLayout } from '../components'
+import { MainLayout, MaintainLayout } from './common'
 
-const App = ({ children, app, history, dispatch, loading }) => {
+const App = ({ children, app, history, dispatch }) => {
   const { isLogin, onlineUser, authToken, sessionID } = app
   const onLogoutHandler = () => {
     dispatch({ type: 'app/logoutUser', payload: { authToken, sessionID } })
@@ -19,12 +19,12 @@ const App = ({ children, app, history, dispatch, loading }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       { !isLogin &&
-      <MainLayout history={history} dispatch={dispatch} loading={loading}>
+      <MainLayout history={history}>
         { children }
       </MainLayout>
       }
       { isLogin &&
-      <MaintainLayout history={history} user={onlineUser} logoutHandler={onLogoutHandler} dispatch={dispatch} loading={loading}>
+      <MaintainLayout history={history} user={onlineUser} logoutHandler={onLogoutHandler}>
         { children }
       </MaintainLayout>
       }
@@ -37,7 +37,6 @@ App.propTypes = {
   history: PropTypes.object,
   dispatch: PropTypes.func,
   app: PropTypes.object,
-  loading: PropTypes.object,
 }
 
 export default withRouter(connect(({ app, loading }) => ({ app, loading }))(App))

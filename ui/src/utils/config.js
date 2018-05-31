@@ -12,8 +12,9 @@ module.exports = {
     aboutPage: `${APIV1}/about/`,
     articlePage: `${APIV1}/content/:id`,
     userStatus: `${APIV1}/maintain/status`,
-    userLogin: `${APIV1}/maintain/login/`,
-    userLogout: `${APIV1}/maintain/logout/`,
+    userLogin: `${APIV1}/maintain/login`,
+    userLogout: `${APIV1}/maintain/logout`,
+    summaryList: `${APIV1}/maintain/summary`,
     noFoundPage: `${APIV1}/404.html`,
   },
 }

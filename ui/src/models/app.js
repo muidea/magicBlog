@@ -52,7 +52,7 @@ export default {
         if (errorCode === 0) {
           yield put({ type: 'saveSession', payload: { isLogin: errorCode === 0, authToken, sessionID, onlineUser } })
           yield put(routerRedux.push({
-            pathname: '/',
+            pathname: '/maintain',
           }))
         } else {
           throw reason

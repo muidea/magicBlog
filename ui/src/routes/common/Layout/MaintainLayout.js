@@ -1,8 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Row, Col } from 'antd'
-import { MaintainHeader } from '../Header'
-import Footer from '../Footer'
+import { MaintainHeader } from './Header'
+import Footer from './Footer'
 import styles from './MaintainLayout.less'
 
 function MaintainLayout({ history, user, logoutHandler, children }) {

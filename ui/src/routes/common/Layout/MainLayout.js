@@ -1,7 +1,7 @@
 import React from 'react'
 import { Row, Col } from 'antd'
-import { NormalHeader } from '../Header'
-import Footer from '../Footer'
+import { NormalHeader } from './Header'
+import Footer from './Footer'
 import styles from './MainLayout.less'
 
 function MainLayout({ history, children }) {

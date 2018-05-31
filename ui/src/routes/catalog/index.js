@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import { SummaryList } from '../../components'
+import { SummaryList } from '../common'
 
 function CatalogPage({ catalog }) {
   const { summaryList } = catalog

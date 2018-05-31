@@ -2,22 +2,17 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import { Row, Col } from 'antd'
-import { LoginPanel } from '../../components'
-import MaintainPanel from './maintain'
+import { SummaryTree } from '../common'
 
-function MaintainPage({ app, loading, dispatch }) {
-  const { isLogin } = app
-
-  const onLogin = (value) => {
-    dispatch({ type: 'app/loginUser', payload: { ...value } })
-  }
+function MaintainPage({ maintain, loading, dispatch }) {
+  const { summaryList } = maintain
 
   return (
-    <Row type="flex">
-      <Col span={24}>
-        { !isLogin && <LoginPanel loading={loading} onLogin={onLogin} />}
-        { isLogin && <MaintainPanel />}
+    <Row type="flex" align="top">
+      <Col md={4} lg={4} xl={4}>
+        <SummaryTree summaryList={summaryList} />
       </Col>
+      <Col md={20} lg={20} xl={20}>Right</Col>
     </Row>
   )
 }
@@ -27,4 +22,4 @@ MaintainPage.propTypes = {
   dispatch: PropTypes.func,
 }
 
-export default connect(({ app, loading, dispatch }) => ({ app, loading, dispatch }))(MaintainPage)
+export default connect(({ maintain, loading, dispatch }) => ({ maintain, loading, dispatch }))(MaintainPage)

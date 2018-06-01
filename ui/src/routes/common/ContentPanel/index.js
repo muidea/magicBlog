@@ -4,7 +4,7 @@ import { SummaryList } from '../SummaryPanel'
 import { ArticleView } from '../ArticlePanel'
 import EditBar from './EditBar'
 
-function ContentPanel({ contentData }) {
+function ContentPanel({ contentData, onAddCatalog, onAddArticle }) {
   const { summary, content } = contentData
   const { type } = summary
 
@@ -20,7 +20,7 @@ function ContentPanel({ contentData }) {
 
   const getBar = (typeValue) => {
     if (typeValue === 'catalog') {
-      return <EditBar />
+      return <EditBar onAddCatalog={onAddCatalog} onAddArticle={onAddArticle} />
     }
   }
 
@@ -34,6 +34,8 @@ function ContentPanel({ contentData }) {
 
 ContentPanel.propTypes = {
   contentData: PropTypes.object,
+  onAddCatalog: PropTypes.func,
+  onAddArticle: PropTypes.func,
 }
 
 export default ContentPanel

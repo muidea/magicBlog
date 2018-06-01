@@ -12,13 +12,21 @@ function MaintainPage({ maintain, dispatch }) {
     dispatch({ type: 'maintain/querySelectContent', payload: { ...value } })
   }
 
+  const onAddCatalog = () => {
+
+  }
+
+  const onAddArticle = () => {
+
+  }
+
   return (
     <Row type="flex" align="top">
       <Col md={4} lg={4} xl={4} className={styles.nav}>
         <SummaryTree summaryList={summaryList} onSelect={onSelect} />
       </Col>
       <Col md={20} lg={20} xl={20}>
-        <ContentPanel contentData={currentSelect} />
+        <ContentPanel contentData={currentSelect} onAddCatalog={onAddCatalog} onAddArticle={onAddArticle} />
       </Col>
     </Row>
   )

@@ -6,8 +6,8 @@ module.exports = {
   footerText: 'MagicBlog © 2017 muidea.com',
   api: {
     indexQuery: `${APIV1}/`,
-    catalogQueryAll: `${APIV1}/catalog/`,
-    catalogQuery: `${APIV1}/catalog/:id`,
+    catalogQuerySummary: `${APIV1}/catalog/`,
+    catalogQuerySummaryByID: `${APIV1}/catalog/:id`,
     contactQuery: `${APIV1}/contact/`,
     aboutQuery: `${APIV1}/about/`,
     articleQuery: `${APIV1}/content/:id`,

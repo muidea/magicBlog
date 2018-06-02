@@ -5,7 +5,7 @@ import { ArticleView } from '../ArticlePanel'
 import EditBar from './EditBar'
 
 function ViewContent({ contentData, onAddCatalog, onAddArticle }) {
-  const { currentItem, data } = contentData
+  const { currentItem, content } = contentData
   const { type } = currentItem
 
   const getContent = (typeValue, value) => {
@@ -26,7 +26,7 @@ function ViewContent({ contentData, onAddCatalog, onAddArticle }) {
 
   return (
     <div>
-      { getContent(type, data) }
+      { getContent(type, content) }
       { getBar(type, currentItem) }
     </div>
   )

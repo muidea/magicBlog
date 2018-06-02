@@ -1,12 +1,11 @@
 import { routerRedux } from 'dva/router'
 import queryString from 'query-string'
 import { querySummary } from 'services/maintain'
-import { queryCatalog, createCatalog } from 'services/catalog'
+import { queryCatalogSummary, createCatalog } from 'services/catalog'
 import { queryArticle, createArticle } from 'services/article'
 
 export default {
 
-  namespace: 'maintain',
 
   state: {
     summaryList: [],
@@ -28,7 +27,7 @@ export default {
 
   effects: {
     *querySummary({ payload }, { call, put, select }) {
-      const { isLogin } = yield select(_ => _.app)
+      const { isLogin, authToken, sessionID } = yield select(_ => _.app)
       if (!isLogin) {
         yield put(routerRedux.push({
           pathname: '/login',
@@ -36,23 +35,44 @@ export default {
         return
       }
 
+      if (authToken) {
+        payload = { ...payload, authToken }
+      }
+      if (sessionID) {
+        payload = { ...payload, sessionID }
+      }
       const result = yield call(querySummary, { ...payload })
       const { data } = result
-      if (data !== null && data !== undefined) {
-        yield put({ type: 'save', payload: { summaryList: data } })
+      const { errorCode, reason, summaryList } = data
+      if (errorCode === 0) {
+        yield put({ type: 'save', payload: { summaryList } })
+      } else {
+        throw reason
       }
     },
 
     *querySelectContent({ payload }, { call, put }) {
       const { id, type } = payload
       if (type === 'catalog') {
-        const result = yield call(queryCatalog, { id })
+        const result = yield call(queryCatalogSummary, { id })
         const { data } = result
-        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { data, currentItem: { ...payload } } } } })
+        const { errorCode, reason, summary } = data
+        if (errorCode === 0) {
+          yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: summary, currentItem: { ...payload } } } } })
+        } else {
+          throw reason
+        }
       } else if (type === 'article') {
         const result = yield call(queryArticle, { id })
         const { data } = result
-        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { data, currentItem: { ...payload } } } } })
+        const { errorCode, reason, article } = data
+        if (errorCode === 0) {
+          yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: article, currentItem: { ...payload } } } } })
+        } else {
+          throw reason
+        }
+      } else {
+        throw type
       }
     },
 
@@ -60,22 +80,51 @@ export default {
       yield put({ type: 'save', payload: { action: { type: 'addCatalog', value: { name: '', description: '', parent: { ...payload } } } } })
     },
 
-    *submitCatalog({ payload }, { call, select }) {
+    *submitCatalog({ payload }, { call, put, select }) {
       const { authToken, sessionID } = yield select(_ => _.app)
 
-      yield call(createCatalog, { ...payload, authToken, sessionID })
+      if (authToken) {
+        payload = { ...payload, authToken }
+      }
+      if (sessionID) {
+        payload = { ...payload, sessionID }
+      }
+      const result = yield call(createCatalog, { ...payload })
+      const { data } = result
+      const { errorCode, reason } = data
+      if (errorCode === 0) {
+        yield put(routerRedux.push({
+          pathname: '/maintain',
+        }))
+      } else {
+        throw reason
+      }
     },
 
     *addArticle({ payload }, { put }) {
       yield put({ type: 'save', payload: { action: { type: 'addArticle', value: { title: '', content: '', parent: { ...payload } } } } })
     },
 
-    *submitArticle({ payload }, { call, select }) {
+    *submitArticle({ payload }, { call, put, select }) {
       const { authToken, sessionID } = yield select(_ => _.app)
 
-      yield call(createArticle, { ...payload, authToken, sessionID })
+      if (authToken) {
+        payload = { ...payload, authToken }
+      }
+      if (sessionID) {
+        payload = { ...payload, sessionID }
+      }
+      const result = yield call(createArticle, { ...payload, authToken, sessionID })
+      const { data } = result
+      const { errorCode, reason } = data
+      if (errorCode === 0) {
+        yield put(routerRedux.push({
+          pathname: '/maintain',
+        }))
+      } else {
+        throw reason
+      }
     },
-
   },
 
   reducers: {

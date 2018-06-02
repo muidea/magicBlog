@@ -1,19 +1,19 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { catalogQueryAll, catalogQuery, catalogCreate } = api
+const { catalogQuerySummary, catalogQuerySummaryByID, catalogCreate } = api
 
-export async function queryCatalog(params) {
+export async function queryCatalogSummary(params) {
   return request({
-    url: catalogQueryAll,
+    url: catalogQuerySummary,
     method: 'get',
     data: params,
   })
 }
 
-export async function querySingleCatalog(params) {
+export async function queryCatalogSummaryByID(params) {
   return request({
-    url: catalogQuery,
+    url: catalogQuerySummaryByID,
     method: 'get',
     data: params,
   })

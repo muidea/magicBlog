@@ -1,4 +1,4 @@
-import { queryCatalog, querySingleCatalog } from 'services/catalog'
+import { queryCatalogSummary, queryCatalogSummaryByID } from 'services/catalog'
 import queryString from 'query-string'
 import pathToRegexp from 'path-to-regexp'
 
@@ -22,7 +22,7 @@ export default {
           const match = pathToRegexp('/catalog/:i').exec(location.pathname)
           if (match) {
             if (match) {
-              dispatch({ type: 'querySingleCatalog', payload: { id: match[1] } })
+              dispatch({ type: 'queryCatalogByID', payload: { id: match[1] } })
             }
           }
         }
@@ -32,15 +32,15 @@ export default {
 
   effects: {
     *queryCatalog({ payload }, { call, put }) {
-      const result = yield call(queryCatalog, { ...payload })
+      const result = yield call(queryCatalogSummary, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { summaryList: data } })
       }
     },
 
-    *querySingleCatalog({ payload }, { call, put }) {
-      const result = yield call(querySingleCatalog, { ...payload })
+    *queryCatalogByID({ payload }, { call, put }) {
+      const result = yield call(queryCatalogSummaryByID, { ...payload })
       const { data } = result
       if (data !== null && data !== undefined) {
         yield put({ type: 'save', payload: { summaryList: data } })

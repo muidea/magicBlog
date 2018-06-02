@@ -83,9 +83,7 @@ export default {
       const { data } = result
       const { errorCode, reason } = data
       if (errorCode === 0) {
-        yield put(routerRedux.push({
-          pathname: '/maintain',
-        }))
+        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { data: {}, currentItem: { } } } } })
       } else {
         throw reason
       }

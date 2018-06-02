@@ -2,6 +2,7 @@
 import axios from 'axios'
 import lodash from 'lodash'
 import pathToRegexp from 'path-to-regexp'
+import queryString from 'query-string'
 import { message } from 'antd'
 
 const fetch = (options) => {
@@ -59,14 +60,20 @@ export default function request(options) {
         url = url.replace(':id', id)
       }
 
+      let param = {}
       if (authToken !== undefined) {
         delete options.data.authToken
-        url = url.concat('?authToken='.concat(authToken))
+        param = { ...param, authToken }
       }
 
       if (sessionID !== undefined) {
         delete options.data.sessionID
-        url = url.concat('?sessionID='.concat(sessionID))
+        param = { ...param, sessionID }
+      }
+
+      const extParam = queryString.stringify(param)
+      if (extParam) {
+        url = url.concat('?'.concat(extParam))
       }
 
       options = {

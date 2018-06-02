@@ -42,9 +42,9 @@ export default {
 
       const result = yield call(queryStatus, { ...payload })
       const { data } = result
-      const { errorCode, onlineUser } = data
+      const { errorCode } = data
 
-      yield put({ type: 'saveSession', payload: { isLogin: errorCode === 0, onlineUser } })
+      yield put({ type: 'saveSession', payload: { isLogin: errorCode === 0 } })
     },
 
     *loginUser({ payload }, { call, put }) {

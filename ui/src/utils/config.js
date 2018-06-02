@@ -15,8 +15,8 @@ module.exports = {
     userLogin: `${APIV1}/maintain/login`,
     userLogout: `${APIV1}/maintain/logout`,
     summaryQuery: `${APIV1}/maintain/summary`,
-    catalogCreate: `${APIV1}/maintain/catalog/`,
-    articleCreate: `${APIV1}/maintain/article/`,
+    catalogCreate: `${APIV1}/maintain/catalog`,
+    articleCreate: `${APIV1}/maintain/article`,
     noFoundPage: `${APIV1}/404.html`,
   },
 }

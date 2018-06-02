@@ -1,7 +1,7 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { articleQuery, articleCreate } = api
+const { articleQuery } = api
 
 export async function queryArticle(params) {
   return request({
@@ -11,10 +11,3 @@ export async function queryArticle(params) {
   })
 }
 
-export async function createArticle(params) {
-  return request({
-    url: articleCreate,
-    method: 'post',
-    data: params,
-  })
-}

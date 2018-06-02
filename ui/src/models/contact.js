@@ -30,9 +30,7 @@ export default {
     *queryContact({ payload }, { call, put }) {
       const result = yield call(queryContact, { ...payload })
       const { data } = result
-      if (data !== null && data !== undefined) {
-        yield put({ type: 'save', payload: { ...data } })
-      }
+      yield put({ type: 'save', payload: { ...data } })
     },
   },
 

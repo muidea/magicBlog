@@ -34,17 +34,13 @@ export default {
     *queryCatalog({ payload }, { call, put }) {
       const result = yield call(queryCatalogSummary, { ...payload })
       const { data } = result
-      if (data !== null && data !== undefined) {
-        yield put({ type: 'save', payload: { summaryList: data } })
-      }
+      yield put({ type: 'save', payload: { summaryList: data } })
     },
 
     *queryCatalogByID({ payload }, { call, put }) {
       const result = yield call(queryCatalogSummaryByID, { ...payload })
       const { data } = result
-      if (data !== null && data !== undefined) {
-        yield put({ type: 'save', payload: { summaryList: data } })
-      }
+      yield put({ type: 'save', payload: { summaryList: data } })
     },
   },
 

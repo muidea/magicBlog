@@ -1,11 +1,11 @@
 import { routerRedux } from 'dva/router'
 import queryString from 'query-string'
-import { querySummary } from 'services/maintain'
-import { queryCatalogSummary, createCatalog } from 'services/catalog'
-import { queryArticle, createArticle } from 'services/article'
+import { querySummary, createCatalog, createArticle } from '../services/maintain'
+import { queryCatalogSummary } from '../services/catalog'
+import { queryArticle } from '../services/article'
 
 export default {
-
+  namespace: 'maintain',
 
   state: {
     summaryList: [],
@@ -56,21 +56,11 @@ export default {
       if (type === 'catalog') {
         const result = yield call(queryCatalogSummary, { id })
         const { data } = result
-        const { errorCode, reason, summary } = data
-        if (errorCode === 0) {
-          yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: summary, currentItem: { ...payload } } } } })
-        } else {
-          throw reason
-        }
+        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: data, currentItem: { ...payload } } } } })
       } else if (type === 'article') {
         const result = yield call(queryArticle, { id })
         const { data } = result
-        const { errorCode, reason, article } = data
-        if (errorCode === 0) {
-          yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: article, currentItem: { ...payload } } } } })
-        } else {
-          throw reason
-        }
+        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: data, currentItem: { ...payload } } } } })
       } else {
         throw type
       }

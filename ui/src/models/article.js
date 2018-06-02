@@ -28,9 +28,7 @@ export default {
     *queryArticle({ payload }, { call, put }) {
       const result = yield call(queryArticle, { ...payload })
       const { data } = result
-      if (data !== null && data !== undefined) {
-        yield put({ type: 'save', payload: { ...data } })
-      }
+      yield put({ type: 'save', payload: { ...data } })
     },
   },
 

@@ -1,8 +1,8 @@
 import { routerRedux } from 'dva/router'
 import queryString from 'query-string'
 import { querySummary } from 'services/maintain'
-import { queryCatalog } from 'services/catalog'
-import { queryArticle } from 'services/article'
+import { queryCatalog, createCatalog } from 'services/catalog'
+import { queryArticle, createArticle } from 'services/article'
 
 export default {
 
@@ -10,7 +10,7 @@ export default {
 
   state: {
     summaryList: [],
-    currentSelect: { summary: {}, content: {} },
+    action: { type: 'viewContent', value: { data: {}, currentItem: { } } },
   },
 
   subscriptions: {
@@ -48,13 +48,34 @@ export default {
       if (type === 'catalog') {
         const result = yield call(queryCatalog, { id })
         const { data } = result
-        yield put({ type: 'save', payload: { currentSelect: { summary: payload, content: data } } })
+        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { data, currentItem: { ...payload } } } } })
       } else if (type === 'article') {
         const result = yield call(queryArticle, { id })
         const { data } = result
-        yield put({ type: 'save', payload: { currentSelect: { summary: payload, content: data } } })
+        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { data, currentItem: { ...payload } } } } })
       }
     },
+
+    *addCatalog({ payload }, { put }) {
+      yield put({ type: 'save', payload: { action: { type: 'addCatalog', value: { name: '', description: '', parent: { ...payload } } } } })
+    },
+
+    *submitCatalog({ payload }, { call, select }) {
+      const { authToken, sessionID } = yield select(_ => _.app)
+
+      yield call(createCatalog, { ...payload, authToken, sessionID })
+    },
+
+    *addArticle({ payload }, { put }) {
+      yield put({ type: 'save', payload: { action: { type: 'addArticle', value: { title: '', content: '', parent: { ...payload } } } } })
+    },
+
+    *submitArticle({ payload }, { call, select }) {
+      const { authToken, sessionID } = yield select(_ => _.app)
+
+      yield call(createArticle, { ...payload, authToken, sessionID })
+    },
+
   },
 
   reducers: {

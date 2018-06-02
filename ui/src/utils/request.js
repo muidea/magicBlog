@@ -52,7 +52,7 @@ const fetch = (options) => {
 export default function request(options) {
   if (options.url) {
     if (options.data) {
-      const { id, authToken } = options.data
+      const { id, authToken, sessionID } = options.data
       let { url } = options
       if (id !== undefined && (options.method !== 'post')) {
         delete options.data.id
@@ -62,6 +62,11 @@ export default function request(options) {
       if (authToken !== undefined) {
         delete options.data.authToken
         url = url.concat('?authToken='.concat(authToken))
+      }
+
+      if (sessionID !== undefined) {
+        delete options.data.sessionID
+        url = url.concat('?sessionID='.concat(sessionID))
       }
 
       options = {

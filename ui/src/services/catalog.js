@@ -1,7 +1,7 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { catalogQueryAll, catalogQuery } = api
+const { catalogQueryAll, catalogQuery, catalogCreate } = api
 
 export async function queryCatalog(params) {
   return request({
@@ -18,3 +18,12 @@ export async function querySingleCatalog(params) {
     data: params,
   })
 }
+
+export async function createCatalog(params) {
+  return request({
+    url: catalogCreate,
+    method: 'post',
+    data: params,
+  })
+}
+

@@ -2,22 +2,42 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import { Row, Col } from 'antd'
-import { SummaryTree, ContentPanel } from '../common'
+import { SummaryTree, ViewContent, EditCatalog, EditArticle } from '../common'
 import styles from './index.less'
 
 function MaintainPage({ maintain, dispatch }) {
-  const { summaryList, currentSelect } = maintain
+  const { summaryList, action } = maintain
 
   const onSelect = (value) => {
     dispatch({ type: 'maintain/querySelectContent', payload: { ...value } })
   }
 
-  const onAddCatalog = () => {
-
+  const onAddCatalog = (parent) => {
+    dispatch({ type: 'maintain/addCatalog', payload: { ...parent } })
   }
 
-  const onAddArticle = () => {
+  const onSubmitCatalog = (value) => {
+    dispatch({ type: 'maintain/submitCatalog', payload: { ...value } })
+  }
 
+  const onAddArticle = (parent) => {
+    dispatch({ type: 'maintain/addArticle', payload: { ...parent } })
+  }
+
+  const onSubmitArticle = (value) => {
+    dispatch({ type: 'maintain/submitArticle', payload: { ...value } })
+  }
+
+  const getContentPanel = () => {
+    if (action.type === 'viewContent') {
+      return <ViewContent contentData={action.value} onAddCatalog={onAddCatalog} onAddArticle={onAddArticle} />
+    } else if (action.type === 'addCatalog') {
+      return <EditCatalog contentItem={action.value} onSubmit={onSubmitCatalog} />
+    } else if (action.type === 'addArticle') {
+      return <EditArticle contentItem={action.value} onSubmit={onSubmitArticle} />
+    } else {
+      return <div>aaa</div>
+    }
   }
 
   return (
@@ -26,7 +46,7 @@ function MaintainPage({ maintain, dispatch }) {
         <SummaryTree summaryList={summaryList} onSelect={onSelect} />
       </Col>
       <Col md={20} lg={20} xl={20}>
-        <ContentPanel contentData={currentSelect} onAddCatalog={onAddCatalog} onAddArticle={onAddArticle} />
+        {getContentPanel()}
       </Col>
     </Row>
   )

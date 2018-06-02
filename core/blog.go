@@ -40,12 +40,13 @@ func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	blog := Blog{centerAgent: NewCenterAgent()}
 
 	agent := NewCenterAgent()
-	if !agent.Start(centerServer, endpointID, authToken) {
+	session, ok := agent.Start(centerServer, endpointID, authToken)
+	if !ok {
 		return blog, false
 	}
 	blogCatalog, ok := agent.FetchCatalog(name)
 	if !ok {
-		ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.")
+		ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, authToken, session)
 		if !ok {
 			log.Print("create blog root catalog failed.")
 			return blog, false
@@ -107,6 +108,12 @@ func (s *Blog) Startup(router engine.Router) {
 
 	summaryRoute := newRoute("/maintain/summary", "GET", s.summaryAction)
 	router.AddRoute(summaryRoute)
+
+	catalogCreateRoute := newRoute("/maintain/catalog", "POST", s.catalogCreateAction)
+	router.AddRoute(catalogCreateRoute)
+
+	articleCreateRoute := newRoute("/maintain/article", "POST", s.articleCreateAction)
+	router.AddRoute(articleCreateRoute)
 }
 
 // Teardown 销毁
@@ -493,4 +500,112 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 
 	log.Print("summaryAction, json.Marshal, failed, err:" + err.Error())
 	http.Redirect(res, req, "/default/index.html", http.StatusMovedPermanently)
+}
+
+func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("catalogCreateAction")
+
+	type catalogParam struct {
+		Name        string        `json:"name"`
+		Description string        `json:"description"`
+		Parent      model.Catalog `json:"parent"`
+	}
+
+	type catalogResult struct {
+		common_result.Result
+	}
+
+	param := &catalogParam{}
+	result := catalogResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("create catalog failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
+		err := net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		ok := s.centerAgent.CreateCatalog(param.Name, param.Description, []model.Catalog{param.Parent}, authToken, sessionID)
+		if !ok {
+			log.Print("login failed, illegal account or password")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "新建分类失败"
+			break
+		}
+
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("articleCreateAction")
+
+	type articleParam struct {
+		Title   string        `json:"title"`
+		Content string        `json:"content"`
+		Catalog model.Catalog `json:"catalog"`
+	}
+
+	type articleResult struct {
+		common_result.Result
+	}
+
+	param := &articleParam{}
+	result := articleResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("create article failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
+		err := net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		ok := s.centerAgent.CreateArticle(param.Title, param.Content, []model.Catalog{param.Catalog}, authToken, sessionID)
+		if !ok {
+			log.Print("login failed, illegal account or password")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效账号或密码"
+			break
+		}
+
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
 }

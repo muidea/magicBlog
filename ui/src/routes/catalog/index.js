@@ -7,7 +7,7 @@ function CatalogPage({ catalog }) {
   const { summaryList } = catalog
 
   return (
-    <SummaryList summaryList={summaryList} />
+    <SummaryList summaryList={summaryList} readOnly />
   )
 }
 

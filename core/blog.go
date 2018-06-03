@@ -87,10 +87,10 @@ func (s *Blog) Startup(router engine.Router) {
 	contentRoute := newRoute("/content/:id", "GET", s.contentPage)
 	router.AddRoute(contentRoute)
 
-	aboutRoute := newRoute("/about/", "GET", s.aboutPage)
+	aboutRoute := newRoute("/about", "GET", s.aboutPage)
 	router.AddRoute(aboutRoute)
 
-	contactRoute := newRoute("/contact/", "GET", s.contactPage)
+	contactRoute := newRoute("/contact", "GET", s.contactPage)
 	router.AddRoute(contactRoute)
 
 	noFoundRoute := newRoute("/404.html", "GET", s.noFoundPage)

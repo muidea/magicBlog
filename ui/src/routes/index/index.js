@@ -6,7 +6,7 @@ import { SummaryList } from '../common'
 function IndexPage({ index }) {
   const { summaryList } = index
   return (
-    <SummaryList summaryList={summaryList} />
+    <SummaryList summaryList={summaryList} readOnly />
   )
 }
 

@@ -42,10 +42,10 @@ function MaintainPage({ maintain, dispatch }) {
 
   return (
     <Row type="flex" align="top">
-      <Col md={4} lg={4} xl={4} className={styles.nav}>
+      <Col md={6} lg={6} xl={6} className={styles.nav}>
         <SummaryTree summaryList={summaryList} onSelect={onSelect} />
       </Col>
-      <Col md={20} lg={20} xl={20}>
+      <Col md={18} lg={18} xl={18}>
         {getContentPanel()}
       </Col>
     </Row>

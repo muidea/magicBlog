@@ -1,12 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'dva'
-import { SummaryList } from '../common'
+import { SummaryView } from '../common'
 
 function IndexPage({ index }) {
   const { summaryList } = index
   return (
-    <SummaryList summaryList={summaryList} readOnly />
+    <SummaryView summaryList={summaryList} readOnly />
   )
 }
 

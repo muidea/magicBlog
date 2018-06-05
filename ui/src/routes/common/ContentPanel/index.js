@@ -1,9 +1,9 @@
-import ViewContent from './ViewContent'
-import EditCatalog from './EditCatalog'
-import EditArticle from './EditArticle'
+import ContentView from './ContentView'
+import ContentNav from './ContentNav'
+import ContentBar from './ContentBar'
 
 export {
-    ViewContent,
-    EditCatalog,
-    EditArticle,
+    ContentView,
+    ContentNav,
+    ContentBar,
 }

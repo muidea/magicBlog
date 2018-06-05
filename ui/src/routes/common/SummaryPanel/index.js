@@ -1,7 +1,5 @@
-import SummaryList from './SummaryList'
-import SummaryTree from './SummaryTree'
+import SummaryView from './SummaryView'
 
 export {
-    SummaryList,
-    SummaryTree,
+    SummaryView,
 }

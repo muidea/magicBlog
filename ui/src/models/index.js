@@ -26,7 +26,8 @@ export default {
     *queryIndex({ payload }, { call, put }) {
       const result = yield call(queryIndex, { ...payload })
       const { data } = result
-      yield put({ type: 'save', payload: { summaryList: data } })
+      const { summaryList } = data
+      yield put({ type: 'save', payload: { summaryList } })
     },
   },
 

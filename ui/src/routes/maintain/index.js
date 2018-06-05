@@ -1,52 +1,32 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import queryString from 'query-string'
 import { connect } from 'dva'
 import { Row, Col } from 'antd'
-import { SummaryTree, ViewContent, EditCatalog, EditArticle } from '../common'
+import { ContentNav, ContentView } from '../common'
 import styles from './index.less'
 
 function MaintainPage({ maintain, dispatch }) {
-  const { summaryList, action } = maintain
+  const { itemList, action } = maintain
 
   const onSelect = (value) => {
-    dispatch({ type: 'maintain/querySelectContent', payload: { ...value } })
+    const { id, type, name } = value
+    const url = '/maintain?'.concat(queryString.stringify({ command: 'view', id, type, name }))
+
+    dispatch({ type: 'maintain/redirectContent', payload: { url } })
   }
 
-  const onAddCatalog = (parent) => {
-    dispatch({ type: 'maintain/addCatalog', payload: { ...parent } })
-  }
-
-  const onSubmitCatalog = (value) => {
-    dispatch({ type: 'maintain/submitCatalog', payload: { ...value } })
-  }
-
-  const onAddArticle = (parent) => {
-    dispatch({ type: 'maintain/addArticle', payload: { ...parent } })
-  }
-
-  const onSubmitArticle = (value) => {
-    dispatch({ type: 'maintain/submitArticle', payload: { ...value } })
-  }
-
-  const getContentPanel = () => {
-    if (action.type === 'viewContent') {
-      return <ViewContent contentData={action.value} onAddCatalog={onAddCatalog} onAddArticle={onAddArticle} />
-    } else if (action.type === 'addCatalog') {
-      return <EditCatalog contentItem={action.value} onSubmit={onSubmitCatalog} />
-    } else if (action.type === 'addArticle') {
-      return <EditArticle contentItem={action.value} onSubmit={onSubmitArticle} />
-    } else {
-      return <div>aaa</div>
-    }
+  const onSubmit = (value) => {
+    dispatch({ type: 'maintain/submitContent', payload: { ...value } })
   }
 
   return (
     <Row type="flex" align="top">
       <Col md={6} lg={6} xl={6} className={styles.nav}>
-        <SummaryTree summaryList={summaryList} onSelect={onSelect} />
+        <ContentNav itemList={itemList} onSelect={onSelect} />
       </Col>
       <Col md={18} lg={18} xl={18}>
-        {getContentPanel()}
+        <ContentView contentData={action} onSubmit={onSubmit} />
       </Col>
     </Row>
   )

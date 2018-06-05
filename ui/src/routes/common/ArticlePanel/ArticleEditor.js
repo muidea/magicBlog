@@ -2,13 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Button, Form, Input } from 'antd'
 import { RichEditor } from '../../../components'
-import styles from './index.less'
 
 const FormItem = Form.Item
 
-const EditArticle = ({
+const ArticleEditor = ({
   onSubmit,
-  contentItem,
+  content,
   form: {
     getFieldDecorator,
     validateFieldsAndScroll,
@@ -20,48 +19,40 @@ const EditArticle = ({
         return
       }
 
-      const { parent } = contentItem
-      const { id, type } = parent
-
-      values = {
-        ...values,
-        parent: { id, type },
-      }
-
       onSubmit(values)
     })
   }
 
   return (
-    <div className={styles.form}>
+    <div>
       <div>
         <form>
           <FormItem label="标题" hasFeedback>
             {getFieldDecorator('title', {
-              initialValue: contentItem.title,
+              initialValue: content.title,
               rules: [{ required: true }],
             })(<Input size="large" onPressEnter={handleOk} placeholder="输入标题" />)}
           </FormItem>
           <FormItem label="内容">
             {getFieldDecorator('content', {
-              initialValue: contentItem.content,
+              initialValue: content.content,
             })(<RichEditor />)}
           </FormItem>
         </form>
       </div>
       <div>
         <Button type="primary" size="large" onClick={handleOk}>
-            添加
+            保存
         </Button>
       </div>
     </div>
   )
 }
 
-EditArticle.propTypes = {
+ArticleEditor.propTypes = {
   form: PropTypes.object,
   onSubmit: PropTypes.func,
-  contentItem: PropTypes.object,
+  content: PropTypes.object,
 }
 
-export default Form.create()(EditArticle)
+export default Form.create()(ArticleEditor)

@@ -4,7 +4,7 @@ import { Tree, Icon } from 'antd'
 
 const { TreeNode } = Tree
 
-function SummaryTree({ summaryList, onSelect }) {
+function ContentNav({ itemList, onSelect }) {
   const getNodeIcon = (type) => {
     if (type === 'catalog') {
       return <Icon type="tags-0" />
@@ -19,10 +19,10 @@ function SummaryTree({ summaryList, onSelect }) {
 
   const renderTreeNodes = (data) => {
     return data.map((item) => {
-      if (item.subSummary) {
+      if (item.subItem) {
         return (
           <TreeNode icon={<Icon type="tags-o" />} title={item.name} key={`/${item.type}/${item.id}`} dataRef={item}>
-            {renderTreeNodes(item.subSummary)}
+            {renderTreeNodes(item.subItem)}
           </TreeNode>
         )
       }
@@ -32,7 +32,9 @@ function SummaryTree({ summaryList, onSelect }) {
   }
 
   const onSelectItem = (selectedKeys, { selectedNodes }) => {
-    onSelect(selectedNodes[0].props.dataRef)
+    if (selectedKeys.length > 0) {
+      onSelect(selectedNodes[0].props.dataRef)
+    }
   }
 
   return (
@@ -40,14 +42,14 @@ function SummaryTree({ summaryList, onSelect }) {
       showIcon
       onSelect={onSelectItem}
     >
-      { renderTreeNodes(summaryList) }
+      { renderTreeNodes(itemList) }
     </Tree>
   )
 }
 
-SummaryTree.propTypes = {
-  summaryList: PropTypes.array,
+ContentNav.propTypes = {
+  itemList: PropTypes.array,
   onSelect: PropTypes.func,
 }
 
-export default SummaryTree
+export default ContentNav

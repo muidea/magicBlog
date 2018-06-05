@@ -34,7 +34,8 @@ export default {
     *queryCatalog({ payload }, { call, put }) {
       const result = yield call(queryCatalogSummary, { ...payload })
       const { data } = result
-      yield put({ type: 'save', payload: { summaryList: data } })
+      const { summaryList } = data
+      yield put({ type: 'save', payload: { summaryList } })
     },
 
     *queryCatalogByID({ payload }, { call, put }) {

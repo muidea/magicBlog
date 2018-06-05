@@ -1,7 +1,8 @@
 import { Header, Footer, MainLayout, MaintainLayout } from './Layout'
-import { ArticleView } from './ArticlePanel'
-import { SummaryList, SummaryTree } from './SummaryPanel'
-import { ViewContent, EditArticle, EditCatalog } from './ContentPanel'
+import { ArticleView, ArticleEditor } from './ArticlePanel'
+import { CatalogEditor } from './CatalogPanel'
+import { SummaryView } from './SummaryPanel'
+import { ContentView, ContentNav, ContentBar } from './ContentPanel'
 import { LoginForm, LoginPanel } from './Login'
 
 export {
@@ -10,11 +11,12 @@ export {
     MainLayout,
     MaintainLayout,
     ArticleView,
-    SummaryList,
-    SummaryTree,
-    ViewContent,
-    EditArticle,
-    EditCatalog,
+    ArticleEditor,
+    CatalogEditor,
+    SummaryView,
+    ContentView,
+    ContentNav,
+    ContentBar,
     LoginForm,
     LoginPanel,
 }

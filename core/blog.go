@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"muidea.com/magicBlog/agent"
+	common_result "muidea.com/magicCommon/common"
 	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 	engine "muidea.com/magicEngine"
@@ -172,152 +173,192 @@ func (s *Blog) get404View() (model.SummaryView, bool) {
 	return model.SummaryView{}, false
 }
 
+type summaryViewResult struct {
+	common_result.Result
+	SummaryList []model.SummaryView `json:"summaryList"`
+}
+
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("mainPage")
 
-	summary := []model.SummaryView{}
+	result := summaryViewResult{}
 	indexView, ok := s.getIndexView()
 	if ok {
-		summary = s.centerAgent.QuerySummary(indexView.ID)
-		block, err := json.Marshal(summary)
-		if err == nil {
-			res.Write(block)
-			return
-		}
-
-		log.Print("mainPage, json.Marshal, failed, err:" + err.Error())
+		result.SummaryList = s.centerAgent.QuerySummary(indexView.ID)
+		result.ErrorCode = common_result.Success
+	} else {
+		result.ErrorCode = common_result.Redirect
+		result.Reason = "/default/index.html"
 	}
 
-	http.Redirect(res, req, "/default/index.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("mainPage, json.Marshal, failed, err:" + err.Error())
 }
 
 func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogSummaryPage")
 
-	summary := []model.SummaryView{}
+	result := summaryViewResult{}
 	catalogView, ok := s.getCatalogView()
 	if ok {
-		summary = s.centerAgent.QuerySummary(catalogView.ID)
-		block, err := json.Marshal(summary)
-		if err == nil {
-			res.Write(block)
-			return
-		}
-
-		log.Print("catalogSummaryPage, json.Marshal, failed, err:" + err.Error())
+		result.SummaryList = s.centerAgent.QuerySummary(catalogView.ID)
+		result.ErrorCode = common_result.Success
+	} else {
+		result.ErrorCode = common_result.Redirect
+		result.Reason = "/default/catalog.html"
 	}
 
-	http.Redirect(res, req, "/default/catalog.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("catalogSummaryPage, json.Marshal, failed, err:" + err.Error())
 }
 
 func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogSummaryByIDPage")
 
+	result := summaryViewResult{}
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
-		summary := s.centerAgent.QuerySummary(id)
-		block, err := json.Marshal(summary)
-		if err == nil {
-			res.Write(block)
-			return
-		}
-
-		log.Print("catalogSummaryByIDPage, json.Marshal, failed, err:" + err.Error())
+		result.SummaryList = s.centerAgent.QuerySummary(id)
+		result.ErrorCode = common_result.Success
 	} else {
-		log.Print("catalogSummaryByIDPage, strconv.atoi failed, err:" + err.Error())
+		result.ErrorCode = common_result.IllegalParam
+		result.Reason = "非法参数"
 	}
 
-	http.Redirect(res, req, "/404.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("catalogSummaryByIDPage, json.Marshal, failed, err:" + err.Error())
+}
+
+type contentResult struct {
+	common_result.Result
+	Content model.ArticleDetailView `json:"content"`
 }
 
 func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contentPage")
 
+	result := contentResult{}
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
 		article, ok := s.centerAgent.QueryArticle(id)
 		if ok {
-			block, err := json.Marshal(article)
-			if err == nil {
-				res.Write(block)
-				return
-			}
-
-			log.Print("contentPage, json.Marshal, failed, err:" + err.Error())
+			result.Content = article
+			result.ErrorCode = common_result.Success
 		} else {
-			log.Printf("contentPage, nofound article content, id:%d", id)
+			result.ErrorCode = common_result.NoExist
+			result.Reason = "对象不存在"
 		}
+
+	} else {
+		result.ErrorCode = common_result.IllegalParam
+		result.Reason = "非法参数"
 	}
 
-	http.Redirect(res, req, "/404.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("contentPage, json.Marshal, failed, err:" + err.Error())
 }
 
 func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("aboutPage")
 
+	result := contentResult{}
 	aboutView, ok := s.getAboutView()
 	if ok {
 		article, ok := s.centerAgent.QueryArticle(aboutView.ID)
 		if ok {
-			block, err := json.Marshal(article)
-			if err == nil {
-				res.Write(block)
-				return
-			}
-
-			log.Print("aboutPage, json.Marshal, failed, err:" + err.Error())
+			result.Content = article
+			result.ErrorCode = common_result.Success
 		} else {
-			log.Printf("aboutPage, nofound about content, id:%d", aboutView.ID)
+			result.ErrorCode = common_result.NoExist
+			result.Reason = "对象不存在"
 		}
+	} else {
+		result.ErrorCode = common_result.Redirect
+		result.Reason = "/default/about.html"
 	}
 
-	http.Redirect(res, req, "/default/about.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("aboutPage, json.Marshal, failed, err:" + err.Error())
 }
 
 func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("contactPage")
 
+	result := contentResult{}
 	contactView, ok := s.getContactView()
 	if ok {
 		article, ok := s.centerAgent.QueryArticle(contactView.ID)
-
 		if ok {
-			block, err := json.Marshal(article)
-			if err == nil {
-				res.Write(block)
-				return
-			}
-
-			log.Print("contactPage, json.Marshal, failed, err:" + err.Error())
+			result.Content = article
+			result.ErrorCode = common_result.Success
 		} else {
-			log.Printf("contactPage, nofound contact content, id:%d", contactView.ID)
+			result.ErrorCode = common_result.NoExist
+			result.Reason = "对象不存在"
 		}
+	} else {
+		result.ErrorCode = common_result.Redirect
+		result.Reason = "/default/contact.html"
 	}
 
-	http.Redirect(res, req, "/default/contact.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	log.Print("contactPage, json.Marshal, failed, err:" + err.Error())
 }
 
 func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("noFoundPage")
 
+	result := contentResult{}
 	noFoundView, ok := s.get404View()
 	if ok {
 		article, ok := s.centerAgent.QueryArticle(noFoundView.ID)
-
 		if ok {
-			block, err := json.Marshal(article)
-			if err == nil {
-				res.Write(block)
-				return
-			}
-
-			log.Print("noFoundPage, json.Marshal, failed, err:" + err.Error())
+			result.Content = article
+			result.ErrorCode = common_result.Success
 		} else {
-			log.Printf("noFoundPage, nofound 404 content, id:%d", noFoundView.ID)
+			result.ErrorCode = common_result.NoExist
+			result.Reason = "对象不存在"
 		}
+	} else {
+		result.ErrorCode = common_result.Redirect
+		result.Reason = "/default/404.html"
 	}
 
-	http.Redirect(res, req, "/default/404.html", http.StatusMovedPermanently)
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+	log.Print("noFoundPage, json.Marshal, failed, err:" + err.Error())
 }

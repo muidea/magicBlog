@@ -140,32 +140,32 @@ func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusExpectationFailed)
 }
 
-type summaryInfo struct {
-	ID         int         `json:"id"`
-	Name       string      `json:"name"`
-	Type       string      `json:"type"`
-	SubSummary interface{} `json:"subSummary"`
+type itemInfo struct {
+	ID      int         `json:"id"`
+	Name    string      `json:"name"`
+	Type    string      `json:"type"`
+	SubItem interface{} `json:"subItem"`
 }
 
-func (s *Blog) fetchSubSummary(id int) []summaryInfo {
-	summaryList := []summaryInfo{}
+func (s *Blog) fetchSubItem(id int) []itemInfo {
+	itemList := []itemInfo{}
 
-	subSummary := s.centerAgent.QuerySummary(id)
-	for _, val := range subSummary {
-		info := summaryInfo{}
+	subItem := s.centerAgent.QuerySummary(id)
+	for _, val := range subItem {
+		info := itemInfo{}
 		info.ID = val.ID
 		info.Name = val.Name
 		info.Type = val.Type
 
 		if val.Type == model.CATALOG {
-			subList := s.fetchSubSummary(val.ID)
-			info.SubSummary = subList
+			subList := s.fetchSubItem(val.ID)
+			info.SubItem = subList
 		}
 
-		summaryList = append(summaryList, info)
+		itemList = append(itemList, info)
 	}
 
-	return summaryList
+	return itemList
 }
 
 func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
@@ -173,7 +173,7 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 
 	type summaryResult struct {
 		common_result.Result
-		SummaryList []summaryInfo `json:"summaryList"`
+		ItemList []itemInfo `json:"itemList"`
 	}
 
 	result := summaryResult{}
@@ -188,17 +188,17 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 		}
 
 		for _, val := range s.blogContent {
-			info := summaryInfo{}
+			info := itemInfo{}
 			info.ID = val.ID
 			info.Name = val.Name
 			info.Type = val.Type
 
 			if val.Type == model.CATALOG {
-				subList := s.fetchSubSummary(val.ID)
-				info.SubSummary = subList
+				subList := s.fetchSubItem(val.ID)
+				info.SubItem = subList
 			}
 
-			result.SummaryList = append(result.SummaryList, info)
+			result.ItemList = append(result.ItemList, info)
 		}
 
 		result.ErrorCode = common_result.Success

@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import queryString from 'query-string'
 import { connect } from 'dva'
 import { Row, Col } from 'antd'
 import { ContentNav, ContentView } from '../common'
@@ -11,9 +10,23 @@ function MaintainPage({ maintain, dispatch }) {
 
   const onSelect = (value) => {
     const { id, type, name } = value
-    const url = '/maintain?'.concat(queryString.stringify({ command: 'view', id, type, name }))
 
-    dispatch({ type: 'maintain/redirectContent', payload: { url } })
+    dispatch({ type: 'maintain/refreshContent', payload: { command: 'view', id, type, name } })
+  }
+
+  const onAdd = (value) => {
+    const { id, type, name } = value
+    dispatch({ type: 'maintain/refreshContent', payload: { command: 'add', id, type, name } })
+  }
+
+  const onModify = (value) => {
+    const { id, type, name } = value
+    dispatch({ type: 'maintain/refreshContent', payload: { command: 'modify', id, type, name } })
+  }
+
+  const onDelete = (value) => {
+    const { id, type, name } = value
+    dispatch({ type: 'maintain/refreshContent', payload: { command: 'delete', id, type, name } })
   }
 
   const onSubmit = (value) => {
@@ -26,7 +39,7 @@ function MaintainPage({ maintain, dispatch }) {
         <ContentNav itemList={itemList} onSelect={onSelect} />
       </Col>
       <Col md={18} lg={18} xl={18}>
-        <ContentView contentData={action} onSubmit={onSubmit} />
+        <ContentView contentData={action} onSelect={onSelect} onAdd={onAdd} onModify={onModify} onDelete={onDelete} onSubmit={onSubmit} />
       </Col>
     </Row>
   )

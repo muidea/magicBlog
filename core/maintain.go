@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"muidea.com/magicCenter/application/common"
 	common_result "muidea.com/magicCommon/common"
@@ -256,6 +257,55 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("catalogQueryAction")
+
+	type catalogResult struct {
+		common_result.Result
+		Content model.CatalogDetailView
+	}
+
+	result := catalogResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("create article failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+		_, value := net.SplitRESTAPI(req.URL.Path)
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		catalog, ok := s.centerAgent.QueryCatalog(id)
+		if !ok {
+			log.Print("login failed, illegal account or password")
+			result.ErrorCode = common_result.NoExist
+			result.Reason = "对象不存在"
+			break
+		}
+
+		result.Content = catalog
 		result.ErrorCode = common_result.Success
 		break
 	}

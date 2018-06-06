@@ -5,7 +5,7 @@ import { ArticleView, ArticleEditor } from '../ArticlePanel'
 import { CatalogEditor } from '../CatalogPanel'
 import ContentBar from './ContentBar'
 
-function ContentView({ contentData }) {
+function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmit }) {
   const { command, id, type, name, data } = contentData
 
   const getContent = () => {
@@ -26,41 +26,49 @@ function ContentView({ contentData }) {
       if (data !== null) {
         summaryList = data
       }
-      return <SummaryView summaryList={summaryList} />
+      return <SummaryView summaryList={summaryList} onSelect={onSelect} onModify={onModify} onDelete={onDelete} />
     }
   }
 
   const getAddContent = () => {
+    const content = { ...data, parent: { id, type, name } }
     if (type === 'article') {
-      return <ArticleEditor content={data} />
+      return <ArticleEditor content={content} onSubmit={onSubmit} />
     } else {
-      return <CatalogEditor content={data} />
+      return <CatalogEditor content={content} onSubmit={onSubmit} />
     }
   }
 
   const getModifyContent = () => {
+    const content = { ...data, parent: { id, type, name } }
     if (type === 'article') {
-      return <ArticleEditor content={data} />
+      return <ArticleEditor content={content} onSubmit={onSubmit} />
     } else {
-      return <CatalogEditor content={data} />
+      return <CatalogEditor content={content} onSubmit={onSubmit} />
     }
   }
 
-  const getBar = (typeValue, item) => {
-    if (typeValue === 'catalog') {
-      return <ContentBar currentItem={item} />
+  const getBar = () => {
+    if (type === 'catalog') {
+      const item = { id, type, name }
+      return <ContentBar currentItem={item} onAdd={onAdd} />
     }
   }
 
   return (
     <div>
       { getContent() }
+      { (command === 'view') && getBar() }
     </div>
   )
 }
 
 ContentView.propTypes = {
   contentData: PropTypes.object,
+  onSelect: PropTypes.func,
+  onAdd: PropTypes.func,
+  onModify: PropTypes.func,
+  onDelete: PropTypes.func,
 }
 
 export default ContentView

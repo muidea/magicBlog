@@ -6,18 +6,21 @@ const FormItem = Form.Item
 const { TextArea } = Input
 
 const CatalogEditor = ({
-  onSubmit,
-  content,
   form: {
     getFieldDecorator,
     validateFieldsAndScroll,
   },
+  onSubmit,
+  content,
 }) => {
   const handleOk = () => {
     validateFieldsAndScroll((errors, values) => {
       if (errors) {
         return
       }
+
+      const { parent } = content
+      values = { ...values, parent }
 
       onSubmit(values)
     })

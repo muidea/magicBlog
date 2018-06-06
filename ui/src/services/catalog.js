@@ -1,7 +1,7 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { catalogQuerySummary, catalogQuerySummaryByID } = api
+const { catalogQuerySummary, catalogQuerySummaryByID, catalogQuery } = api
 
 export async function queryCatalogSummary(params) {
   return request({
@@ -19,3 +19,10 @@ export async function queryCatalogSummaryByID(params) {
   })
 }
 
+export async function queryCatalogByID(params) {
+  return request({
+    url: catalogQuery,
+    method: 'get',
+    data: params,
+  })
+}

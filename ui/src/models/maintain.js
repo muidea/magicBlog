@@ -1,7 +1,6 @@
 import { routerRedux } from 'dva/router'
-import queryString from 'query-string'
 import { querySummary, createCatalog, createArticle } from '../services/maintain'
-import { queryCatalogSummary } from '../services/catalog'
+import { queryCatalogSummary, queryCatalogSummaryByID, queryCatalogByID } from '../services/catalog'
 import { queryArticle } from '../services/article'
 
 export default {
@@ -9,7 +8,7 @@ export default {
 
   state: {
     itemList: [],
-    action: { command: '', id: -1, type: '', name: '' },
+    action: { command: 'view', id: -1, type: 'catalog', name: '' },
   },
 
   subscriptions: {
@@ -18,7 +17,7 @@ export default {
         if (location.pathname === '/maintain') {
           dispatch({
             type: 'refreshContent',
-            payload: queryString.parse(location.search),
+            payload: { command: 'view', id: -1, type: 'catalog', name: '' },
           })
         }
       })
@@ -26,23 +25,16 @@ export default {
   },
 
   effects: {
-    *redirectContent({ payload }, { put }) {
-      const { url } = payload
-      yield put(routerRedux.push({
-        pathname: url,
-      }))
-    },
-
     *refreshContent({ payload }, { call, put, select }) {
       const { isLogin, authToken, sessionID } = yield select(_ => _.app)
       if (!isLogin) {
+        yield put({ type: 'clear' })
         yield put(routerRedux.push({
           pathname: '/login',
         }))
         return
       }
 
-      console.log(payload)
       {
         const summaryResult = yield call(querySummary, { authToken, sessionID })
         const { data } = summaryResult
@@ -65,45 +57,54 @@ export default {
           } else {
             throw reason
           }
-        } else {
-          const summaryResult = yield call(queryCatalogSummary, { id })
-          const { data } = summaryResult
-          const { errorCode, reason, summaryList } = data
-          if (errorCode === 0) {
-            yield put({ type: 'save', payload: { action: { command, id, name, type, data: summaryList } } })
+        } else if (type === 'catalog') {
+          if (id === -1) {
+            const summaryResult = yield call(queryCatalogSummary, {})
+            const { data } = summaryResult
+            const { errorCode, reason, summaryList } = data
+            if (errorCode === 0) {
+              yield put({ type: 'save', payload: { action: { command, id, name, type, data: summaryList } } })
+            } else {
+              throw reason
+            }
           } else {
-            throw reason
+            const summaryResult = yield call(queryCatalogSummaryByID, { id })
+            const { data } = summaryResult
+            const { errorCode, reason, summaryList } = data
+            if (errorCode === 0) {
+              yield put({ type: 'save', payload: { action: { command, id, name, type, data: summaryList } } })
+            } else {
+              throw reason
+            }
           }
         }
       } else if (command === 'add') {
         yield put({ type: 'save', payload: { action: { command, id, name, type, data: {} } } })
       } else if (command === 'modify') {
-        yield put({ type: 'save', payload: { action: { command, id, name, type, data: {} } } })
-      } else {
+        if (type === 'article') {
+          const articleResult = yield call(queryArticle, { id })
+          const { data } = articleResult
+          const { errorCode, reason, content } = data
+          if (errorCode === 0) {
+            yield put({ type: 'save', payload: { action: { command, id, name, type, data: content } } })
+          } else {
+            throw reason
+          }
+        } else if (type === 'catalog') {
+          const catalogResult = yield call(queryCatalogByID, { id })
+          const { data } = catalogResult
+          const { errorCode, reason, content } = data
+          if (errorCode === 0) {
+            yield put({ type: 'save', payload: { action: { command, id, name, type, data: content } } })
+          } else {
+            throw reason
+          }
+        }
       }
     },
-
 
     *submitContent({ payload }, { call, put, select }) {
-    },
-
-    *querySelectContent({ payload }, { call, put }) {
-      const { id, type } = payload
-      if (type === 'catalog') {
-        const result = yield call(queryCatalogSummary, { id })
-        const { data } = result
-        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: data, currentItem: { ...payload } } } } })
-      } else if (type === 'article') {
-        const result = yield call(queryArticle, { id })
-        const { data } = result
-        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { content: data, currentItem: { ...payload } } } } })
-      } else {
-        throw type
-      }
-    },
-
-    *addCatalog({ payload }, { put }) {
-      yield put({ type: 'save', payload: { action: { type: 'addCatalog', value: { name: '', description: '', parent: { ...payload } } } } })
+      console.log(payload)
     },
 
     *submitCatalog({ payload }, { call, put, select }) {
@@ -123,10 +124,6 @@ export default {
       } else {
         throw reason
       }
-    },
-
-    *addArticle({ payload }, { put }) {
-      yield put({ type: 'save', payload: { action: { type: 'addArticle', value: { title: '', content: '', parent: { ...payload } } } } })
     },
 
     *submitArticle({ payload }, { call, put, select }) {
@@ -154,6 +151,10 @@ export default {
   reducers: {
     save(state, action) {
       return { ...state, ...action.payload }
+    },
+
+    clear(state) {
+      return { ...state, itemList: [], action: { command: '', id: -1, type: '', name: '' } }
     },
   },
 }

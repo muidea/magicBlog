@@ -112,6 +112,9 @@ func (s *Blog) Startup(router engine.Router) {
 	catalogCreateRoute := newRoute("/maintain/catalog", "POST", s.catalogCreateAction)
 	router.AddRoute(catalogCreateRoute)
 
+	catalogQueryRoute := newRoute("/maintain/catalog/:id", "GET", s.catalogQueryAction)
+	router.AddRoute(catalogQueryRoute)
+
 	articleCreateRoute := newRoute("/maintain/article", "POST", s.articleCreateAction)
 	router.AddRoute(articleCreateRoute)
 }

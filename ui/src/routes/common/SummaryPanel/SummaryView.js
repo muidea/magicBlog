@@ -1,34 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import queryString from 'query-string'
 import { Row, List, Col, Button } from 'antd'
 import { Link } from 'dva/router'
 import styles from './SummaryView.less'
 
-function SummaryView({ summaryList, readOnly }) {
-  const ViewUrl = (item) => {
-    const { id, name, type } = item
-    item = { command: 'view', id, name, type }
-
-    return '/maintain?'.concat(queryString.stringify(item))
-  }
-
-  const ModifyUrl = (item) => {
-    const { id, name, type } = item
-    item = { command: 'modify', id, name, type }
-
-    return '/maintain?'.concat(queryString.stringify(item))
-  }
-
-  const DeleteUrl = (item) => {
-    const { id, name, type } = item
-    item = { command: 'delete', id, name, type }
-
-    return '/maintain?'.concat(queryString.stringify(item))
-  }
-
+function SummaryView({ summaryList, readOnly, onSelect, onModify, onDelete }) {
   const TitleText = ({ item }) => (
-    <Link to={ViewUrl(item)} ><h1>{item.name}</h1></Link>
+    <div>
+      <a><h1 onClick={() => onSelect(item)}>{item.name}</h1></a>
+    </div>
   )
 
   const DescText = ({ item }) => (
@@ -41,8 +21,8 @@ function SummaryView({ summaryList, readOnly }) {
           </span>
         </Col>
         { !readOnly && <Col xl={{ span: 6 }} md={{ span: 6 }}>
-          <Button className={styles.button} href={ModifyUrl(item)} >编辑</Button>
-          <Button className={styles.button} href={DeleteUrl(item)} >删除</Button>
+          <Button className={styles.button} onClick={() => onModify(item)} >编辑</Button>
+          <Button className={styles.button} onClick={() => onDelete(item)} >删除</Button>
         </Col>
         }
       </Row>
@@ -75,6 +55,9 @@ function SummaryView({ summaryList, readOnly }) {
 SummaryView.propTypes = {
   summaryList: PropTypes.array,
   readOnly: PropTypes.bool,
+  onSelect: PropTypes.func,
+  onModify: PropTypes.func,
+  onDelete: PropTypes.func,
 }
 
 export default SummaryView

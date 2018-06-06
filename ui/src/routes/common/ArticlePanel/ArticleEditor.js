@@ -6,18 +6,21 @@ import { RichEditor } from '../../../components'
 const FormItem = Form.Item
 
 const ArticleEditor = ({
-  onSubmit,
-  content,
   form: {
     getFieldDecorator,
     validateFieldsAndScroll,
   },
+  onSubmit,
+  content,
 }) => {
   const handleOk = () => {
     validateFieldsAndScroll((errors, values) => {
       if (errors) {
         return
       }
+
+      const { parent } = content
+      values = { ...values, parent }
 
       onSubmit(values)
     })
@@ -29,7 +32,7 @@ const ArticleEditor = ({
         <form>
           <FormItem label="标题" hasFeedback>
             {getFieldDecorator('title', {
-              initialValue: content.title,
+              initialValue: content.name,
               rules: [{ required: true }],
             })(<Input size="large" onPressEnter={handleOk} placeholder="输入标题" />)}
           </FormItem>

@@ -20,7 +20,7 @@ const ArticleEditor = ({
       }
 
       const { catalog } = content
-      values = { ...values, catalog }
+      values = { ...values, catalog, type: 'article' }
 
       onSubmit(values)
     })

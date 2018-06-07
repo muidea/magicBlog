@@ -90,7 +90,7 @@ func (s *center) QueryCatalog(catalogID int) (model.CatalogDetailView, bool) {
 	return result.Catalog, false
 }
 
-func (s *center) CreateCatalog(name, description string, parent []model.Catalog, authToken, sessionID string) bool {
+func (s *center) CreateCatalog(name, description string, parent []model.Catalog, authToken, sessionID string) (model.SummaryView, bool) {
 	type createParam struct {
 		Name        string          `json:"name"`
 		Description string          `json:"description"`
@@ -103,10 +103,12 @@ func (s *center) CreateCatalog(name, description string, parent []model.Catalog,
 	}
 
 	param := createParam{Name: name, Description: description, Catalog: parent}
+	result := &createResult{}
+
 	data, err := json.Marshal(param)
 	if err != nil {
 		log.Printf("marshal create param failed, err:%s", err.Error())
-		return false
+		return result.Catalog, false
 	}
 
 	if len(authToken) == 0 {
@@ -121,38 +123,37 @@ func (s *center) CreateCatalog(name, description string, parent []model.Catalog,
 	request, err := http.NewRequest("POST", url, bufferReader)
 	if err != nil {
 		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
-		return false
+		return result.Catalog, false
 	}
 
 	request.Header.Set("content-type", "application/json")
 	response, err := s.httpClient.Do(request)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
-		return false
+		return result.Catalog, false
 	}
 
 	if response.StatusCode != http.StatusOK {
 		log.Printf("create catalog failed, statusCode:%d", response.StatusCode)
-		return false
+		return result.Catalog, false
 	}
 
 	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
-		return false
+		return result.Catalog, false
 	}
 
-	result := &createResult{}
 	err = json.Unmarshal(content, result)
 	if err != nil {
 		log.Printf("unmarshal data failed, err:%s", err.Error())
-		return false
+		return result.Catalog, false
 	}
 
 	if result.ErrorCode == common_result.Success {
-		return true
+		return result.Catalog, true
 	}
 
 	log.Printf("create catalog failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
-	return false
+	return result.Catalog, false
 }

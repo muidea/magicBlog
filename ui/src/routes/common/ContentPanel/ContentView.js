@@ -31,10 +31,10 @@ function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmi
   }
 
   const getAddContent = () => {
-    const content = { ...data, catalog: [{ id, type, name }] }
-    if (type === 'article') {
+    const content = { ...data, catalog: [{ id, name }] }
+    if (data.type === 'article') {
       return <ArticleEditor content={content} onSubmit={onSubmit} />
-    } else {
+    } else if (data.type === 'catalog') {
       return <CatalogEditor content={content} onSubmit={onSubmit} />
     }
   }

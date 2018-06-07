@@ -220,13 +220,14 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogCreateAction")
 
 	type catalogParam struct {
-		Name        string        `json:"name"`
-		Description string        `json:"description"`
-		Parent      model.Catalog `json:"parent"`
+		Name        string          `json:"name"`
+		Description string          `json:"description"`
+		Catalog     []model.Catalog `json:"catalog"`
 	}
 
 	type catalogResult struct {
 		common_result.Result
+		Catalog model.SummaryView `json:"catalog"`
 	}
 
 	param := &catalogParam{}
@@ -249,7 +250,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		ok := s.centerAgent.CreateCatalog(param.Name, param.Description, []model.Catalog{param.Parent}, authToken, sessionID)
+		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("login failed, illegal account or password")
 			result.ErrorCode = common_result.Failed
@@ -258,6 +259,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 		}
 
 		result.ErrorCode = common_result.Success
+		result.Catalog = catalog
 		break
 	}
 
@@ -323,13 +325,14 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("articleCreateAction")
 
 	type articleParam struct {
-		Title   string        `json:"title"`
-		Content string        `json:"content"`
-		Catalog model.Catalog `json:"catalog"`
+		Title   string          `json:"title"`
+		Content string          `json:"content"`
+		Catalog []model.Catalog `json:"catalog"`
 	}
 
 	type articleResult struct {
 		common_result.Result
+		Article model.SummaryView `json:"article"`
 	}
 
 	param := &articleParam{}
@@ -352,7 +355,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		ok := s.centerAgent.CreateArticle(param.Title, param.Content, []model.Catalog{param.Catalog}, authToken, sessionID)
+		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("login failed, illegal account or password")
 			result.ErrorCode = common_result.Failed
@@ -361,6 +364,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 		}
 
 		result.ErrorCode = common_result.Success
+		result.Article = article
 		break
 	}
 

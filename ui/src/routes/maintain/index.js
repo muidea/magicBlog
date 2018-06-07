@@ -15,8 +15,8 @@ function MaintainPage({ maintain, dispatch }) {
   }
 
   const onAdd = (value) => {
-    const { id, type, name } = value
-    dispatch({ type: 'maintain/refreshContent', payload: { command: 'add', id, type, name } })
+    const { id, type, name, data } = value
+    dispatch({ type: 'maintain/refreshContent', payload: { command: 'add', id, type, name, data } })
   }
 
   const onModify = (value) => {
@@ -30,6 +30,7 @@ function MaintainPage({ maintain, dispatch }) {
   }
 
   const onSubmit = (value) => {
+    console.log(value)
     dispatch({ type: 'maintain/submitContent', payload: { ...value } })
   }
 

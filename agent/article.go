@@ -51,7 +51,7 @@ func (s *center) QueryArticle(id int) (model.ArticleDetailView, bool) {
 	return result.Article, false
 }
 
-func (s *center) CreateArticle(title, content string, catalog []model.Catalog, authToken, sessionID string) bool {
+func (s *center) CreateArticle(title, content string, catalog []model.Catalog, authToken, sessionID string) (model.SummaryView, bool) {
 	type createParam struct {
 		Name    string          `json:"name"`
 		Content string          `json:"content"`
@@ -64,10 +64,11 @@ func (s *center) CreateArticle(title, content string, catalog []model.Catalog, a
 	}
 
 	param := createParam{Name: title, Content: content, Catalog: catalog}
+	result := &createResult{}
 	data, err := json.Marshal(param)
 	if err != nil {
 		log.Printf("marshal create param failed, err:%s", err.Error())
-		return false
+		return result.Article, false
 	}
 
 	if len(authToken) == 0 {
@@ -82,38 +83,37 @@ func (s *center) CreateArticle(title, content string, catalog []model.Catalog, a
 	request, err := http.NewRequest("POST", url, bufferReader)
 	if err != nil {
 		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
-		return false
+		return result.Article, false
 	}
 
 	request.Header.Set("content-type", "application/json")
 	response, err := s.httpClient.Do(request)
 	if err != nil {
 		log.Printf("post request failed, err:%s", err.Error())
-		return false
+		return result.Article, false
 	}
 
 	if response.StatusCode != http.StatusOK {
 		log.Printf("create article failed, statusCode:%d", response.StatusCode)
-		return false
+		return result.Article, false
 	}
 
 	contentData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read respose data failed, err:%s", err.Error())
-		return false
+		return result.Article, false
 	}
 
-	result := &createResult{}
 	err = json.Unmarshal(contentData, result)
 	if err != nil {
 		log.Printf("unmarshal data failed, err:%s", err.Error())
-		return false
+		return result.Article, false
 	}
 
 	if result.ErrorCode == common_result.Success {
-		return true
+		return result.Article, true
 	}
 
 	log.Printf("create article failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
-	return false
+	return result.Article, false
 }

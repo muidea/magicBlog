@@ -46,14 +46,14 @@ export default {
         }
       }
 
-      const { command, id, name, type } = payload
+      const { command, id, type } = payload
       if (command === 'view') {
         if (type === 'article') {
           const articleResult = yield call(queryArticle, { id })
           const { data } = articleResult
           const { errorCode, reason, content } = data
           if (errorCode === 0) {
-            yield put({ type: 'save', payload: { action: { command, id, name, type, data: content } } })
+            yield put({ type: 'save', payload: { action: { ...payload, data: content } } })
           } else {
             throw reason
           }
@@ -63,7 +63,7 @@ export default {
             const { data } = summaryResult
             const { errorCode, reason, summaryList } = data
             if (errorCode === 0) {
-              yield put({ type: 'save', payload: { action: { command, id, name, type, data: summaryList } } })
+              yield put({ type: 'save', payload: { action: { ...payload, data: summaryList } } })
             } else {
               throw reason
             }
@@ -72,21 +72,21 @@ export default {
             const { data } = summaryResult
             const { errorCode, reason, summaryList } = data
             if (errorCode === 0) {
-              yield put({ type: 'save', payload: { action: { command, id, name, type, data: summaryList } } })
+              yield put({ type: 'save', payload: { action: { ...payload, data: summaryList } } })
             } else {
               throw reason
             }
           }
         }
       } else if (command === 'add') {
-        yield put({ type: 'save', payload: { action: { command, id, name, type, data: {} } } })
+        yield put({ type: 'save', payload: { action: { ...payload } } })
       } else if (command === 'modify') {
         if (type === 'article') {
           const articleResult = yield call(queryArticle, { id })
           const { data } = articleResult
           const { errorCode, reason, content } = data
           if (errorCode === 0) {
-            yield put({ type: 'save', payload: { action: { command, id, name, type, data: content } } })
+            yield put({ type: 'save', payload: { action: { ...payload, data: content } } })
           } else {
             throw reason
           }
@@ -95,7 +95,7 @@ export default {
           const { data } = catalogResult
           const { errorCode, reason, content } = data
           if (errorCode === 0) {
-            yield put({ type: 'save', payload: { action: { command, id, name, type, data: content } } })
+            yield put({ type: 'save', payload: { action: { ...payload, data: content } } })
           } else {
             throw reason
           }
@@ -104,7 +104,35 @@ export default {
     },
 
     *submitContent({ payload }, { call, put, select }) {
-      console.log(payload)
+      const { type } = payload
+      const { authToken, sessionID } = yield select(_ => _.app)
+
+      if (authToken) {
+        payload = { ...payload, authToken }
+      }
+      if (sessionID) {
+        payload = { ...payload, sessionID }
+      }
+
+      if (type === 'article') {
+        const articleResult = yield call(createArticle, { ...payload })
+        const { data } = articleResult
+        const { errorCode, reason, content } = data
+        if (errorCode === 0) {
+          yield put({ type: 'save', payload: { action: { command: 'view', ...content } } })
+        } else {
+          throw reason
+        }
+      } else if (type === 'catalog') {
+        const catalogResult = yield call(createCatalog, { ...payload })
+        const { data } = catalogResult
+        const { errorCode, reason, content } = data
+        if (errorCode === 0) {
+          yield put({ type: 'save', payload: { action: { command: 'view', ...content } } })
+        } else {
+          throw reason
+        }
+      }
     },
 
     *submitCatalog({ payload }, { call, put, select }) {

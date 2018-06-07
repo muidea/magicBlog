@@ -8,8 +8,8 @@ function ContentBar({ currentItem, onAdd }) {
 
   return (
     <Row type="flex" justify="center">
-      <Button type="primary" className={styles.button} onClick={() => onAdd({ id, name, type })}>新增分类</Button>
-      <Button type="primary" className={styles.button} onClick={() => onAdd({ id, name, type })}>新增文章</Button>
+      <Button type="primary" className={styles.button} onClick={() => onAdd({ id, name, type, data: { type: 'catalog' } })}>新增分类</Button>
+      <Button type="primary" className={styles.button} onClick={() => onAdd({ id, name, type, data: { type: 'article' } })}>新增文章</Button>
     </Row>
   )
 }

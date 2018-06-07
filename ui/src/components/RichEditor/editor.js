@@ -16,7 +16,7 @@ export default class RichEditor extends Component {
 
     const curFormat = defaultFormat
     let curValue = RichTextEditor.createEmptyValue()
-    if (('value' in props) && props.value.length !== 0) {
+    if (('value' in props) && props.value && props.value.length !== 0) {
       curValue = curValue.setContentFromString(props.value, curFormat)
     }
 
@@ -32,7 +32,7 @@ export default class RichEditor extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (('value' in nextProps) && (this.props.value !== nextProps.value) && this.props.value.length === 0) {
+    if (('value' in nextProps) && nextProps.value && this.props.value && (this.props.value !== nextProps.value) && this.props.value.length === 0) {
       this.setState({ richValue: this.state.richValue.setContentFromString(nextProps.value, this.state.format) })
     }
 

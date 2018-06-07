@@ -46,7 +46,7 @@ func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	}
 	blogCatalog, ok := agent.FetchCatalog(name)
 	if !ok {
-		ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, authToken, "")
+		_, ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, authToken, "")
 		if !ok {
 			log.Print("create blog root catalog failed.")
 			return blog, false

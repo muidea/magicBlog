@@ -91,7 +91,7 @@ export default {
             throw reason
           }
         } else if (type === 'catalog') {
-          const catalogResult = yield call(queryCatalogByID, { id })
+          const catalogResult = yield call(queryCatalogByID, { id, authToken, sessionID })
           const { data } = catalogResult
           const { errorCode, reason, content } = data
           if (errorCode === 0) {

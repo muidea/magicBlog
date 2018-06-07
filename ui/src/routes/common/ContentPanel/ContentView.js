@@ -31,7 +31,7 @@ function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmi
   }
 
   const getAddContent = () => {
-    const content = { ...data, parent: { id, type, name } }
+    const content = { ...data, catalog: [{ id, type, name }] }
     if (type === 'article') {
       return <ArticleEditor content={content} onSubmit={onSubmit} />
     } else {
@@ -40,7 +40,7 @@ function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmi
   }
 
   const getModifyContent = () => {
-    const content = { ...data, parent: { id, type, name } }
+    const content = { ...data }
     if (type === 'article') {
       return <ArticleEditor content={content} onSubmit={onSubmit} />
     } else {

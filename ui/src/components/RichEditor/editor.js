@@ -14,9 +14,15 @@ export default class RichEditor extends Component {
 
     autobind(this)
 
+    const curFormat = defaultFormat
+    let curValue = RichTextEditor.createEmptyValue()
+    if (('value' in props) && props.value.length !== 0) {
+      curValue = curValue.setContentFromString(props.value, curFormat)
+    }
+
     this.state = {
-      richValue: RichTextEditor.createEmptyValue(),
-      format: defaultFormat,
+      richValue: curValue,
+      format: curFormat,
       placeholder: props.placeholder,
       editorStyle: props.editorStyle,
     }

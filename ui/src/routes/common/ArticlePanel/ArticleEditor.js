@@ -19,8 +19,8 @@ const ArticleEditor = ({
         return
       }
 
-      const { parent } = content
-      values = { ...values, parent }
+      const { catalog } = content
+      values = { ...values, catalog }
 
       onSubmit(values)
     })

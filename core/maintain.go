@@ -275,7 +275,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 
 	type catalogResult struct {
 		common_result.Result
-		Content model.CatalogDetailView
+		Content model.CatalogDetailView `json:"content"`
 	}
 
 	result := catalogResult{}

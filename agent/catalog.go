@@ -157,3 +157,48 @@ func (s *center) CreateCatalog(name, description string, parent []model.Catalog,
 	log.Printf("create catalog failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
 	return result.Catalog, false
 }
+
+func (s *center) DeleteCatalog(id int, authToken, sessionID string) bool {
+	type deleteResult struct {
+		common_result.Result
+	}
+
+	result := &deleteResult{}
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog", id, s.authToken, s.sessionID)
+	request, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
+		return false
+	}
+
+	request.Header.Set("content-type", "application/json")
+	response, err := s.httpClient.Do(request)
+	if err != nil {
+		log.Printf("post request failed, err:%s", err.Error())
+		return false
+	}
+
+	if response.StatusCode != http.StatusOK {
+		log.Printf("delete catalog failed, statusCode:%d", response.StatusCode)
+		return false
+	}
+
+	content, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Printf("read respose data failed, err:%s", err.Error())
+		return false
+	}
+
+	err = json.Unmarshal(content, result)
+	if err != nil {
+		log.Printf("unmarshal data failed, err:%s", err.Error())
+		return false
+	}
+
+	if result.ErrorCode == common_result.Success {
+		return true
+	}
+
+	log.Printf("delete catalog failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
+	return false
+}

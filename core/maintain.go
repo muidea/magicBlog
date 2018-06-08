@@ -376,3 +376,99 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 
 	res.WriteHeader(http.StatusExpectationFailed)
 }
+
+func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("catalogDeleteAction")
+
+	type catalogResult struct {
+		common_result.Result
+	}
+
+	result := catalogResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("delete catalog failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
+		_, value := net.SplitRESTAPI(req.URL.Path)
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			log.Printf("strconv.Atoi failed, err:%s", err.Error())
+			result.ErrorCode = common_result.IllegalParam
+			result.Reason = "非法参数"
+			break
+		}
+
+		ok := s.centerAgent.DeleteCatalog(id, authToken, sessionID)
+		if !ok {
+			log.Printf("delete catalog failed, id=%d", id)
+			result.ErrorCode = common_result.Failed
+			result.Reason = "删除对象失败"
+			break
+		}
+
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) articleDeleteAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("articleDeleteAction")
+
+	type articleResult struct {
+		common_result.Result
+	}
+
+	result := articleResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("delete article failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
+		_, value := net.SplitRESTAPI(req.URL.Path)
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			log.Printf("strconv.Atoi failed, err:%s", err.Error())
+			result.ErrorCode = common_result.IllegalParam
+			result.Reason = "非法参数"
+			break
+		}
+
+		ok := s.centerAgent.DeleteArticle(id, authToken, sessionID)
+		if !ok {
+			log.Printf("delete article failed, illegal id, id=%d", id)
+			result.ErrorCode = common_result.Failed
+			result.Reason = "删除对象失败"
+			break
+		}
+
+		result.ErrorCode = common_result.Success
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}

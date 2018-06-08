@@ -30,7 +30,6 @@ function MaintainPage({ maintain, dispatch }) {
   }
 
   const onSubmit = (value) => {
-    console.log(value)
     dispatch({ type: 'maintain/submitContent', payload: { ...value } })
   }
 

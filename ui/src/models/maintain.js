@@ -1,5 +1,5 @@
 import { routerRedux } from 'dva/router'
-import { querySummary, createCatalog, createArticle } from '../services/maintain'
+import { querySummary, createCatalog, createArticle, deleteArticle, deleteCatalog } from '../services/maintain'
 import { queryCatalogSummary, queryCatalogSummaryByID, queryCatalogByID } from '../services/catalog'
 import { queryArticle } from '../services/article'
 
@@ -100,6 +100,26 @@ export default {
             throw reason
           }
         }
+      } else if (command === 'delete') {
+        if (type === 'article') {
+          const articleResult = yield call(deleteArticle, { id, authToken, sessionID })
+          const { data } = articleResult
+          const { errorCode, reason } = data
+          if (errorCode === 0) {
+            yield put({ type: 'save', payload: { action: { command: 'view' } } })
+          } else {
+            throw reason
+          }
+        } else if (type === 'catalog') {
+          const catalogResult = yield call(deleteCatalog, { id, authToken, sessionID })
+          const { data } = catalogResult
+          const { errorCode, reason } = data
+          if (errorCode === 0) {
+            yield put({ type: 'save', payload: { action: { command: 'view' } } })
+          } else {
+            throw reason
+          }
+        }
       }
     },
 
@@ -132,46 +152,6 @@ export default {
         } else {
           throw reason
         }
-      }
-    },
-
-    *submitCatalog({ payload }, { call, put, select }) {
-      const { authToken, sessionID } = yield select(_ => _.app)
-
-      if (authToken) {
-        payload = { ...payload, authToken }
-      }
-      if (sessionID) {
-        payload = { ...payload, sessionID }
-      }
-      const result = yield call(createCatalog, { ...payload })
-      const { data } = result
-      const { errorCode, reason } = data
-      if (errorCode === 0) {
-        yield put({ type: 'save', payload: { action: { type: 'viewContent', value: { data: {}, currentItem: { } } } } })
-      } else {
-        throw reason
-      }
-    },
-
-    *submitArticle({ payload }, { call, put, select }) {
-      const { authToken, sessionID } = yield select(_ => _.app)
-
-      if (authToken) {
-        payload = { ...payload, authToken }
-      }
-      if (sessionID) {
-        payload = { ...payload, sessionID }
-      }
-      const result = yield call(createArticle, { ...payload, authToken, sessionID })
-      const { data } = result
-      const { errorCode, reason } = data
-      if (errorCode === 0) {
-        yield put(routerRedux.push({
-          pathname: '/maintain',
-        }))
-      } else {
-        throw reason
       }
     },
   },

@@ -117,6 +117,12 @@ func (s *Blog) Startup(router engine.Router) {
 
 	articleCreateRoute := newRoute("/maintain/article", "POST", s.articleCreateAction)
 	router.AddRoute(articleCreateRoute)
+
+	catalogDeleteRoute := newRoute("/maintain/catalog/:id", "DELETE", s.catalogDeleteAction)
+	router.AddRoute(catalogDeleteRoute)
+
+	articleDeleteRoute := newRoute("/maintain/article/:id", "DELETE", s.articleDeleteAction)
+	router.AddRoute(articleDeleteRoute)
 }
 
 // Teardown 销毁

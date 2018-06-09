@@ -28,7 +28,8 @@ export default {
     *queryArticle({ payload }, { call, put }) {
       const result = yield call(queryArticle, { ...payload })
       const { data } = result
-      yield put({ type: 'save', payload: { ...data } })
+      const { content } = data
+      yield put({ type: 'save', payload: { ...content } })
     },
   },
 

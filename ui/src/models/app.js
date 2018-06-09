@@ -31,6 +31,19 @@ export default {
   },
 
   effects: {
+    *redirectContent({ payload }, { put }) {
+      const { id, type } = payload
+      if (type === 'article') {
+        yield put(routerRedux.push({
+          pathname: `/article/${id}`,
+        }))
+      } else if (type === 'catalog') {
+        yield put(routerRedux.push({
+          pathname: `/catalog/${id}`,
+        }))
+      }
+    },
+
     *queryStatus({ payload }, { call, put, select }) {
       const { authToken, sessionID } = yield select(_ => _.app)
       if (authToken) {

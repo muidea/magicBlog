@@ -30,7 +30,8 @@ export default {
     *queryContact({ payload }, { call, put }) {
       const result = yield call(queryContact, { ...payload })
       const { data } = result
-      yield put({ type: 'save', payload: { ...data } })
+      const { content } = data
+      yield put({ type: 'save', payload: { ...content } })
     },
   },
 

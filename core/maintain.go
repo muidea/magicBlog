@@ -114,7 +114,7 @@ func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("statusAccount failed, illegal authToken or sessionID")
+			log.Print("logout failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
@@ -145,10 +145,11 @@ type itemInfo struct {
 	ID      int         `json:"id"`
 	Name    string      `json:"name"`
 	Type    string      `json:"type"`
+	Deep    int         `json:"deep"`
 	SubItem interface{} `json:"subItem"`
 }
 
-func (s *Blog) fetchSubItem(id int) []itemInfo {
+func (s *Blog) fetchSubItem(id, curDeep int) []itemInfo {
 	itemList := []itemInfo{}
 
 	subItem := s.centerAgent.QuerySummary(id)
@@ -157,9 +158,10 @@ func (s *Blog) fetchSubItem(id int) []itemInfo {
 		info.ID = val.ID
 		info.Name = val.Name
 		info.Type = val.Type
+		info.Deep = curDeep + 1
 
 		if val.Type == model.CATALOG {
-			subList := s.fetchSubItem(val.ID)
+			subList := s.fetchSubItem(val.ID, curDeep+1)
 			info.SubItem = subList
 		}
 
@@ -182,20 +184,22 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("statusAccount failed, illegal authToken or sessionID")
+			log.Print("summaryAction, get summry failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
 		}
 
+		curDeep := 0
 		for _, val := range s.blogContent {
 			info := itemInfo{}
 			info.ID = val.ID
 			info.Name = val.Name
 			info.Type = val.Type
+			info.Deep = curDeep
 
 			if val.Type == model.CATALOG {
-				subList := s.fetchSubItem(val.ID)
+				subList := s.fetchSubItem(val.ID, curDeep)
 				info.SubItem = subList
 			}
 
@@ -236,7 +240,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("create catalog failed, illegal authToken or sessionID")
+			log.Print("catalogCreateAction, create catalog failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
@@ -244,7 +248,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 
 		err := net.ParsePostJSON(req, param)
 		if err != nil {
-			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("catalogCreateAction, ParsePostJSON failed, err:%s", err.Error())
 			result.ErrorCode = common_result.Failed
 			result.Reason = "非法请求"
 			break
@@ -252,7 +256,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 
 		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID)
 		if !ok {
-			log.Print("login failed, illegal account or password")
+			log.Print("catalogCreateAction, create catalog failed, illegal account or password")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "新建分类失败"
 			break
@@ -285,7 +289,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("create article failed, illegal authToken or sessionID")
+			log.Print("catalogQueryAction, query catalog failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
@@ -293,7 +297,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 		_, value := net.SplitRESTAPI(req.URL.Path)
 		id, err := strconv.Atoi(value)
 		if err != nil {
-			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("catalogQueryAction, query catalog failed, illegal id, id:%s, err:%s", value, err.Error())
 			result.ErrorCode = common_result.Failed
 			result.Reason = "非法参数"
 			break
@@ -301,7 +305,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 
 		catalog, ok := s.centerAgent.QueryCatalog(id)
 		if !ok {
-			log.Print("login failed, illegal account or password")
+			log.Print("catalogQueryAction, query catalog failed, illegal id or no exist")
 			result.ErrorCode = common_result.NoExist
 			result.Reason = "对象不存在"
 			break
@@ -341,7 +345,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("create article failed, illegal authToken or sessionID")
+			log.Print("articleCreateAction, create article failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
@@ -349,7 +353,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 
 		err := net.ParsePostJSON(req, param)
 		if err != nil {
-			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("articleCreateAction, ParsePostJSON failed, err:%s", err.Error())
 			result.ErrorCode = common_result.Failed
 			result.Reason = "非法请求"
 			break
@@ -357,9 +361,9 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 
 		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID)
 		if !ok {
-			log.Print("login failed, illegal account or password")
+			log.Print("articleCreateAction, create article failed")
 			result.ErrorCode = common_result.Failed
-			result.Reason = "无效账号或密码"
+			result.Reason = "新建文章失败"
 			break
 		}
 
@@ -389,7 +393,7 @@ func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("delete catalog failed, illegal authToken or sessionID")
+			log.Print("catalogDeleteAction, delete catalog failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
@@ -398,7 +402,7 @@ func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
 		_, value := net.SplitRESTAPI(req.URL.Path)
 		id, err := strconv.Atoi(value)
 		if err != nil {
-			log.Printf("strconv.Atoi failed, err:%s", err.Error())
+			log.Printf("catalogDeleteAction, strconv.Atoi failed, err:%s", err.Error())
 			result.ErrorCode = common_result.IllegalParam
 			result.Reason = "非法参数"
 			break
@@ -406,7 +410,7 @@ func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
 
 		ok := s.centerAgent.DeleteCatalog(id, authToken, sessionID)
 		if !ok {
-			log.Printf("delete catalog failed, id=%d", id)
+			log.Printf("catalogDeleteAction, delete catalog failed, id=%d", id)
 			result.ErrorCode = common_result.Failed
 			result.Reason = "删除对象失败"
 			break
@@ -437,7 +441,7 @@ func (s *Blog) articleDeleteAction(res http.ResponseWriter, req *http.Request) {
 		authToken := req.URL.Query().Get(common.AuthTokenID)
 		sessionID := req.URL.Query().Get(common.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
-			log.Print("delete article failed, illegal authToken or sessionID")
+			log.Print("articleDeleteAction, delete article failed, illegal authToken or sessionID")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "无效Token或会话"
 			break
@@ -446,7 +450,7 @@ func (s *Blog) articleDeleteAction(res http.ResponseWriter, req *http.Request) {
 		_, value := net.SplitRESTAPI(req.URL.Path)
 		id, err := strconv.Atoi(value)
 		if err != nil {
-			log.Printf("strconv.Atoi failed, err:%s", err.Error())
+			log.Printf("articleDeleteAction, strconv.Atoi failed, err:%s", err.Error())
 			result.ErrorCode = common_result.IllegalParam
 			result.Reason = "非法参数"
 			break
@@ -454,7 +458,7 @@ func (s *Blog) articleDeleteAction(res http.ResponseWriter, req *http.Request) {
 
 		ok := s.centerAgent.DeleteArticle(id, authToken, sessionID)
 		if !ok {
-			log.Printf("delete article failed, illegal id, id=%d", id)
+			log.Printf("articleDeleteAction, delete article failed, illegal id, id=%d", id)
 			result.ErrorCode = common_result.Failed
 			result.Reason = "删除对象失败"
 			break

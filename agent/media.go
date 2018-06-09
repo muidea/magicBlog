@@ -1,13 +1,11 @@
 package agent
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 
 	common_result "muidea.com/magicCommon/common"
+	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 )
 
@@ -19,26 +17,9 @@ func (s *center) QueryMedia(id int) (model.MediaDetailView, bool) {
 
 	result := &queryResult{}
 	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/media", id, s.authToken, s.sessionID)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPGet(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.Media, false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("query media failed, statusCode:%d", response.StatusCode)
-		return result.Media, false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.Media, false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("query media failed, err:%s", err.Error())
 		return result.Media, false
 	}
 

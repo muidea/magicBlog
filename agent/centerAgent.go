@@ -1,13 +1,12 @@
 package agent
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
 	common_result "muidea.com/magicCommon/common"
+	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 )
 
@@ -77,27 +76,9 @@ func (s *center) verify() (string, bool) {
 
 	result := &verifyResult{}
 	url := fmt.Sprintf("%s/%s/%s?authToken=%s", s.baseURL, "authority/endpoint/verify", s.endpointID, s.authToken)
-	log.Print(url)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPGet(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return "", false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("verify failed, statusCode:%d", response.StatusCode)
-		return "", false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return "", false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("verify endpoint failed, err:%s", err.Error())
 		return "", false
 	}
 
@@ -105,7 +86,7 @@ func (s *center) verify() (string, bool) {
 		return result.SessionID, true
 	}
 
-	log.Printf("verify failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
+	log.Printf("verify endpoint failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
 	return "", false
 }
 
@@ -117,26 +98,9 @@ func (s *center) QuerySummary(catalogID int) []model.SummaryView {
 
 	result := &queryResult{Summary: []model.SummaryView{}}
 	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/summary", catalogID, s.authToken, s.sessionID)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPGet(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.Summary
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("query summary failed, statusCode:%d", response.StatusCode)
-		return result.Summary
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.Summary
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("query summary failed, err:%s", err.Error())
 		return result.Summary
 	}
 

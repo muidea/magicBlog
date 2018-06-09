@@ -1,14 +1,11 @@
 package agent
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 
 	common_result "muidea.com/magicCommon/common"
+	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 )
 
@@ -20,26 +17,9 @@ func (s *center) FetchCatalog(name string) (model.CatalogDetailView, bool) {
 
 	result := &fetchResult{}
 	url := fmt.Sprintf("%s/%s?name=%s&authToken=%s&sessionID=%s", s.baseURL, "content/catalog/", name, s.authToken, s.sessionID)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPGet(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("fetch catalog failed, statusCode:%d", response.StatusCode)
-		return result.Catalog, false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("fetch catalog failed, err:%s", err.Error())
 		return result.Catalog, false
 	}
 
@@ -59,26 +39,9 @@ func (s *center) QueryCatalog(catalogID int) (model.CatalogDetailView, bool) {
 
 	result := &queryResult{}
 	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog", catalogID, s.authToken, s.sessionID)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPGet(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("query catalog failed, statusCode:%d", response.StatusCode)
-		return result.Catalog, false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("query catalog failed, err:%s", err.Error())
 		return result.Catalog, false
 	}
 
@@ -102,51 +65,12 @@ func (s *center) CreateCatalog(name, description string, parent []model.Catalog,
 		Catalog model.SummaryView `json:"catalog"`
 	}
 
-	param := createParam{Name: name, Description: description, Catalog: parent}
+	param := &createParam{Name: name, Description: description, Catalog: parent}
 	result := &createResult{}
-
-	data, err := json.Marshal(param)
-	if err != nil {
-		log.Printf("marshal create param failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	if len(authToken) == 0 {
-		authToken = s.authToken
-	}
-	if len(sessionID) == 0 {
-		sessionID = s.sessionID
-	}
-
-	bufferReader := bytes.NewBuffer(data)
 	url := fmt.Sprintf("%s/%s?authToken=%s&sessionID=%s", s.baseURL, "content/catalog/", authToken, sessionID)
-	request, err := http.NewRequest("POST", url, bufferReader)
+	err := net.HTTPPost(s.httpClient, url, param, result)
 	if err != nil {
-		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
-		return result.Catalog, false
-	}
-
-	request.Header.Set("content-type", "application/json")
-	response, err := s.httpClient.Do(request)
-	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("create catalog failed, statusCode:%d", response.StatusCode)
-		return result.Catalog, false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.Catalog, false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("create catalog failed, err:%s", err.Error())
 		return result.Catalog, false
 	}
 
@@ -165,33 +89,9 @@ func (s *center) DeleteCatalog(id int, authToken, sessionID string) bool {
 
 	result := &deleteResult{}
 	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog", id, s.authToken, s.sessionID)
-	request, err := http.NewRequest("DELETE", url, nil)
+	err := net.HTTPDelete(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
-		return false
-	}
-
-	request.Header.Set("content-type", "application/json")
-	response, err := s.httpClient.Do(request)
-	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("delete catalog failed, statusCode:%d", response.StatusCode)
-		return false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("delete catalog failed, url:%s, err:%s", url, err.Error())
 		return false
 	}
 

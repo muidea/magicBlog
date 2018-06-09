@@ -1,14 +1,11 @@
 package agent
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 
 	common_result "muidea.com/magicCommon/common"
+	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 )
 
@@ -24,43 +21,12 @@ func (s *center) LoginAccount(account, password string) (model.AccountOnlineView
 		SessionID  string                  `json:"sessionID"`
 	}
 
-	param := loginParam{Account: account, Password: password}
+	param := &loginParam{Account: account, Password: password}
 	result := &loginResult{}
-	data, err := json.Marshal(param)
-	if err != nil {
-		log.Printf("marshal login param failed, err:%s", err.Error())
-		return result.OnlineUser, "", "", false
-	}
-
-	bufferReader := bytes.NewBuffer(data)
 	url := fmt.Sprintf("%s/%s", s.baseURL, "cas/user/")
-	request, err := http.NewRequest("POST", url, bufferReader)
+	err := net.HTTPPost(s.httpClient, url, param, result)
 	if err != nil {
-		log.Printf("construct request failed, url:%s, err:%s", url, err.Error())
-		return result.OnlineUser, "", "", false
-	}
-
-	request.Header.Set("content-type", "application/json")
-	response, err := s.httpClient.Do(request)
-	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.OnlineUser, "", "", false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("login failed, statusCode:%d", response.StatusCode)
-		return result.OnlineUser, "", "", false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.OnlineUser, "", "", false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("login failed, err:%s", err.Error())
 		return result.OnlineUser, "", "", false
 	}
 
@@ -84,26 +50,9 @@ func (s *center) LogoutAccount(authToken, sessionID string) bool {
 
 	result := &logoutResult{}
 	url := fmt.Sprintf("%s/%s/?authToken=%s&sessionID=%s", s.baseURL, "cas/user", authToken, sessionID)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPDelete(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("logout account failed, statusCode:%d", response.StatusCode)
-		return false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("logout failed, err:%s", err.Error())
 		return false
 	}
 
@@ -111,7 +60,7 @@ func (s *center) LogoutAccount(authToken, sessionID string) bool {
 		return true
 	}
 
-	log.Printf("logout account failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
+	log.Printf("logout failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
 	return false
 }
 
@@ -129,26 +78,9 @@ func (s *center) StatusAccount(authToken, sessionID string) (model.AccountOnline
 	}
 
 	url := fmt.Sprintf("%s/%s/?authToken=%s&sessionID=%s", s.baseURL, "cas/user", authToken, sessionID)
-	response, err := s.httpClient.Get(url)
+	err := net.HTTPGet(s.httpClient, url, result)
 	if err != nil {
-		log.Printf("post request failed, err:%s", err.Error())
-		return result.OnlineUser, false
-	}
-
-	if response.StatusCode != http.StatusOK {
-		log.Printf("status account failed, statusCode:%d", response.StatusCode)
-		return result.OnlineUser, false
-	}
-
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Printf("read respose data failed, err:%s", err.Error())
-		return result.OnlineUser, false
-	}
-
-	err = json.Unmarshal(content, result)
-	if err != nil {
-		log.Printf("unmarshal data failed, err:%s", err.Error())
+		log.Printf("get status failed, err:%s", err.Error())
 		return result.OnlineUser, false
 	}
 

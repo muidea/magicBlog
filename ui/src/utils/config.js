@@ -20,6 +20,8 @@ module.exports = {
     articleCreate: `${APIV1}/maintain/article`,
     catalogDelete: `${APIV1}/maintain/catalog/:id`,
     articleDelete: `${APIV1}/maintain/article/:id`,
+    catalogUpdate: `${APIV1}/maintain/catalog/:id`,
+    articleUpdate: `${APIV1}/maintain/article/:id`,
     noFoundPage: `${APIV1}/404.html`,
   },
 }

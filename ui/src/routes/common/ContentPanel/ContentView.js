@@ -8,6 +8,11 @@ import ContentBar from './ContentBar'
 function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmit }) {
   const { command, id, type, name, data } = contentData
 
+  const onSubmitData = (value) => {
+    console.log(value)
+    onSubmit({ ...value, command })
+  }
+
   const getContent = () => {
     if (command === 'add') {
       return getAddContent()
@@ -42,9 +47,9 @@ function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmi
   const getModifyContent = () => {
     const content = { ...data }
     if (type === 'article') {
-      return <ArticleEditor content={content} onSubmit={onSubmit} />
+      return <ArticleEditor content={content} onSubmit={onSubmitData} />
     } else {
-      return <CatalogEditor content={content} onSubmit={onSubmit} />
+      return <CatalogEditor content={content} onSubmit={onSubmitData} />
     }
   }
 

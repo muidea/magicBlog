@@ -1,5 +1,5 @@
 import { routerRedux } from 'dva/router'
-import { querySummary, createCatalog, createArticle, deleteArticle, deleteCatalog } from '../services/maintain'
+import { querySummary, createCatalog, createArticle, updateArticle, updateCatalog, deleteArticle, deleteCatalog } from '../services/maintain'
 import { queryCatalogSummary, queryCatalogSummaryByID, queryCatalogByID } from '../services/catalog'
 import { queryArticle } from '../services/article'
 
@@ -124,7 +124,7 @@ export default {
     },
 
     *submitContent({ payload }, { call, put, select }) {
-      const { type } = payload
+      const { type, command } = payload
       const { authToken, sessionID } = yield select(_ => _.app)
 
       if (authToken) {
@@ -134,8 +134,11 @@ export default {
         payload = { ...payload, sessionID }
       }
 
+      delete payload.command
+
       if (type === 'article') {
-        const articleResult = yield call(createArticle, { ...payload })
+        const serviceFunc = (command === 'add') ? createArticle : updateArticle
+        const articleResult = yield call(serviceFunc, { ...payload })
         const { data } = articleResult
         const { errorCode, reason, content } = data
         if (errorCode === 0) {
@@ -144,7 +147,8 @@ export default {
           throw reason
         }
       } else if (type === 'catalog') {
-        const catalogResult = yield call(createCatalog, { ...payload })
+        const serviceFunc = (command === 'add') ? createCatalog : updateCatalog
+        const catalogResult = yield call(serviceFunc, { ...payload })
         const { data } = catalogResult
         const { errorCode, reason, content } = data
         if (errorCode === 0) {

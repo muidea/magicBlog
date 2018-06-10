@@ -1,7 +1,7 @@
 import { request, config } from 'utils'
 
 const { api } = config
-const { summaryQuery, articleCreate, catalogCreate, catalogDelete, articleDelete } = api
+const { summaryQuery, articleCreate, catalogCreate, catalogUpdate, articleUpdate, catalogDelete, articleDelete } = api
 
 
 export async function querySummary(params) {
@@ -24,6 +24,22 @@ export async function createArticle(params) {
   return request({
     url: articleCreate,
     method: 'post',
+    data: params,
+  })
+}
+
+export async function updateCatalog(params) {
+  return request({
+    url: catalogUpdate,
+    method: 'put',
+    data: params,
+  })
+}
+
+export async function updateArticle(params) {
+  return request({
+    url: articleUpdate,
+    method: 'put',
     data: params,
   })
 }

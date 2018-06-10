@@ -19,8 +19,8 @@ const ArticleEditor = ({
         return
       }
 
-      const { catalog } = content
-      values = { ...values, catalog, type: 'article' }
+      const { id, catalog } = content
+      values = { ...values, id, catalog, type: 'article' }
 
       onSubmit(values)
     })

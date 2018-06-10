@@ -256,9 +256,74 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 
 		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID)
 		if !ok {
-			log.Print("catalogCreateAction, create catalog failed, illegal account or password")
+			log.Print("catalogCreateAction, create catalog failed")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "新建分类失败"
+			break
+		}
+
+		result.ErrorCode = common_result.Success
+		result.Catalog = catalog
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("catalogUpdateAction")
+
+	type catalogParam struct {
+		Name        string          `json:"name"`
+		Description string          `json:"description"`
+		Catalog     []model.Catalog `json:"catalog"`
+	}
+
+	type catalogResult struct {
+		common_result.Result
+		Catalog model.SummaryView `json:"catalog"`
+	}
+
+	param := &catalogParam{}
+	result := catalogResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("catalogUpdateAction, update catalog failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
+		_, value := net.SplitRESTAPI(req.URL.Path)
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			log.Printf("catalogUpdateAction, update catalog failed, illegal id, id:%s, err:%s", value, err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		err = net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("catalogUpdateAction, ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, authToken, sessionID)
+		if !ok {
+			log.Print("catalogUpdateAction, update catalog failed")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "更新分类失败"
 			break
 		}
 
@@ -364,6 +429,71 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			log.Print("articleCreateAction, create article failed")
 			result.ErrorCode = common_result.Failed
 			result.Reason = "新建文章失败"
+			break
+		}
+
+		result.ErrorCode = common_result.Success
+		result.Article = article
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
+	log.Print("articleUpdateAction")
+
+	type articleParam struct {
+		Title   string          `json:"title"`
+		Content string          `json:"content"`
+		Catalog []model.Catalog `json:"catalog"`
+	}
+
+	type articleResult struct {
+		common_result.Result
+		Article model.SummaryView `json:"article"`
+	}
+
+	param := &articleParam{}
+	result := articleResult{}
+	for {
+		authToken := req.URL.Query().Get(common.AuthTokenID)
+		sessionID := req.URL.Query().Get(common.SessionID)
+		if len(authToken) == 0 || len(sessionID) == 0 {
+			log.Print("articleUpdateAction, update article failed, illegal authToken or sessionID")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "无效Token或会话"
+			break
+		}
+
+		_, value := net.SplitRESTAPI(req.URL.Path)
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			log.Printf("articleUpdateAction, update article failed, illegal id, id:%s, err:%s", value, err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		err = net.ParsePostJSON(req, param)
+		if err != nil {
+			log.Printf("articleUpdateAction, ParsePostJSON failed, err:%s", err.Error())
+			result.ErrorCode = common_result.Failed
+			result.Reason = "非法请求"
+			break
+		}
+
+		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, authToken, sessionID)
+		if !ok {
+			log.Print("articleUpdateAction, update article failed")
+			result.ErrorCode = common_result.Failed
+			result.Reason = "更新文章失败"
 			break
 		}
 

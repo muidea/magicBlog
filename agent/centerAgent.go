@@ -24,10 +24,12 @@ type Agent interface {
 	FetchCatalog(name string) (model.CatalogDetailView, bool)
 	QueryCatalog(catalogID int) (model.CatalogDetailView, bool)
 	CreateCatalog(name, description string, parent []model.Catalog, authToken, sessionID string) (model.SummaryView, bool)
+	UpdateCatalog(id int, name, description string, parent []model.Catalog, authToken, sessionID string) (model.SummaryView, bool)
 	DeleteCatalog(id int, authToken, sessionID string) bool
 
 	QueryArticle(id int) (model.ArticleDetailView, bool)
 	CreateArticle(title, content string, catalog []model.Catalog, authToken, sessionID string) (model.SummaryView, bool)
+	UpdateArticle(id int, title, content string, catalog []model.Catalog, authToken, sessionID string) (model.SummaryView, bool)
 	DeleteArticle(id int, authToken, sessionID string) bool
 
 	QueryLink(id int) (model.LinkDetailView, bool)

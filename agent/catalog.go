@@ -82,6 +82,35 @@ func (s *center) CreateCatalog(name, description string, parent []model.Catalog,
 	return result.Catalog, false
 }
 
+func (s *center) UpdateCatalog(id int, name, description string, parent []model.Catalog, authToken, sessionID string) (model.SummaryView, bool) {
+	type createParam struct {
+		Name        string          `json:"name"`
+		Description string          `json:"description"`
+		Catalog     []model.Catalog `json:"catalog"`
+	}
+
+	type createResult struct {
+		common_result.Result
+		Catalog model.SummaryView `json:"catalog"`
+	}
+
+	param := &createParam{Name: name, Description: description, Catalog: parent}
+	result := &createResult{}
+	url := fmt.Sprintf("%s/%s/%d?authToken=%s&sessionID=%s", s.baseURL, "content/catalog", id, authToken, sessionID)
+	err := net.HTTPPut(s.httpClient, url, param, result)
+	if err != nil {
+		log.Printf("update catalog failed, err:%s", err.Error())
+		return result.Catalog, false
+	}
+
+	if result.ErrorCode == common_result.Success {
+		return result.Catalog, true
+	}
+
+	log.Printf("update catalog failed, errorCode:%d, reason:%s", result.ErrorCode, result.Reason)
+	return result.Catalog, false
+}
+
 func (s *center) DeleteCatalog(id int, authToken, sessionID string) bool {
 	type deleteResult struct {
 		common_result.Result

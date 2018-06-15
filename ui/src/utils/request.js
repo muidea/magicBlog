@@ -2,7 +2,7 @@
 import axios from 'axios'
 import lodash from 'lodash'
 import pathToRegexp from 'path-to-regexp'
-import queryString from 'query-string'
+import qs from 'qs'
 import { message } from 'antd'
 
 const fetch = (options) => {
@@ -71,7 +71,7 @@ export default function request(options) {
         param = { ...param, sessionID }
       }
 
-      const extParam = queryString.stringify(param)
+      const extParam = qs.stringify(param)
       if (extParam) {
         url = url.concat('?'.concat(extParam))
       }

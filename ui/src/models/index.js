@@ -1,5 +1,5 @@
 import { queryIndex } from 'services/index'
-import queryString from 'query-string'
+import qs from 'qs'
 
 export default {
 
@@ -15,7 +15,7 @@ export default {
         if (location.pathname === '/') {
           dispatch({
             type: 'queryIndex',
-            payload: queryString.parse(location.search),
+            payload: qs.parse(location.search),
           })
         }
       })

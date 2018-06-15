@@ -1,7 +1,7 @@
 /* global window */
 
 import { routerRedux } from 'dva/router'
-import queryString from 'query-string'
+import qs from 'qs'
 import { queryStatus, loginUser, logoutUser } from 'services/app'
 import { config } from 'utils'
 
@@ -23,7 +23,7 @@ export default {
           type: 'queryStatus',
           payload: {
             locationPathname: location.pathname,
-            locationQuery: queryString.parse(location.search),
+            locationQuery: qs.parse(location.search),
           },
         })
       })

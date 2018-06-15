@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const webpack = require('webpack')
 
 module.exports = (webpackConfig, env) => {
@@ -26,20 +27,21 @@ module.exports = (webpackConfig, env) => {
   }
 
   webpackConfig.plugins = webpackConfig.plugins.concat([
+    new UglifyJsPlugin(),
     new CopyWebpackPlugin([
       {
         from: 'src/public',
-        to: production ? '../' : webpackConfig.output.outputPath,
+        to: webpackConfig.output.outputPath,
       },
     ]),
     new HtmlWebpackPlugin({
       template: `${__dirname}/src/index.ejs`,
-      filename: production ? '../index.html' : 'index.html',
-      minify: production ? {
+      filename: 'index.html',
+      minify: {
         collapseWhitespace: true,
-      } : null,
+      },
       hash: true,
-      headScripts: production ? null : ['/roadhog.dll.js'],
+      headScripts: ['/roadhog.dll.js'],
     }),
   ])
 

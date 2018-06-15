@@ -1,5 +1,5 @@
 import { queryCatalogSummary, queryCatalogSummaryByID } from 'services/catalog'
-import queryString from 'query-string'
+import qs from 'qs'
 import pathToRegexp from 'path-to-regexp'
 
 export default {
@@ -16,7 +16,7 @@ export default {
         if (location.pathname === '/catalog') {
           dispatch({
             type: 'queryCatalog',
-            payload: queryString.parse(location.search),
+            payload: qs.parse(location.search),
           })
         } else {
           const match = pathToRegexp('/catalog/:i').exec(location.pathname)

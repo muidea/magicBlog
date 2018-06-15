@@ -1,5 +1,5 @@
 import { queryNoFound } from 'services/error'
-import queryString from 'query-string'
+import qs from 'qs'
 
 export default {
 
@@ -19,7 +19,7 @@ export default {
         if (location.pathname === '/404') {
           dispatch({
             type: 'queryNoFound',
-            payload: queryString.parse(location.search),
+            payload: qs.parse(location.search),
           })
         }
       })

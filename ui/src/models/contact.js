@@ -1,5 +1,5 @@
 import { queryContact } from 'services/contact'
-import queryString from 'query-string'
+import qs from 'qs'
 
 export default {
 
@@ -19,7 +19,7 @@ export default {
         if (location.pathname === '/contact') {
           dispatch({
             type: 'queryContact',
-            payload: queryString.parse(location.search),
+            payload: qs.parse(location.search),
           })
         }
       })

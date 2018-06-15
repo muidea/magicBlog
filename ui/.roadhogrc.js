@@ -1,33 +1,22 @@
+const path = require('path')
+const { version } = require('./package.json')
+
 export default {
   entry: "src/index.js",
+  publicPath: `/${version}/`,
+  outputPath: `./dist/${version}`,
   env: {
     development: {
       extraBabelPlugins: [
         "dva-hmr",
         "transform-runtime",
         ["import", { "libraryName": "antd", "style": "css" }],
-        ["module-resolver", {
-          "alias": {
-            "routes": `${__dirname}/src/routes`,
-            "models": `${__dirname}/src/models`,
-            "services": `${__dirname}/src/services`,
-            "utils": `${__dirname}/src/utils`
-          }
-        }]
       ]
     },
     production: {
       extraBabelPlugins: [
         "transform-runtime",
         ["import", { "libraryName": "antd", "style": "css" }],
-        ["module-resolver", {
-          "alias": {
-            "routes": `${__dirname}/src/routes`,
-            "models": `${__dirname}/src/models`,
-            "services": `${__dirname}/src/services`,
-            "utils": `${__dirname}/src/utils`
-          }
-        }]
       ]
     }
   },

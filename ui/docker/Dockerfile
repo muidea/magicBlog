@@ -1,17 +1,14 @@
-FROM centos
+FROM nginx
 
 LABEL Author="rangh"
+LABEL Application="magicBlogUI"
 
-RUN mkdir -p /var/app
 
-WORKDIR /var/app
+RUN mkdir -p /etc/nginx/logs
 
-ADD magicBlog /var/app/magicBlog
-ADD bootstrap.sh /var/app/bootstrap.sh
+COPY bin /tmp/
+RUN cd /tmp \
+ && tar -xvf bin -C /usr/share/nginx/html/ \
+ && rm -f bin
 
-RUN chmod +x /var/app/magicBlog
-RUN chmod +x /var/app/bootstrap.sh
-
-ENTRYPOINT [ "/var/app/bootstrap.sh" ]
-
-EXPOSE 8080
+ADD nginx.conf /etc/nginx/nginx.conf

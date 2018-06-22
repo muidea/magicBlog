@@ -1,8 +1,8 @@
 #!/bin/bash
 
-gopath=$GOPATH
-execBin=magicBlog
-binpath=$gopath/bin/$execBin
+projectpath=..
+execBin=magicBlogUI
+binpath=$projectpath/dist
 imageID=""
 imageName=muidea.ai/develop/$(echo $execBin | tr '[A-Z]' '[a-z]')
 imageVersion=latest
@@ -14,15 +14,30 @@ function cleanUp()
         rm -f log.txt
     fi
 
-    if [ -f $bin ]; then
-        rm -f $bin
+    if [ -f bin ]; then
+        rm -f bin
     fi
 }
 
 function prepareFile()
 {
     echo "prepareFile..."
-    cp $binpath ./
+    src=$(ls $binpath|tail -1)
+    cp -r $binpath $src
+    if [ $? -ne 0 ]; then
+        echo "prepare file failed, copy failed exception."
+        exit 1
+    fi
+
+    cur=$(pwd)
+    cd $src
+    tar -caf ../bin *
+    if [ $? -ne 0 ]; then
+        echo "prepare file failed, compress failed exception."
+        exit 1
+    fi
+    cd $cur
+    rm -rf $src
 }
 
 function checkImage()

@@ -1,6 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const webpack = require('webpack')
 
 module.exports = (webpackConfig, env) => {
@@ -27,21 +26,20 @@ module.exports = (webpackConfig, env) => {
   }
 
   webpackConfig.plugins = webpackConfig.plugins.concat([
-    new UglifyJsPlugin(),
     new CopyWebpackPlugin([
       {
         from: 'src/public',
-        to: webpackConfig.output.outputPath,
+        to: production ? '../' : webpackConfig.output.outputPath,
       },
     ]),
     new HtmlWebpackPlugin({
       template: `${__dirname}/src/index.ejs`,
-      filename: 'index.html',
-      minify: {
+      filename: production ? '../index.html' : 'index.html',
+      minify: production ? {
         collapseWhitespace: true,
-      },
+      } : null,
       hash: true,
-      headScripts: ['/roadhog.dll.js'],
+      headScripts: production ? null : ['/roadhog.dll.js'],
     }),
   ])
 
@@ -49,6 +47,7 @@ module.exports = (webpackConfig, env) => {
   webpackConfig.resolve.alias = {
     components: `${__dirname}/src/components`,
     utils: `${__dirname}/src/utils`,
+    config: `${__dirname}/src/utils/config`,
     services: `${__dirname}/src/services`,
     models: `${__dirname}/src/models`,
     routes: `${__dirname}/src/routes`,

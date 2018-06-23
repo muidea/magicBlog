@@ -86,6 +86,8 @@ function rmiImage()
     fi
 }
 
+echo "build magicBlogUI docker image"
+
 cleanUp
 
 prepareFile

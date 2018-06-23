@@ -71,6 +71,8 @@ function rmiImage()
     fi
 }
 
+echo "build magicBlog docker image"
+
 cleanUp
 
 prepareFile

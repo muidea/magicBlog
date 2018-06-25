@@ -6,9 +6,9 @@ LABEL Application="magicBlogUI"
 
 RUN mkdir -p /etc/nginx/logs
 
-COPY bin /tmp/
+COPY magicBlogUI /tmp/
 RUN cd /tmp \
- && tar -xvf bin -C /usr/share/nginx/html/ \
- && rm -f bin
+ && tar -xvf magicBlogUI -C /usr/share/nginx/html/ \
+ && rm -f magicBlogUI
 
 ADD nginx.conf /etc/nginx/nginx.conf

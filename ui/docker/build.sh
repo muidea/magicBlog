@@ -1,11 +1,13 @@
 #!/bin/bash
 
-projectpath=..
-execBin=magicBlogUI
-binpath=$projectpath/dist
+rootPath=$GOPATH
+projectName=magicBlogUI
+projectPath=$rootPath/src/muidea.com/magicBlog/ui
+binPath=$projectPath/dist
 imageID=""
-imageName=muidea.ai/develop/$(echo $execBin | tr '[A-Z]' '[a-z]')
+imageNamespace=muidea.ai/develop
 imageVersion=latest
+imageName=$imageNamespace/$(echo $projectName | tr '[A-Z]' '[a-z]')
 
 function cleanUp()
 {
@@ -14,29 +16,57 @@ function cleanUp()
         rm -f log.txt
     fi
 
-    if [ -f bin ]; then
-        rm -f bin
+    if [ -f $projectName ]; then
+        rm -f $projectName
     fi
+
+    if [ -f $binPath ]; then
+        rm -f $binPath
+    fi
+}
+
+function buildBin()
+{
+    echo "buildBin..."
+    curPath=$(pwd)
+    cd $projectPath
+    npm run build
+    if [ $? -ne 0 ]; then
+        echo "buildBin failed."
+        exit 1
+    else
+        echo "buildBin success."
+    fi
+    cd $curPath
 }
 
 function prepareFile()
 {
     echo "prepareFile..."
-    src=$(ls $binpath|tail -1)
-    cp -r $binpath $src
+    if [ ! -f $binPath ]; then
+        buildBin
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+    fi
+
+    src=$(ls $binPath|tail -1)
+    cp -r $binPath $src
     if [ $? -ne 0 ]; then
         echo "prepare file failed, copy failed exception."
         exit 1
     fi
 
-    cur=$(pwd)
+    curPath=$(pwd)
     cd $src
-    tar -caf ../bin *
+    tar -caf ../$projectName *
     if [ $? -ne 0 ]; then
         echo "prepare file failed, compress failed exception."
         exit 1
+    else
+        echo "prepare filed success."
     fi
-    cd $cur
+    cd $curPath
     rm -rf $src
 }
 
@@ -44,6 +74,13 @@ function checkImage()
 {
     echo "checkImage..."
     docker images | grep $1 | grep $2 > log.txt
+    if [ $? -ne 0 ]; then
+        echo "checkImage failed."
+        exit 1
+    else
+        echo "checkImage success."
+    fi
+
     imageID=$(tail -1 log.txt|awk '{print $3}')
 }
 
@@ -52,9 +89,9 @@ function buildImage()
     echo "buildImage..."
     docker build . > log.txt
     if [ $? -eq 0 ]; then
-        echo "docker build success."
+        echo "buildImage success."
     else
-        echo "docker build failed."
+        echo "buildImage failed."
         exit 1
     fi
 
@@ -64,24 +101,24 @@ function buildImage()
 
 function tagImage()
 {
-    echo "tag docker image..."
+    echo "tagImage image..."
     docker tag $1 $2
     if [ $? -eq 0 ]; then
-        echo "docker tag success."
+        echo "tagImage success."
     else
-        echo "docker tag failed."
+        echo "tagImage failed."
         exit 1
     fi
 }
 
 function rmiImage()
 {
-    echo "remove old docker image..."
+    echo "rmiImage..."
     docker rmi $1:$2
     if [ $? -eq 0 ]; then
-        echo "docker remove old image success."
+        echo "rmiImage success."
     else
-        echo "docker remove old image failed."
+        echo "rmiImage failed."
         exit 1
     fi
 }
@@ -89,6 +126,10 @@ function rmiImage()
 function all()
 {
     echo "build magicBlogUI docker image"
+
+    curPath=$(pwd)
+
+    cd $projectPath/docker
 
     cleanUp
 
@@ -104,6 +145,8 @@ function all()
     tagImage $imageID $imageName:$imageVersion
 
     cleanUp
+
+    cd $curPath
 }
 
 function build()
@@ -118,11 +161,16 @@ function build()
     tagImage $imageID $imageName:$imageVersion    
 }
 
-if [ $1 == 'prepare' ]; then
+action='all'
+if [ $1 ]; then
+    action=$1
+fi
+
+if [ $action == 'prepare' ]; then
     prepareFile
-elif [ $1 == 'clean' ]; then
+elif [ $action == 'clean' ]; then
     cleanUp
-elif [ $1 == 'build' ]; then
+elif [ $action == 'build' ]; then
     build
 else
     all

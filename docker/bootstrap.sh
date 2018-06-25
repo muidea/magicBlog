@@ -23,4 +23,6 @@ fi
 
 echo $EXTRA_ARGS
 
+/var/app/wait-for-it.sh $CENTER_SERVER -- echo "centerServer is ready."
+
 /var/app/magicBlog $EXTRA_ARGS "$@"

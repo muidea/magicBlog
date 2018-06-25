@@ -12,7 +12,7 @@ import (
 
 // Agent Center访问代理
 type Agent interface {
-	Start(bashURL, endpointID, authToken string) bool
+	Start(centerServer, endpointID, authToken string) bool
 	Stop()
 
 	LoginAccount(account, password string) (model.AccountOnlineView, string, string, bool)
@@ -50,9 +50,9 @@ type center struct {
 	sessionID  string
 }
 
-func (s *center) Start(bashURL, endpointID, authToken string) bool {
+func (s *center) Start(centerServer, endpointID, authToken string) bool {
 	s.httpClient = &http.Client{}
-	s.baseURL = bashURL
+	s.baseURL = fmt.Sprintf("http://%s", centerServer)
 	s.endpointID = endpointID
 	s.authToken = authToken
 

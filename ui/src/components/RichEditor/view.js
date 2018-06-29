@@ -1,14 +1,32 @@
-import React from 'react'
-import RichTextEditor, { createEmptyValue } from 'react-rte'
+import React, { Component } from 'react'
+import { Editor, EditorState } from 'draft-js'
+import { stateFromMarkdown } from 'draft-js-import-markdown'
 import PropTypes from 'prop-types'
-import defaultFormat from './common'
-import styles from './view.less'
+
+
+class MarkdownEditor extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { editorState: EditorState.createWithContent(props.contentState) }
+    this.onChange = editorState => this.setState({ editorState })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if ('contentState' in nextProps) {
+      this.setState({ editorState: EditorState.createWithContent(nextProps.contentState) })
+    }
+  }
+
+  render() {
+    return (
+      <Editor editorState={this.state.editorState} onChange={this.onChange} readOnly />
+    )
+  }
+}
 
 const RichView = ({ value }) => {
-  const val = createEmptyValue()
-  value = val.setContentFromString(value, defaultFormat)
-
-  return (<RichTextEditor className={styles.root} value={value} readOnly />)
+  const contentState = stateFromMarkdown(value)
+  return < MarkdownEditor contentState={contentState} />
 }
 
 RichView.propTypes = { value: PropTypes.string }

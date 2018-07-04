@@ -3,11 +3,13 @@ import PropTypes from 'prop-types'
 import { Tag, Input, Tooltip, Icon } from 'antd'
 
 export default class EditableTagGroup extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     if ('value' in props) {
       const { value } = props
-      this.state = { ...this.state, value }
+      if (value) {
+        this.state = { ...this.state, value }
+      }
     }
   }
 
@@ -17,10 +19,12 @@ export default class EditableTagGroup extends Component {
     inputValue: '',
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if ('value' in nextProps) {
       const { value } = nextProps
-      this.setState({ value })
+      if (value) {
+        this.setState({ value })
+      }
     }
   }
 
@@ -46,7 +50,7 @@ export default class EditableTagGroup extends Component {
     const { inputValue } = this.state
     let { value } = this.state
     let exitFlag = false
-    for (let item of value) {
+    for (const item of value) {
       if (item.name === inputValue) {
         exitFlag = true
         break
@@ -72,7 +76,7 @@ export default class EditableTagGroup extends Component {
     this.input = input
   }
 
-  render () {
+  render() {
     const { value, inputVisible, inputValue } = this.state
     return (
       <div>

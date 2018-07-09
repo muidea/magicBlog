@@ -39,12 +39,12 @@ func newRoute(pattern, method string, handler interface{}) engine.Route {
 func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	blog := Blog{}
 
-	agent := agent.NewCenterAgent()
+	agent := agent.New()
 	ok := agent.Start(centerServer, endpointID, authToken)
 	if !ok {
 		return blog, false
 	}
-	blogCatalog, ok := agent.FetchCatalog(name)
+	blogCatalog, ok := agent.FetchSummary(name)
 	if !ok {
 		_, ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, authToken, "")
 		if !ok {
@@ -52,13 +52,13 @@ func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
 			return blog, false
 		}
 	}
-	blogCatalog, ok = agent.FetchCatalog(name)
+	blogCatalog, ok = agent.FetchSummary(name)
 	if !ok {
 		log.Print("fetch blog root ctalog failed.")
 		return blog, false
 	}
 
-	blogContent := agent.QuerySummary(blogCatalog.ID)
+	blogContent := agent.QuerySummaryDetail(blogCatalog.ID)
 
 	blog.centerAgent = agent
 	blog.blogInfo = blogCatalog
@@ -70,7 +70,7 @@ func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
 // Blog Blog对象
 type Blog struct {
 	centerAgent agent.Agent
-	blogInfo    model.CatalogDetailView
+	blogInfo    model.SummaryView
 	blogContent []model.SummaryView
 }
 
@@ -199,7 +199,7 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	result := summaryViewResult{}
 	indexView, ok := s.getIndexView()
 	if ok {
-		result.SummaryList = s.centerAgent.QuerySummary(indexView.ID)
+		result.SummaryList = s.centerAgent.QuerySummaryDetail(indexView.ID)
 		result.ErrorCode = common_result.Success
 	} else {
 		result.ErrorCode = common_result.Redirect
@@ -221,7 +221,7 @@ func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 	result := summaryViewResult{}
 	catalogView, ok := s.getCatalogView()
 	if ok {
-		result.SummaryList = s.centerAgent.QuerySummary(catalogView.ID)
+		result.SummaryList = s.centerAgent.QuerySummaryDetail(catalogView.ID)
 		result.ErrorCode = common_result.Success
 	} else {
 		result.ErrorCode = common_result.Redirect
@@ -244,7 +244,7 @@ func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
-		result.SummaryList = s.centerAgent.QuerySummary(id)
+		result.SummaryList = s.centerAgent.QuerySummaryDetail(id)
 		result.ErrorCode = common_result.Success
 	} else {
 		result.ErrorCode = common_result.IllegalParam

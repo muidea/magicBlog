@@ -152,7 +152,7 @@ type itemInfo struct {
 func (s *Blog) fetchSubItem(id, curDeep int) []itemInfo {
 	itemList := []itemInfo{}
 
-	subItem := s.centerAgent.QuerySummary(id)
+	subItem := s.centerAgent.QuerySummaryDetail(id)
 	for _, val := range subItem {
 		info := itemInfo{}
 		info.ID = val.ID

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"muidea.com/magicBlog/agent"
+	"muidea.com/magicCommon/agent"
 	common_result "muidea.com/magicCommon/common"
 	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"

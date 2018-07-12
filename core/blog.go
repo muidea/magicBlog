@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"muidea.com/magicCommon/agent"
+	common_def "muidea.com/magicCommon/common"
 	common_result "muidea.com/magicCommon/common"
 	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
@@ -35,34 +36,37 @@ func newRoute(pattern, method string, handler interface{}) engine.Route {
 	return &route{pattern: pattern, method: method, handler: handler}
 }
 
-// NewBlog 新建Blog
-func NewBlog(centerServer, name, endpointID, authToken string) (Blog, bool) {
+// New 新建Blog
+func New(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	blog := Blog{}
 
 	agent := agent.New()
-	ok := agent.Start(centerServer, endpointID, authToken)
+	sessionID, ok := agent.Start(centerServer, endpointID, authToken)
 	if !ok {
 		return blog, false
 	}
-	blogCatalog, ok := agent.FetchSummary(name)
+	blogCatalog, ok := agent.FetchSummary(name, model.CATALOG, authToken, sessionID)
 	if !ok {
-		_, ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, authToken, "")
+		_, ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, common_def.BuildinAccountUser.ID, authToken, sessionID)
 		if !ok {
 			log.Print("create blog root catalog failed.")
 			return blog, false
 		}
 	}
-	blogCatalog, ok = agent.FetchSummary(name)
+	blogCatalog, ok = agent.FetchSummary(name, model.CATALOG, authToken, sessionID)
 	if !ok {
 		log.Print("fetch blog root ctalog failed.")
 		return blog, false
 	}
 
-	blogContent := agent.QuerySummaryDetail(blogCatalog.ID)
+	blogContent := agent.QuerySummaryContent(blogCatalog.ID, model.CATALOG, authToken, sessionID)
 
 	blog.centerAgent = agent
 	blog.blogInfo = blogCatalog
 	blog.blogContent = blogContent
+	blog.endpointID = endpointID
+	blog.authToken = authToken
+	blog.sessionID = sessionID
 
 	return blog, true
 }
@@ -72,6 +76,9 @@ type Blog struct {
 	centerAgent agent.Agent
 	blogInfo    model.SummaryView
 	blogContent []model.SummaryView
+	endpointID  string
+	authToken   string
+	sessionID   string
 }
 
 // Startup 启动
@@ -199,7 +206,7 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	result := summaryViewResult{}
 	indexView, ok := s.getIndexView()
 	if ok {
-		result.SummaryList = s.centerAgent.QuerySummaryDetail(indexView.ID)
+		result.SummaryList = s.centerAgent.QuerySummaryContent(indexView.ID, model.CATALOG, s.authToken, s.sessionID)
 		result.ErrorCode = common_result.Success
 	} else {
 		result.ErrorCode = common_result.Redirect
@@ -221,7 +228,7 @@ func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 	result := summaryViewResult{}
 	catalogView, ok := s.getCatalogView()
 	if ok {
-		result.SummaryList = s.centerAgent.QuerySummaryDetail(catalogView.ID)
+		result.SummaryList = s.centerAgent.QuerySummaryContent(catalogView.ID, model.CATALOG, s.authToken, s.sessionID)
 		result.ErrorCode = common_result.Success
 	} else {
 		result.ErrorCode = common_result.Redirect
@@ -244,7 +251,7 @@ func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
-		result.SummaryList = s.centerAgent.QuerySummaryDetail(id)
+		result.SummaryList = s.centerAgent.QuerySummaryContent(id, model.CATALOG, s.authToken, s.sessionID)
 		result.ErrorCode = common_result.Success
 	} else {
 		result.ErrorCode = common_result.IllegalParam
@@ -272,7 +279,7 @@ func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
-		article, ok := s.centerAgent.QueryArticle(id)
+		article, ok := s.centerAgent.QueryArticle(id, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
 			result.ErrorCode = common_result.Success
@@ -301,7 +308,7 @@ func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 	result := contentResult{}
 	aboutView, ok := s.getAboutView()
 	if ok {
-		article, ok := s.centerAgent.QueryArticle(aboutView.ID)
+		article, ok := s.centerAgent.QueryArticle(aboutView.ID, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
 			result.ErrorCode = common_result.Success
@@ -329,7 +336,7 @@ func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 	result := contentResult{}
 	contactView, ok := s.getContactView()
 	if ok {
-		article, ok := s.centerAgent.QueryArticle(contactView.ID)
+		article, ok := s.centerAgent.QueryArticle(contactView.ID, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
 			result.ErrorCode = common_result.Success
@@ -357,7 +364,7 @@ func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 	result := contentResult{}
 	noFoundView, ok := s.get404View()
 	if ok {
-		article, ok := s.centerAgent.QueryArticle(noFoundView.ID)
+		article, ok := s.centerAgent.QueryArticle(noFoundView.ID, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
 			result.ErrorCode = common_result.Success

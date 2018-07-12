@@ -9,7 +9,7 @@ import (
 )
 
 var bindPort = "8866"
-var centerServer = "http://127.0.0.1:8888"
+var centerServer = "127.0.0.1:8888"
 var blogName = "magicBlog"
 var endpointID = "f0e078a8-6de8-4273-88a4-dccef60ff88f"
 var authToken = "yTtWiuuoGifPVfcK5Mf4mdu8mGl78E3y"
@@ -24,7 +24,7 @@ func main() {
 
 	router := engine.NewRouter()
 
-	blog, ok := magicblog.NewBlog(centerServer, blogName, endpointID, authToken)
+	blog, ok := magicblog.New(centerServer, blogName, endpointID, authToken)
 	if ok {
 		blog.Startup(router)
 

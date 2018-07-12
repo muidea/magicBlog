@@ -149,10 +149,10 @@ type itemInfo struct {
 	SubItem interface{} `json:"subItem"`
 }
 
-func (s *Blog) fetchSubItem(id, curDeep int) []itemInfo {
+func (s *Blog) fetchSubItem(id, curDeep int, authToken, sessionID string) []itemInfo {
 	itemList := []itemInfo{}
 
-	subItem := s.centerAgent.QuerySummaryDetail(id)
+	subItem := s.centerAgent.QuerySummaryContent(id, model.CATALOG, authToken, sessionID)
 	for _, val := range subItem {
 		info := itemInfo{}
 		info.ID = val.ID
@@ -161,7 +161,7 @@ func (s *Blog) fetchSubItem(id, curDeep int) []itemInfo {
 		info.Deep = curDeep + 1
 
 		if val.Type == model.CATALOG {
-			subList := s.fetchSubItem(val.ID, curDeep+1)
+			subList := s.fetchSubItem(val.ID, curDeep+1, authToken, sessionID)
 			info.SubItem = subList
 		}
 
@@ -199,7 +199,7 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 			info.Deep = curDeep
 
 			if val.Type == model.CATALOG {
-				subList := s.fetchSubItem(val.ID, curDeep)
+				subList := s.fetchSubItem(val.ID, curDeep, authToken, sessionID)
 				info.SubItem = subList
 			}
 
@@ -227,6 +227,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 		Name        string          `json:"name"`
 		Description string          `json:"description"`
 		Catalog     []model.Catalog `json:"catalog"`
+		Creater     int             `json:"creater"`
 	}
 
 	type catalogResult struct {
@@ -254,7 +255,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID)
+		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, param.Creater, authToken, sessionID)
 		if !ok {
 			log.Print("catalogCreateAction, create catalog failed")
 			result.ErrorCode = common_result.Failed
@@ -283,6 +284,7 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 		Name        string          `json:"name"`
 		Description string          `json:"description"`
 		Catalog     []model.Catalog `json:"catalog"`
+		Updater     int             `json:"updater"`
 	}
 
 	type catalogResult struct {
@@ -319,7 +321,7 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, authToken, sessionID)
+		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, param.Updater, authToken, sessionID)
 		if !ok {
 			log.Print("catalogUpdateAction, update catalog failed")
 			result.ErrorCode = common_result.Failed
@@ -368,7 +370,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.QueryCatalog(id)
+		catalog, ok := s.centerAgent.QueryCatalog(id, authToken, sessionID)
 		if !ok {
 			log.Print("catalogQueryAction, query catalog failed, illegal id or no exist")
 			result.ErrorCode = common_result.NoExist
@@ -397,6 +399,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 		Title   string          `json:"title"`
 		Content string          `json:"content"`
 		Catalog []model.Catalog `json:"catalog"`
+		Creater int             `json:"creater"`
 	}
 
 	type articleResult struct {
@@ -424,7 +427,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID)
+		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, param.Creater, authToken, sessionID)
 		if !ok {
 			log.Print("articleCreateAction, create article failed")
 			result.ErrorCode = common_result.Failed
@@ -453,6 +456,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 		Title   string          `json:"title"`
 		Content string          `json:"content"`
 		Catalog []model.Catalog `json:"catalog"`
+		Updater int             `json:"updater"`
 	}
 
 	type articleResult struct {
@@ -489,7 +493,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, authToken, sessionID)
+		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, param.Updater, authToken, sessionID)
 		if !ok {
 			log.Print("articleUpdateAction, update article failed")
 			result.ErrorCode = common_result.Failed

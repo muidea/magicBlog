@@ -7,8 +7,7 @@ import (
 	"strconv"
 
 	"muidea.com/magicCommon/agent"
-	common_def "muidea.com/magicCommon/common"
-	common_result "muidea.com/magicCommon/common"
+	common_def "muidea.com/magicCommon/def"
 	"muidea.com/magicCommon/foundation/net"
 	"muidea.com/magicCommon/model"
 	engine "muidea.com/magicEngine"
@@ -47,7 +46,7 @@ func New(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	}
 	blogCatalog, ok := agent.FetchSummary(name, model.CATALOG, authToken, sessionID)
 	if !ok {
-		_, ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, common_def.BuildinAccountUser.ID, authToken, sessionID)
+		_, ok = agent.CreateCatalog(name, "MagicBlog auto create catalog.", []model.Catalog{}, authToken, sessionID)
 		if !ok {
 			log.Print("create blog root catalog failed.")
 			return blog, false
@@ -196,7 +195,7 @@ func (s *Blog) get404View() (model.SummaryView, bool) {
 }
 
 type summaryViewResult struct {
-	common_result.Result
+	common_def.Result
 	SummaryList []model.SummaryView `json:"summaryList"`
 }
 
@@ -207,9 +206,9 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	indexView, ok := s.getIndexView()
 	if ok {
 		result.SummaryList = s.centerAgent.QuerySummaryContent(indexView.ID, model.CATALOG, s.authToken, s.sessionID)
-		result.ErrorCode = common_result.Success
+		result.ErrorCode = common_def.Success
 	} else {
-		result.ErrorCode = common_result.Redirect
+		result.ErrorCode = common_def.Redirect
 		result.Reason = "/default/index.html"
 	}
 
@@ -229,9 +228,9 @@ func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 	catalogView, ok := s.getCatalogView()
 	if ok {
 		result.SummaryList = s.centerAgent.QuerySummaryContent(catalogView.ID, model.CATALOG, s.authToken, s.sessionID)
-		result.ErrorCode = common_result.Success
+		result.ErrorCode = common_def.Success
 	} else {
-		result.ErrorCode = common_result.Redirect
+		result.ErrorCode = common_def.Redirect
 		result.Reason = "/default/catalog.html"
 	}
 
@@ -252,9 +251,9 @@ func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request
 	id, err := strconv.Atoi(value)
 	if err == nil {
 		result.SummaryList = s.centerAgent.QuerySummaryContent(id, model.CATALOG, s.authToken, s.sessionID)
-		result.ErrorCode = common_result.Success
+		result.ErrorCode = common_def.Success
 	} else {
-		result.ErrorCode = common_result.IllegalParam
+		result.ErrorCode = common_def.IllegalParam
 		result.Reason = "非法参数"
 	}
 
@@ -268,7 +267,7 @@ func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request
 }
 
 type contentResult struct {
-	common_result.Result
+	common_def.Result
 	Content model.ArticleDetailView `json:"content"`
 }
 
@@ -282,14 +281,14 @@ func (s *Blog) contentPage(res http.ResponseWriter, req *http.Request) {
 		article, ok := s.centerAgent.QueryArticle(id, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
-			result.ErrorCode = common_result.Success
+			result.ErrorCode = common_def.Success
 		} else {
-			result.ErrorCode = common_result.NoExist
+			result.ErrorCode = common_def.NoExist
 			result.Reason = "对象不存在"
 		}
 
 	} else {
-		result.ErrorCode = common_result.IllegalParam
+		result.ErrorCode = common_def.IllegalParam
 		result.Reason = "非法参数"
 	}
 
@@ -311,13 +310,13 @@ func (s *Blog) aboutPage(res http.ResponseWriter, req *http.Request) {
 		article, ok := s.centerAgent.QueryArticle(aboutView.ID, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
-			result.ErrorCode = common_result.Success
+			result.ErrorCode = common_def.Success
 		} else {
-			result.ErrorCode = common_result.NoExist
+			result.ErrorCode = common_def.NoExist
 			result.Reason = "对象不存在"
 		}
 	} else {
-		result.ErrorCode = common_result.Redirect
+		result.ErrorCode = common_def.Redirect
 		result.Reason = "/default/about.html"
 	}
 
@@ -339,13 +338,13 @@ func (s *Blog) contactPage(res http.ResponseWriter, req *http.Request) {
 		article, ok := s.centerAgent.QueryArticle(contactView.ID, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
-			result.ErrorCode = common_result.Success
+			result.ErrorCode = common_def.Success
 		} else {
-			result.ErrorCode = common_result.NoExist
+			result.ErrorCode = common_def.NoExist
 			result.Reason = "对象不存在"
 		}
 	} else {
-		result.ErrorCode = common_result.Redirect
+		result.ErrorCode = common_def.Redirect
 		result.Reason = "/default/contact.html"
 	}
 
@@ -367,13 +366,13 @@ func (s *Blog) noFoundPage(res http.ResponseWriter, req *http.Request) {
 		article, ok := s.centerAgent.QueryArticle(noFoundView.ID, s.authToken, s.sessionID)
 		if ok {
 			result.Content = article
-			result.ErrorCode = common_result.Success
+			result.ErrorCode = common_def.Success
 		} else {
-			result.ErrorCode = common_result.NoExist
+			result.ErrorCode = common_def.NoExist
 			result.Reason = "对象不存在"
 		}
 	} else {
-		result.ErrorCode = common_result.Redirect
+		result.ErrorCode = common_def.Redirect
 		result.Reason = "/default/404.html"
 	}
 

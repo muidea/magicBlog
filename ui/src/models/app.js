@@ -10,10 +10,10 @@ const { prefix } = config
 export default {
   namespace: 'app',
   state: {
-    isLogin: true,
+    isLogin: false,
     sessionID: window.localStorage.getItem(`${prefix}SessionID`),
     authToken: window.localStorage.getItem(`${prefix}AuthToken`),
-    onlineUser: {},
+    onlineUser: null,
   },
 
   subscriptions: {
@@ -43,7 +43,6 @@ export default {
         }))
       }
     },
-
     *queryStatus({ payload }, { call, put, select }) {
       const { authToken, sessionID } = yield select(_ => _.app)
       if (authToken) {
@@ -57,7 +56,9 @@ export default {
       const { data } = result
       const { errorCode, onlineUser } = data
 
-      yield put({ type: 'saveSession', payload: { isLogin: errorCode === 0, onlineUser } })
+      if (errorCode === 0) {
+        yield put({ type: 'saveSession', payload: { isLogin: true, onlineUser } })
+      }
     },
 
     *loginUser({ payload }, { call, put }) {
@@ -89,7 +90,7 @@ export default {
       const { errorCode, reason } = data
 
       if (errorCode === 0) {
-        yield put({ type: 'clearSession', payload: { authToken: '', sessionID: '', onlineUser: {} } })
+        yield put({ type: 'clearSession', payload: { authToken: '', sessionID: '', onlineUser: null } })
         yield put(routerRedux.push({
           pathname: '/',
         }))

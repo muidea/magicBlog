@@ -8,18 +8,12 @@ import (
 	common_const "muidea.com/magicCommon/common"
 	common_def "muidea.com/magicCommon/def"
 	"muidea.com/magicCommon/foundation/net"
-	"muidea.com/magicCommon/model"
 )
 
 func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("statusAction")
 
-	type statusResult struct {
-		common_def.Result
-		OnlineUser model.AccountOnlineView `json:"onlineUser"`
-	}
-
-	result := statusResult{}
+	result := common_def.StatusAccountResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -30,7 +24,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		userView, ok := s.centerAgent.StatusAccount(authToken, sessionID)
+		userView, sessionID, ok := s.centerAgent.StatusAccount(authToken, sessionID)
 		if !ok {
 			log.Print("statusAccount failed, illegal authToken or sessionID")
 			result.ErrorCode = common_def.Failed
@@ -39,6 +33,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 		}
 
 		result.OnlineUser = userView
+		result.SessionID = sessionID
 		result.ErrorCode = common_def.Success
 		break
 	}
@@ -55,19 +50,8 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("loginAction")
 
-	type loginParam struct {
-		Account  string `json:"account"`
-		Password string `json:"password"`
-	}
-	type loginResult struct {
-		common_def.Result
-		OnlineUser model.AccountOnlineView `json:"onlineUser"`
-		AuthToken  string                  `json:"authToken"`
-		SessionID  string                  `json:"sessionID"`
-	}
-
-	param := &loginParam{}
-	result := loginResult{}
+	param := &common_def.LoginAccountParam{}
+	result := common_def.LoginAccountResult{}
 	for {
 		err := net.ParsePostJSON(req, param)
 		if err != nil {
@@ -104,11 +88,7 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("logoutAction")
 
-	type logoutResult struct {
-		common_def.Result
-	}
-
-	result := logoutResult{}
+	result := common_def.LogoutAccountResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)

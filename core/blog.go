@@ -194,18 +194,13 @@ func (s *Blog) get404View() (model.SummaryView, bool) {
 	return model.SummaryView{}, false
 }
 
-type summaryViewResult struct {
-	common_def.Result
-	SummaryList []model.SummaryView `json:"summaryList"`
-}
-
 func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("mainPage")
 
-	result := summaryViewResult{}
+	result := common_def.QuerySummaryListResult{}
 	indexView, ok := s.getIndexView()
 	if ok {
-		result.SummaryList = s.centerAgent.QuerySummaryContent(indexView.ID, model.CATALOG, s.authToken, s.sessionID)
+		result.Summary = s.centerAgent.QuerySummaryContent(indexView.ID, model.CATALOG, s.authToken, s.sessionID)
 		result.ErrorCode = common_def.Success
 	} else {
 		result.ErrorCode = common_def.Redirect
@@ -224,10 +219,10 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogSummaryPage")
 
-	result := summaryViewResult{}
+	result := common_def.QuerySummaryListResult{}
 	catalogView, ok := s.getCatalogView()
 	if ok {
-		result.SummaryList = s.centerAgent.QuerySummaryContent(catalogView.ID, model.CATALOG, s.authToken, s.sessionID)
+		result.Summary = s.centerAgent.QuerySummaryContent(catalogView.ID, model.CATALOG, s.authToken, s.sessionID)
 		result.ErrorCode = common_def.Success
 	} else {
 		result.ErrorCode = common_def.Redirect
@@ -246,11 +241,11 @@ func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogSummaryByIDPage")
 
-	result := summaryViewResult{}
+	result := common_def.QuerySummaryListResult{}
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
-		result.SummaryList = s.centerAgent.QuerySummaryContent(id, model.CATALOG, s.authToken, s.sessionID)
+		result.Summary = s.centerAgent.QuerySummaryContent(id, model.CATALOG, s.authToken, s.sessionID)
 		result.ErrorCode = common_def.Success
 	} else {
 		result.ErrorCode = common_def.IllegalParam

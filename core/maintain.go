@@ -94,19 +94,8 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogCreateAction")
 
-	type catalogParam struct {
-		Name        string          `json:"name"`
-		Description string          `json:"description"`
-		Catalog     []model.Catalog `json:"catalog"`
-	}
-
-	type catalogResult struct {
-		common_def.Result
-		Catalog model.SummaryView `json:"catalog"`
-	}
-
-	param := &catalogParam{}
-	result := catalogResult{}
+	param := &common_def.CreateCatalogParam{}
+	result := common_def.CreateCatalogResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -150,19 +139,8 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogUpdateAction")
 
-	type catalogParam struct {
-		Name        string          `json:"name"`
-		Description string          `json:"description"`
-		Catalog     []model.Catalog `json:"catalog"`
-	}
-
-	type catalogResult struct {
-		common_def.Result
-		Catalog model.SummaryView `json:"catalog"`
-	}
-
-	param := &catalogParam{}
-	result := catalogResult{}
+	param := &common_def.UpdateCatalogParam{}
+	result := common_def.UpdateCatalogResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -215,12 +193,7 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogQueryAction")
 
-	type catalogResult struct {
-		common_def.Result
-		Content model.CatalogDetailView `json:"content"`
-	}
-
-	result := catalogResult{}
+	result := common_def.QueryCatalogResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -247,7 +220,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		result.Content = catalog
+		result.Catalog = catalog
 		result.ErrorCode = common_def.Success
 		break
 	}
@@ -264,19 +237,8 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("articleCreateAction")
 
-	type articleParam struct {
-		Title   string          `json:"title"`
-		Content string          `json:"content"`
-		Catalog []model.Catalog `json:"catalog"`
-	}
-
-	type articleResult struct {
-		common_def.Result
-		Article model.SummaryView `json:"article"`
-	}
-
-	param := &articleParam{}
-	result := articleResult{}
+	param := &common_def.CreateArticleParam{}
+	result := common_def.CreateArticleResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -295,7 +257,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID)
+		article, ok := s.centerAgent.CreateArticle(param.Name, param.Content, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("articleCreateAction, create article failed")
 			result.ErrorCode = common_def.Failed
@@ -320,19 +282,8 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("articleUpdateAction")
 
-	type articleParam struct {
-		Title   string          `json:"title"`
-		Content string          `json:"content"`
-		Catalog []model.Catalog `json:"catalog"`
-	}
-
-	type articleResult struct {
-		common_def.Result
-		Article model.SummaryView `json:"article"`
-	}
-
-	param := &articleParam{}
-	result := articleResult{}
+	param := &common_def.UpdateArticleParam{}
+	result := common_def.UpdateArticleResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -360,7 +311,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, authToken, sessionID)
+		article, ok := s.centerAgent.UpdateArticle(id, param.Name, param.Content, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("articleUpdateAction, update article failed")
 			result.ErrorCode = common_def.Failed
@@ -385,11 +336,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("catalogDeleteAction")
 
-	type catalogResult struct {
-		common_def.Result
-	}
-
-	result := catalogResult{}
+	result := common_def.DestroyCatalogResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
@@ -433,11 +380,7 @@ func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
 func (s *Blog) articleDeleteAction(res http.ResponseWriter, req *http.Request) {
 	log.Print("articleDeleteAction")
 
-	type articleResult struct {
-		common_def.Result
-	}
-
-	result := articleResult{}
+	result := common_def.DestoryArticleResult{}
 	for {
 		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)

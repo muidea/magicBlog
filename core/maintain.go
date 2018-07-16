@@ -52,7 +52,7 @@ func (s *Blog) summaryAction(res http.ResponseWriter, req *http.Request) {
 
 	result := summaryResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("summaryAction, get summry failed, illegal authToken or sessionID")
@@ -108,7 +108,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 	param := &catalogParam{}
 	result := catalogResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("catalogCreateAction, create catalog failed, illegal authToken or sessionID")
@@ -164,7 +164,7 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 	param := &catalogParam{}
 	result := catalogResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("catalogUpdateAction, update catalog failed, illegal authToken or sessionID")
@@ -222,7 +222,7 @@ func (s *Blog) catalogQueryAction(res http.ResponseWriter, req *http.Request) {
 
 	result := catalogResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("catalogQueryAction, query catalog failed, illegal authToken or sessionID")
@@ -278,7 +278,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 	param := &articleParam{}
 	result := articleResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("articleCreateAction, create article failed, illegal authToken or sessionID")
@@ -334,7 +334,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 	param := &articleParam{}
 	result := articleResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("articleUpdateAction, update article failed, illegal authToken or sessionID")
@@ -391,7 +391,7 @@ func (s *Blog) catalogDeleteAction(res http.ResponseWriter, req *http.Request) {
 
 	result := catalogResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("catalogDeleteAction, delete catalog failed, illegal authToken or sessionID")
@@ -439,7 +439,7 @@ func (s *Blog) articleDeleteAction(res http.ResponseWriter, req *http.Request) {
 
 	result := articleResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("articleDeleteAction, delete article failed, illegal authToken or sessionID")

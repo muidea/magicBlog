@@ -21,7 +21,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 
 	result := statusResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("statusAccount failed, illegal authToken or sessionID")
@@ -110,7 +110,7 @@ func (s *Blog) logoutAction(res http.ResponseWriter, req *http.Request) {
 
 	result := logoutResult{}
 	for {
-		authToken := req.URL.Query().Get(common_const.AuthTokenID)
+		authToken := req.URL.Query().Get(common_const.AuthToken)
 		sessionID := req.URL.Query().Get(common_const.SessionID)
 		if len(authToken) == 0 || len(sessionID) == 0 {
 			log.Print("logout failed, illegal authToken or sessionID")

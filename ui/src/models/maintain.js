@@ -61,18 +61,18 @@ export default {
           if (id === -1) {
             const summaryResult = yield call(queryCatalogSummary, {})
             const { data } = summaryResult
-            const { errorCode, reason, summaryList } = data
+            const { errorCode, reason, summary } = data
             if (errorCode === 0) {
-              yield put({ type: 'save', payload: { action: { ...payload, data: summaryList } } })
+              yield put({ type: 'save', payload: { action: { ...payload, data: summary } } })
             } else {
               throw reason
             }
           } else {
             const summaryResult = yield call(queryCatalogSummaryByID, { id })
             const { data } = summaryResult
-            const { errorCode, reason, summaryList } = data
+            const { errorCode, reason, summary } = data
             if (errorCode === 0) {
-              yield put({ type: 'save', payload: { action: { ...payload, data: summaryList } } })
+              yield put({ type: 'save', payload: { action: { ...payload, data: summary } } })
             } else {
               throw reason
             }

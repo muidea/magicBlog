@@ -24,7 +24,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		userView, sessionID, ok := s.centerAgent.StatusAccount(authToken, sessionID)
+		userView, authToken, sessionID, ok := s.centerAgent.StatusAccount(authToken, sessionID)
 		if !ok {
 			log.Print("statusAccount failed, illegal authToken or sessionID")
 			result.ErrorCode = common_def.Failed
@@ -33,6 +33,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 		}
 
 		result.OnlineEntry = userView
+		result.AuthToken = authToken
 		result.SessionID = sessionID
 		result.ErrorCode = common_def.Success
 		break

@@ -40,7 +40,7 @@ func New(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	blog := Blog{}
 
 	agent := agent.New()
-	sessionID, ok := agent.Start(centerServer, endpointID, authToken)
+	authToken, sessionID, ok := agent.Start(centerServer, endpointID, authToken)
 	if !ok {
 		return blog, false
 	}

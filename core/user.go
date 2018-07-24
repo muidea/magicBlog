@@ -32,7 +32,7 @@ func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		result.OnlineUser = userView
+		result.OnlineEntry = userView
 		result.SessionID = sessionID
 		result.ErrorCode = common_def.Success
 		break
@@ -69,7 +69,7 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		result.OnlineUser = userView
+		result.OnlineEntry = userView
 		result.AuthToken = authToken
 		result.SessionID = sessionID
 		result.ErrorCode = common_def.Success

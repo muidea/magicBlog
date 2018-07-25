@@ -5,12 +5,12 @@ if [ $LISTENPORT ]; then
     EXTRA_ARGS=$EXTRA_ARGS' -ListenPort='$LISTENPORT
 fi
 
-if [ $CENTER_SERVER ]; then
-    EXTRA_ARGS=$EXTRA_ARGS' -CenterSvr='$CENTER_SERVER
+if [ $CENTERSERVER ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -CenterSvr='$CENTERSERVER
 fi
 
-if [ $NAME ]; then
-    EXTRA_ARGS=$EXTRA_ARGS' -BlogName='$NAME
+if [ $ENDPOINTNAME ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -EndpointName='$ENDPOINTNAME
 fi
 
 if [ $ENDPOINTID ]; then
@@ -24,5 +24,7 @@ fi
 echo $EXTRA_ARGS
 
 /var/app/wait-for-it.sh $CENTER_SERVER -- echo "centerServer is ready."
+
+/var/app/setupTool $EXTRA_ARGS "$@"
 
 /var/app/magicBlog $EXTRA_ARGS "$@"

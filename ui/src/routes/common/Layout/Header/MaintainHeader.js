@@ -6,7 +6,7 @@ import styles from './index.less'
 
 const { SubMenu } = Menu
 
-function MaintainHeader({ history, user, logoutHandler }) {
+function MaintainHeader({ history, declare, user, logoutHandler }) {
   const { location } = history
 
   const onMenuClick = ({ key }) => {
@@ -17,6 +17,9 @@ function MaintainHeader({ history, user, logoutHandler }) {
 
   return (
     <div className={styles.maintain_content}>
+      <div className={styles.declare}>
+        <Link to="/">{declare}</Link>
+      </div>
       <Row type="flex" justify="end">
         <Menu
           selectedKeys={[location.pathname]}

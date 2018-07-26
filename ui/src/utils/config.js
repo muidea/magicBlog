@@ -1,7 +1,7 @@
 const APIV1 = '/api/v1'
 
 module.exports = {
-  name: 'MagicBlog',
+  name: 'magicBlog',
   prefix: 'magicBlog',
   footerText: 'magicBlog © 2017 muidea.com',
   api: {

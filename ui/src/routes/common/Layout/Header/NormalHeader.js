@@ -3,11 +3,14 @@ import { Menu, Icon, Row } from 'antd'
 import { Link } from 'dva/router'
 import styles from './index.less'
 
-function NormailHeader({ history }) {
+function NormailHeader({ history, declare }) {
   const { location } = history
 
   return (
     <div className={styles.normal_content}>
+      <div className={styles.declare}>
+        <Link to="/">{declare}</Link>
+      </div>
       <Row type="flex" justify="end">
         <Menu
           selectedKeys={[location.pathname]}

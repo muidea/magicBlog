@@ -4,11 +4,11 @@ import { NormalHeader } from './Header'
 import Footer from './Footer'
 import styles from './MainLayout.less'
 
-function MainLayout({ history, children }) {
+function MainLayout({ history, declare, children }) {
   return (
     <div>
       <div className={styles.header}>
-        <NormalHeader history={history} />
+        <NormalHeader declare={declare} history={history} />
       </div>
       <Row className={styles.content}>
         <Col span={16} offset={4}>

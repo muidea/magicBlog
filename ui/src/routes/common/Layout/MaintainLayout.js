@@ -5,11 +5,11 @@ import { MaintainHeader } from './Header'
 import Footer from './Footer'
 import styles from './MaintainLayout.less'
 
-function MaintainLayout({ history, user, logoutHandler, children }) {
+function MaintainLayout({ history, declare, user, logoutHandler, children }) {
   return (
     <div>
       <div className={styles.header}>
-        <MaintainHeader history={history} user={user} logoutHandler={logoutHandler} />
+        <MaintainHeader history={history} declare={declare} user={user} logoutHandler={logoutHandler} />
       </div>
       <Row className={styles.content}>
         <Col span={16} offset={4}>

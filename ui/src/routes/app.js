@@ -4,7 +4,10 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva'
 import { Helmet } from 'react-helmet'
 import { withRouter } from 'dva/router'
+import { config } from 'utils'
 import { MainLayout, MaintainLayout } from './common'
+
+const { name } = config
 
 const App = ({ children, app, history, dispatch }) => {
   const { isLogin, onlineUser, authToken, sessionID } = app
@@ -19,12 +22,12 @@ const App = ({ children, app, history, dispatch }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       { !isLogin &&
-      <MainLayout history={history}>
+      <MainLayout history={history} declare={name}>
         { children }
       </MainLayout>
       }
       { isLogin &&
-      <MaintainLayout history={history} user={onlineUser} logoutHandler={onLogoutHandler}>
+      <MaintainLayout history={history} declare={name} user={onlineUser} logoutHandler={onLogoutHandler}>
         { children }
       </MaintainLayout>
       }

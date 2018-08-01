@@ -14,15 +14,13 @@ export default class RichEditor extends Component {
 
     autobind(this)
 
-    const curFormat = defaultFormat
     let curValue = RichTextEditor.createEmptyValue()
     if (('value' in props) && props.value && props.value.length !== 0) {
-      curValue = curValue.setContentFromString(props.value, curFormat)
+      curValue = curValue.setContentFromString(props.value, defaultFormat)
     }
 
     this.state = {
       richValue: curValue,
-      format: curFormat,
       placeholder: props.placeholder,
       editorStyle: props.editorStyle,
     }
@@ -33,7 +31,7 @@ export default class RichEditor extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (('value' in nextProps) && nextProps.value && this.props.value && (this.props.value !== nextProps.value) && this.props.value.length === 0) {
-      this.setState({ richValue: this.state.richValue.setContentFromString(nextProps.value, this.state.format) })
+      this.setState({ richValue: this.state.richValue.setContentFromString(nextProps.value, defaultFormat) })
     }
 
     if (('placeholder' in nextProps) && (this.props.placeholder !== nextProps.placeholder)) {
@@ -44,20 +42,30 @@ export default class RichEditor extends Component {
   onChange(value) {
     this.setState({ richValue: value })
 
-    this.props.onChange(value.toString(this.state.format))
+    this.props.onChange(value.toString(defaultFormat))
   }
 
-  onChangeSource(event) {
+  onChangeMarkdownSource(event) {
     const source = event.target.value
     const oldValue = this.state.richValue
+    const curValue = oldValue.setContentFromString(source, 'markdown')
+    this.setState({ richValue: curValue })
 
-    this.setState({ richValue: oldValue.setContentFromString(source, this.state.format) })
+    this.props.onChange(curValue.toString(defaultFormat))
+  }
 
-    this.props.onChange(source)
+  onChangeHTMLSource(event) {
+    const source = event.target.value
+    const oldValue = this.state.richValue
+    const curValue = oldValue.setContentFromString(source, 'html')
+
+    this.setState({ richValue: curValue })
+
+    this.props.onChange(curValue.toString(defaultFormat))
   }
 
   render() {
-    const { richValue, format, placeholder, editorStyle } = this.state
+    const { richValue, placeholder, editorStyle } = this.state
 
     return (
       <Tabs type="card">
@@ -75,7 +83,12 @@ export default class RichEditor extends Component {
         </TabPane>
         <TabPane tab="Markdown模式" key="markdown">
           <div className="row">
-            <TextArea rows={27} cols={30} value={richValue.toString(format)} onChange={this.onChangeSource} />
+            <TextArea rows={27} cols={30} value={richValue.toString('markdown')} onChange={this.onChangeMarkdownSource} />
+          </div>
+        </TabPane>
+        <TabPane tab="Html模式" key="html">
+          <div className="row">
+            <TextArea rows={27} cols={30} value={richValue.toString('html')} onChange={this.onChangeHTMLSource} />
           </div>
         </TabPane>
         <TabPane tab="预览" key="preView">

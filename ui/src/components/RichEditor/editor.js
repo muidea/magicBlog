@@ -15,7 +15,7 @@ export default class RichEditor extends Component {
     autobind(this)
 
     let curValue = RichTextEditor.createEmptyValue()
-    if (('value' in props) && props.value && props.value.length !== 0) {
+    if (props.value) {
       curValue = curValue.setContentFromString(props.value, defaultFormat)
     }
 
@@ -31,11 +31,11 @@ export default class RichEditor extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (('value' in nextProps) && nextProps.value && this.props.value && (this.props.value !== nextProps.value) && this.props.value.length === 0) {
+    if (nextProps.value) {
       this.setState({ richValue: this.state.richValue.setContentFromString(nextProps.value, defaultFormat) })
     }
 
-    if (('placeholder' in nextProps) && (this.props.placeholder !== nextProps.placeholder)) {
+    if (nextProps.placeholder && (this.props.placeholder !== nextProps.placeholder)) {
       this.setState({ placeholder: nextProps.placeholder })
     }
   }

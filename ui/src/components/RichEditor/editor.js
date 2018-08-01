@@ -26,7 +26,8 @@ export default class RichEditor extends Component {
     }
 
     this.onChange = this.onChange.bind(this)
-    this.onChangeSource = this.onChangeSource.bind(this)
+    this.onChangeMarkdownSource = this.onChangeMarkdownSource.bind(this)
+    this.onChangeHTMLSource = this.onChangeHTMLSource.bind(this)
   }
 
   componentWillReceiveProps(nextProps) {

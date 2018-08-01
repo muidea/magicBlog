@@ -38,9 +38,9 @@ function ContentView({ contentData, onSelect, onAdd, onModify, onDelete, onSubmi
   const getAddContent = () => {
     const content = { ...data, catalog: [{ id, name }] }
     if (data.type === 'article') {
-      return <ArticleEditor content={content} onSubmit={onSubmit} />
+      return <ArticleEditor content={content} onSubmit={onSubmitData} />
     } else if (data.type === 'catalog') {
-      return <CatalogEditor content={content} onSubmit={onSubmit} />
+      return <CatalogEditor content={content} onSubmit={onSubmitData} />
     }
   }
 

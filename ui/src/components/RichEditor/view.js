@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import RichTextEditor from 'react-rte'
 import PropTypes from 'prop-types'
 import defaultFormat from './common'
-
+import styles from './view.less'
 
 class RichView extends Component {
   constructor(props) {
     super(props)
-    this.state = { value: this.props.value, format: defaultFormat }
+    this.state = { value: this.props.value }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -15,15 +15,14 @@ class RichView extends Component {
   }
 
   render() {
-    const { value, format } = this.state
-
+    const { value } = this.state
     let curValue = RichTextEditor.createEmptyValue()
     if (value) {
-      curValue = curValue.setContentFromString(value, format)
+      curValue = curValue.setContentFromString(value, defaultFormat)
     }
 
     return (
-      <RichTextEditor value={curValue} readOnly />
+      <RichTextEditor value={curValue} className={styles.root} readOnly />
     )
   }
 }

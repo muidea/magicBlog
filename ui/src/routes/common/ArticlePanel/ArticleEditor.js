@@ -31,7 +31,7 @@ const ArticleEditor = ({
       <div>
         <form>
           <FormItem label="标题" hasFeedback>
-            {getFieldDecorator('title', {
+            {getFieldDecorator('name', {
               initialValue: content.name,
               rules: [{ required: true }],
             })(<Input size="large" onPressEnter={handleOk} placeholder="输入标题" />)}

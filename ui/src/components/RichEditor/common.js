@@ -1,3 +1,3 @@
-const defaultFormat = 'markdown'
+const defaultFormat = 'html'
 
 export default defaultFormat

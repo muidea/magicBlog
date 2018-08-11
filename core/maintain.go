@@ -23,7 +23,8 @@ type itemInfo struct {
 func (s *Blog) fetchSubItem(id, curDeep int, authToken, sessionID string) []itemInfo {
 	itemList := []itemInfo{}
 
-	subItem := s.centerAgent.QuerySummaryContent(id, model.CATALOG, authToken, sessionID)
+	summary := model.CatalogUnit{ID: id, Type: model.CATALOG}
+	subItem := s.centerAgent.QuerySummaryContent(summary, authToken, sessionID)
 	for _, val := range subItem {
 		info := itemInfo{}
 		info.ID = val.ID
@@ -114,7 +115,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID)
+		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID, nil)
 		if !ok {
 			log.Print("catalogCreateAction, create catalog failed")
 			result.ErrorCode = common_def.Failed
@@ -168,7 +169,7 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, authToken, sessionID)
+		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, authToken, sessionID, nil)
 		if !ok {
 			log.Print("catalogUpdateAction, update catalog failed")
 			result.ErrorCode = common_def.Failed
@@ -257,7 +258,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.CreateArticle(param.Name, param.Content, param.Catalog, authToken, sessionID)
+		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID, nil)
 		if !ok {
 			log.Print("articleCreateAction, create article failed")
 			result.ErrorCode = common_def.Failed
@@ -311,7 +312,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.UpdateArticle(id, param.Name, param.Content, param.Catalog, authToken, sessionID)
+		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, authToken, sessionID, nil)
 		if !ok {
 			log.Print("articleUpdateAction, update article failed")
 			result.ErrorCode = common_def.Failed

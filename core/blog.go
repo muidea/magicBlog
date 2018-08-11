@@ -44,13 +44,13 @@ func New(centerServer, name, endpointID, authToken string) (Blog, bool) {
 	if !ok {
 		return blog, false
 	}
-	blogCatalog, ok := agent.FetchSummary(name, model.CATALOG, authToken, sessionID)
+	blogCatalog, ok := agent.FetchSummary(name, model.CATALOG, authToken, sessionID, nil)
 	if !ok {
 		log.Print("fetch blog root ctalog failed.")
 		return blog, false
 	}
 
-	blogContent := agent.QuerySummaryContent(blogCatalog.ID, model.CATALOG, authToken, sessionID)
+	blogContent := agent.QuerySummaryContent(*blogCatalog.CatalogUnit(), authToken, sessionID)
 
 	blog.centerAgent = agent
 	blog.blogInfo = blogCatalog
@@ -192,7 +192,7 @@ func (s *Blog) mainPage(res http.ResponseWriter, req *http.Request) {
 	result := common_def.QuerySummaryListResult{}
 	indexView, ok := s.getIndexView()
 	if ok {
-		result.Summary = s.centerAgent.QuerySummaryContent(indexView.ID, model.CATALOG, s.authToken, s.sessionID)
+		result.Summary = s.centerAgent.QuerySummaryContent(*indexView.CatalogUnit(), s.authToken, s.sessionID)
 		result.ErrorCode = common_def.Success
 	} else {
 		result.ErrorCode = common_def.Redirect
@@ -214,7 +214,7 @@ func (s *Blog) catalogSummaryPage(res http.ResponseWriter, req *http.Request) {
 	result := common_def.QuerySummaryListResult{}
 	catalogView, ok := s.getCatalogView()
 	if ok {
-		result.Summary = s.centerAgent.QuerySummaryContent(catalogView.ID, model.CATALOG, s.authToken, s.sessionID)
+		result.Summary = s.centerAgent.QuerySummaryContent(*catalogView.CatalogUnit(), s.authToken, s.sessionID)
 		result.ErrorCode = common_def.Success
 	} else {
 		result.ErrorCode = common_def.Redirect
@@ -237,7 +237,8 @@ func (s *Blog) catalogSummaryByIDPage(res http.ResponseWriter, req *http.Request
 	_, value := net.SplitRESTAPI(req.URL.Path)
 	id, err := strconv.Atoi(value)
 	if err == nil {
-		result.Summary = s.centerAgent.QuerySummaryContent(id, model.CATALOG, s.authToken, s.sessionID)
+		summary := model.CatalogUnit{ID: id, Type: model.CATALOG}
+		result.Summary = s.centerAgent.QuerySummaryContent(summary, s.authToken, s.sessionID)
 		result.ErrorCode = common_def.Success
 	} else {
 		result.ErrorCode = common_def.IllegalParam

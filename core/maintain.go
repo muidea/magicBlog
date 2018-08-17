@@ -115,7 +115,7 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID, nil)
+		catalog, ok := s.centerAgent.CreateCatalog(param.Name, param.Description, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("catalogCreateAction, create catalog failed")
 			result.ErrorCode = common_def.Failed
@@ -169,7 +169,7 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, authToken, sessionID, nil)
+		catalog, ok := s.centerAgent.UpdateCatalog(id, param.Name, param.Description, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("catalogUpdateAction, update catalog failed")
 			result.ErrorCode = common_def.Failed
@@ -258,7 +258,7 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID, nil)
+		article, ok := s.centerAgent.CreateArticle(param.Title, param.Content, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("articleCreateAction, create article failed")
 			result.ErrorCode = common_def.Failed
@@ -312,7 +312,7 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, authToken, sessionID, nil)
+		article, ok := s.centerAgent.UpdateArticle(id, param.Title, param.Content, param.Catalog, authToken, sessionID)
 		if !ok {
 			log.Print("articleUpdateAction, update article failed")
 			result.ErrorCode = common_def.Failed

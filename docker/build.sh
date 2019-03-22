@@ -2,7 +2,7 @@
 
 rootPath=$GOPATH
 projectName=magicBlog
-projectPath=$rootPath/src/muidea.com/$projectName
+projectPath=$rootPath/src/github.com/muidea/$projectName
 binPath=$rootPath/bin/$projectName
 configPath=$projectPath/config/config.xml
 toolPath=$rootPath/bin/setupTool
@@ -38,7 +38,7 @@ function cleanUp()
 function buildBin()
 {
     echo "buildBin..."
-    go install muidea.com/magicBlog/cmd/magicBlog
+    go install github.com/muidea/magicBlog/cmd/magicBlog
     if [ $? -ne 0 ]; then
         echo "buildBin failed."
         exit 1

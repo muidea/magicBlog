@@ -1,3 +1,3 @@
 #/bin/sh
 
-go build muidea.com/magicBlog/cmd/magicBlog
+go build github.com/muidea/magicBlog/cmd/magicBlog

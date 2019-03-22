@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	common_const "muidea.com/magicCommon/common"
-	common_def "muidea.com/magicCommon/def"
-	"muidea.com/magicCommon/foundation/net"
-	"muidea.com/magicCommon/model"
+	common_const "github.com/muidea/magicCommon/common"
+	common_def "github.com/muidea/magicCommon/def"
+	"github.com/muidea/magicCommon/foundation/net"
+	"github.com/muidea/magicCommon/model"
 )
 
 type itemInfo struct {

@@ -4,8 +4,8 @@ import (
 	"flag"
 	"log"
 
-	magicblog "muidea.com/magicBlog/core"
-	engine "muidea.com/magicEngine"
+	magicblog "github.com/muidea/magicBlog/core"
+	engine "github.com/muidea/magicEngine"
 )
 
 var bindPort = "8866"

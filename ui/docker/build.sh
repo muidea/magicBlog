@@ -2,7 +2,7 @@
 
 rootPath=$GOPATH
 projectName=magicBlogUI
-projectPath=$rootPath/src/muidea.com/magicBlog/ui
+projectPath=$rootPath/src/github.com/muidea/magicBlog/ui
 binPath=$projectPath/dist
 imageID=""
 imageNamespace=muidea.ai/develop

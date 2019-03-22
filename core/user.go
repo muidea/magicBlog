@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	common_const "muidea.com/magicCommon/common"
-	common_def "muidea.com/magicCommon/def"
-	"muidea.com/magicCommon/foundation/net"
+	common_const "github.com/muidea/magicCommon/common"
+	common_def "github.com/muidea/magicCommon/def"
+	"github.com/muidea/magicCommon/foundation/net"
 )
 
 func (s *Blog) statusAction(res http.ResponseWriter, req *http.Request) {

@@ -107,9 +107,9 @@ func (s *Blog) catalogCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		err := net.ParsePostJSON(req, param)
+		err := net.ParseJSONBody(req, param)
 		if err != nil {
-			log.Printf("catalogCreateAction, ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("catalogCreateAction, ParseJSONBody failed, err:%s", err.Error())
 			result.ErrorCode = common_def.Failed
 			result.Reason = "非法请求"
 			break
@@ -161,9 +161,9 @@ func (s *Blog) catalogUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		err = net.ParsePostJSON(req, param)
+		err = net.ParseJSONBody(req, param)
 		if err != nil {
-			log.Printf("catalogUpdateAction, ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("catalogUpdateAction, ParseJSONBody failed, err:%s", err.Error())
 			result.ErrorCode = common_def.Failed
 			result.Reason = "非法请求"
 			break
@@ -250,9 +250,9 @@ func (s *Blog) articleCreateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		err := net.ParsePostJSON(req, param)
+		err := net.ParseJSONBody(req, param)
 		if err != nil {
-			log.Printf("articleCreateAction, ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("articleCreateAction, ParseJSONBody failed, err:%s", err.Error())
 			result.ErrorCode = common_def.Failed
 			result.Reason = "非法请求"
 			break
@@ -304,9 +304,9 @@ func (s *Blog) articleUpdateAction(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		err = net.ParsePostJSON(req, param)
+		err = net.ParseJSONBody(req, param)
 		if err != nil {
-			log.Printf("articleUpdateAction, ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("articleUpdateAction, ParseJSONBody failed, err:%s", err.Error())
 			result.ErrorCode = common_def.Failed
 			result.Reason = "非法请求"
 			break

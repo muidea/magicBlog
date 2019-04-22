@@ -54,9 +54,9 @@ func (s *Blog) loginAction(res http.ResponseWriter, req *http.Request) {
 	param := &common_def.LoginAccountParam{}
 	result := common_def.LoginAccountResult{}
 	for {
-		err := net.ParsePostJSON(req, param)
+		err := net.ParseJSONBody(req, param)
 		if err != nil {
-			log.Printf("ParsePostJSON failed, err:%s", err.Error())
+			log.Printf("ParseJSONBody failed, err:%s", err.Error())
 			result.ErrorCode = common_def.Failed
 			result.Reason = "非法请求"
 			break

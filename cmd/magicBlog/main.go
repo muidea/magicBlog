@@ -4,12 +4,12 @@ import (
 	"flag"
 	"log"
 
-	engine "github.com/muidea/magicEngine"
 	_ "github.com/muidea/magicBlog/config"
 	core "github.com/muidea/magicBlog/core"
+	engine "github.com/muidea/magicEngine"
 )
 
-var listenPort = "8880"
+var listenPort = "8888"
 
 func main() {
 	flag.StringVar(&listenPort, "ListenPort", listenPort, "magicBlog listen address")

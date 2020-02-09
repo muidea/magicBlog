@@ -22,7 +22,7 @@
     "path-to-regexp": "^2.2.0",
     "qs": "^6.5.1",
     "axios": "^0.18.0",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.13"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",

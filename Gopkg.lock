@@ -10,7 +10,7 @@
     "def",
   ]
   pruneopts = "UT"
-  revision = "f2e8222a04531128d2c6296af4b6583a32970ba2"
+  revision = "d989a06e8c1a9b2842e2b99c6eba7e3ced62bf56"
 
 [[projects]]
   branch = "master"
@@ -23,7 +23,7 @@
     "toolkit/private",
   ]
   pruneopts = "UT"
-  revision = "3a36313956fa07a9033afb1f80495f674ed6fddb"
+  revision = "1466eac20090fc013555b384e93ebb870198546f"
 
 [[projects]]
   branch = "master"
@@ -38,15 +38,15 @@
     "session",
   ]
   pruneopts = "UT"
-  revision = "52bde78f7e7602cdfbd71577088c7f0d3c7ca89c"
+  revision = "aaf7879413e2bd661bb071087eed789234327e0d"
 
 [[projects]]
   branch = "master"
-  digest = "1:211591e53dccb8a05628c03a34c09b36080ded1c5b0635e3024a141272e95b8c"
+  digest = "1:8ab72bb33551a2692b657dc04d78d627a73a4dcc518a5cdf2ac82599a4f1e5fb"
   name = "github.com/muidea/magicEngine"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0594a100d7a47e3c5d022764fb1eb0136135fc77"
+  revision = "40d60c08c06b5cc7375d1af53bef20a0b1b5be43"
 
 [[projects]]
   branch = "master"
@@ -59,7 +59,7 @@
     "util",
   ]
   pruneopts = "UT"
-  revision = "0e46145295ea5dcec879afc26e0fb3c8b8efdc60"
+  revision = "eed87e28b12b8a86c30586abd1ff27c40e1971e9"
 
 [[projects]]
   branch = "master"
@@ -71,7 +71,7 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "f0506072f233eaf772752c0b651648f7a4ccb9fb"
+  revision = "5e44eeb489082abb02cf5aa3ad020543c37f85c0"
 
 [solve-meta]
   analyzer-name = "dep"

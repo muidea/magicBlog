@@ -4,8 +4,6 @@ rootPath=$GOPATH
 projectName=magicBlog
 projectPath=$rootPath/src/github.com/muidea/$projectName
 binPath=$rootPath/bin/$projectName
-configPath=$projectPath/config/config.xml
-toolPath=$rootPath/bin/setupTool
 imageID=""
 imageNamespace=muidea.ai/develop
 imageVersion=latest
@@ -25,20 +23,12 @@ function cleanUp()
     if [ -f $binPath ]; then
         rm -f $binPath
     fi
-
-    if [ -f $configPath ]; then
-        rm -f config.xml
-    fi
-
-    if [ -f $toolPath ]; then
-        rm -f setupTool
-    fi
 }
 
 function buildBin()
 {
     echo "buildBin..."
-    go install github.com/muidea/magicBlog/cmd/magicBlog
+    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -tags netgo  -o $binPath github.com/muidea/magicBlog/cmd/magicBlog
     if [ $? -ne 0 ]; then
         echo "buildBin failed."
         exit 1
@@ -59,24 +49,10 @@ function prepareFile()
 
     cp $binPath ./
     if [ $? -ne 0 ]; then
-        echo "prepareFile bin failed."
+        echo "prepareFile failed."
         exit 1
     else
-        echo "prepareFile bin success."
-    fi
-    cp $configPath ./
-    if [ $? -ne 0 ]; then
-        echo "prepareFile config failed."
-        exit 1
-    else
-        echo "prepareFile config success."
-    fi
-    cp $toolPath ./
-    if [ $? -ne 0 ]; then
-        echo "prepareFile tool failed."
-        exit 1
-    else
-        echo "prepareFile tool success."
+        echo "prepareFile success."
     fi
 }
 
@@ -179,4 +155,3 @@ elif [ $action == 'build' ]; then
     build
 else
     all
-fi

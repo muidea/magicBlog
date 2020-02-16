@@ -70,7 +70,7 @@
 
   <!-- Post Content -->
   <div class="container">
-    <form id="editForm"  name="sentMessage" novalidate>
+    <form id="editForm"  name="editBlog" novalidate>
       <div class="form-group">
         <label for="blog-title">标题</label>
         <input id="blog-title" name="title" class="form-control">
@@ -85,7 +85,7 @@
         <label for="blog-catalog">分组</label><span class="sub-title">(请输入分组名,以','分割)</span>
         <input id="blog-catalog" name="catalog" class="form-control">
       </div>
-      <button type="submit" class="btn btn-primary">提交</button>
+      <button type="submit" class="btn btn-primary" id="submitBlogButton">提交</button>
     </form>
   </div>
   </div>
@@ -124,18 +124,6 @@
         syncScrolling: "single",
         path: "/static/default/lib/editor-md/lib/"
       });
-    });
-
-    $('#editForm').submit(function () {
-      alert('Handler for .submit() called.');
-
-      var title = $('#blog-title').val();
-      alert(title);
-
-      var content = $('#blog-content').val();
-      console.log(content);
-
-      return false;
     });
   </script>
 

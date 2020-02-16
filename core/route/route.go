@@ -220,7 +220,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		log.Println(err)
 	}
 
-	res.Header().Add("Content-Type", "text/html; charset=utf-8")
+	res.Header().Set("Content-Type", "text/html; charset=utf-8")
 	t.Execute(res, nil)
 }
 

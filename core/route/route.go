@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path"
+	"text/template"
 
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
@@ -138,15 +140,15 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	ctx.Next()
 
 	switch req.URL.Path {
-	case "/account/create/":
+	case "/api/v1/account/create/":
 		s.recordCreateAccount(res, req)
-	case "/account/login/":
+	case "/api/v1/account/login/":
 		s.recordLoginAccount(res, req)
-	case "/account/logout/":
+	case "/api/v1/account/logout/":
 		s.recordLogoutAccount(res, req)
-	case "/account/status/":
+	case "/api/v1/account/status/":
 		s.updateSessionAccount(res, req)
-	case "/account/change/password/":
+	case "/api/v1/account/change/password/":
 		s.recordChangePassword(res, req)
 	}
 }
@@ -203,12 +205,34 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusExpectationFailed)
 }
 
+// View static view
+func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
+	bashPath := "static/default"
+
+	_, fileName := path.Split(req.URL.EscapedPath())
+	if fileName == "" {
+		fileName = "index.html"
+	}
+
+	fullFilePath := path.Join(bashPath, fileName)
+	t, err := template.ParseFiles(fullFilePath)
+	if err != nil {
+		log.Println(err)
+	}
+
+	res.Header().Add("Content-Type", "text/html; charset=utf-8")
+	t.Execute(res, nil)
+}
+
 // RegisterRoute 注册路由
 func (s *Registry) RegisterRoute(router engine.Router) {
 	// blog view routes
-	indexURL := "/static/default/"
+	indexURL := "/view/index.html"
 	indexRoute := engine.CreateProxyRoute("/", "GET", indexURL, true)
 	router.AddRoute(indexRoute, s)
+
+	viewRoute := engine.CreateRoute("/view/**", "GET", s.View)
+	router.AddRoute(viewRoute, s)
 
 	// blog api routes
 	// account login,logout,status,changepassword

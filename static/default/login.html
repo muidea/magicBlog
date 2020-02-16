@@ -69,20 +69,22 @@
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut consequuntur magnam, excepturi aliquid ex itaque esse est vero natus quae optio aperiam soluta voluptatibus corporis atque iste neque sit tempora!</p>
       </div>
       <div class="col-lg-4 col-md-4 mx-auto">
-        <form style="margin-top: 50px;">
+        <form id="loginForm"  name="loginBlog" novalidate style="margin-top: 50px;">
           <div class="form-group">
             <label for="account">账号</label>
-            <input class="form-control" id="account">
+            <input class="form-control" id="account" name="account">
           </div>
           <div class="form-group">
             <label for="password">密码</label>
-            <input type="password" class="form-control" id="password">
+            <input type="password" class="form-control" id="password" name="password">
           </div>
+          <div id="success"></div>
           <button type="submit" class="btn btn-primary">登录</button>
         </form>
       </div>
     </div>
   </div>
+
 
   <hr>
 
@@ -100,6 +102,10 @@
   <!-- Bootstrap core JavaScript -->
   <script src="/static/default/lib/jquery/jquery.min.js"></script>
   <script src="/static/default/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- 给我留言 Form JavaScript -->
+  <script src="/static/default/js/jqBootstrapValidation.js"></script>
+  <script src="/static/default/js/login-blog.js"></script>
 
   <!-- Custom scripts for this template -->
   <script src="/static/default/js/clean-blog.js"></script>

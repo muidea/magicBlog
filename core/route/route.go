@@ -18,7 +18,6 @@ import (
 	"github.com/muidea/magicBlog/core/handler"
 
 	casClient "github.com/muidea/magicCas/client"
-	casCommon "github.com/muidea/magicCas/common"
 	casModel "github.com/muidea/magicCas/model"
 	casPrivate "github.com/muidea/magicCas/toolkit/private"
 	engine "github.com/muidea/magicEngine"
@@ -35,6 +34,8 @@ type Registry struct {
 	userService string
 	casService  string
 	fileService string
+
+	bashPath string
 }
 
 // NewRoute create route
@@ -49,6 +50,7 @@ func NewRoute(
 		casService:           config.CasService(),
 		userService:          config.UserService(),
 		fileService:          config.FileService(),
+		bashPath:             "static/default",
 	}
 
 	return route
@@ -155,14 +157,22 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 
 // Login account login
 func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
+	type loginParam struct {
+		Account  string `json:"account"`
+		Password string `json:"password"`
+	}
+	type loginResult struct {
+		commonDef.Result
+		Redirect string `json:"redirect"`
+	}
 
 	sessionInfo := &commonCommon.SessionInfo{}
 	sessionInfo.Decode(req)
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-	result := &casCommon.LoginResult{}
+	result := &loginResult{}
 	for {
-		param := &casCommon.LoginParam{}
+		param := &loginParam{}
 		err := net.ParseJSONBody(req, param)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
@@ -190,9 +200,8 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 		curSession.SetOption(commonCommon.AuthAccount, accountPtr)
 		curSession.SetOption(commonCommon.SessionIdentity, sessionPtr)
 
-		result.Account = accountPtr
-		result.SessionInfo = sessionPtr
 		result.ErrorCode = commonDef.Success
+		result.Redirect = "/"
 		break
 	}
 
@@ -207,14 +216,12 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 
 // View static view
 func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
-	bashPath := "static/default"
-
 	_, fileName := path.Split(req.URL.EscapedPath())
 	if fileName == "" {
 		fileName = "index.html"
 	}
 
-	fullFilePath := path.Join(bashPath, fileName)
+	fullFilePath := path.Join(s.bashPath, fileName)
 	t, err := template.ParseFiles(fullFilePath)
 	if err != nil {
 		log.Println(err)

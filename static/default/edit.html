@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>走向全栈 - Start Bootstrap Theme</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/static/default/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="/static/default/lib/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Custom editormd for this template -->
+  <link href="/static/default/lib/editor-md/css/editormd.css" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="css/clean-blog.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+        data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+        aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">主页</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="contact.html">给我留言</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="about.html">关于本站</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="edit.html">写博客</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="masthead" style="background-image: url('img/post-bg.jpg')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 col-md-10 mx-auto">
+          <div class="site-heading">
+            <h2>走向全栈</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Post Content -->
+  <div class="container">
+    <form id="editForm"  name="sentMessage" novalidate>
+      <div class="form-group">
+        <label for="blog-title">标题</label>
+        <input id="blog-title" name="title" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="blog-editormd">内容</label>
+        <div id="blog-editormd">
+          <textarea style="display:none;" id="blog-content" name="content"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="blog-catalog">分组</label><span class="sub-title">(请输入分组名,以','分割)</span>
+        <input id="blog-catalog" name="catalog" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-primary">提交</button>
+    </form>
+  </div>
+  </div>
+  </div>
+
+  <hr>
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 col-md-10 mx-auto">
+          <p class="copyright text-muted">Copyright &copy; Your Website 2019</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="/static/default/lib/jquery/jquery.min.js"></script>
+  <script src="/static/default/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/default/lib/editor-md/editormd.min.js"></script>
+
+  <!-- 给我留言 Form JavaScript -->
+  <script src="js/jqBootstrapValidation.js"></script>
+  <script src="js/edit-blog.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/clean-blog.js"></script>
+
+  <script type="text/javascript">
+    var testEditor;
+    $(function () {
+      testEditor = editormd("blog-editormd", {
+        width: "100%",
+        height: 640,
+        syncScrolling: "single",
+        path: "/static/default/lib/editor-md/lib/"
+      });
+    });
+
+    $('#editForm').submit(function () {
+      alert('Handler for .submit() called.');
+
+      var title = $('#blog-title').val();
+      alert(title);
+
+      var content = $('#blog-content').val();
+      console.log(content);
+
+      return false;
+    });
+  </script>
+
+</body>
+
+</html>

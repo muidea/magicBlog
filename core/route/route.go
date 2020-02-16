@@ -211,46 +211,46 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------
-	loginRoute := engine.CreateRoute("/account/login/", "POST", s.Login)
+	loginRoute := engine.CreateRoute("/api/v1/account/login/", "POST", s.Login)
 	router.AddRoute(loginRoute, s)
 
 	logoutURL := net.JoinURL(s.casService, "/access/logout/")
-	logoutRoute := engine.CreateProxyRoute("/account/logout/", "DELETE", logoutURL, true)
+	logoutRoute := engine.CreateProxyRoute("/api/v1/account/logout/", "DELETE", logoutURL, true)
 	router.AddRoute(logoutRoute, s)
 
 	statusURL := net.JoinURL(s.casService, "/access/status/")
-	statusRoute := engine.CreateProxyRoute("/account/status/", "GET", statusURL, true)
+	statusRoute := engine.CreateProxyRoute("/api/v1/account/status/", "GET", statusURL, true)
 	router.AddRoute(statusRoute, s)
 
 	createAccountURL := net.JoinURL(s.casService, "/account/create/")
-	createAccountRoute := engine.CreateProxyRoute("/account/create/", "POST", createAccountURL, true)
+	createAccountRoute := engine.CreateProxyRoute("/api/v1/account/create/", "POST", createAccountURL, true)
 	router.AddRoute(createAccountRoute, s)
 
 	changePasswordURL := net.JoinURL(s.casService, "/account/password/")
-	changePasswordRoute := engine.CreateProxyRoute("/account/change/password/", "PUT", changePasswordURL, true)
+	changePasswordRoute := engine.CreateProxyRoute("/api/v1/account/change/password/", "PUT", changePasswordURL, true)
 	router.AddRoute(changePasswordRoute, s)
 
 	// update account,query account,delete account
 	//---------------------------------------------------------------------------------------
-	s.privateRouteRegistry.AddHandler("/account/query/all/", "GET", casModel.ReadPrivate, s.QueryAllAccount)
-	s.privateRouteRegistry.AddHandler("/account/query/:id", "GET", casModel.ReadPrivate, s.QueryAccount)
-	s.privateRouteRegistry.AddHandler("/account/delete/:id", "DELETE", casModel.DeletePrivate, s.DeleteAccount)
-	s.privateRouteRegistry.AddHandler("/account/update/:id", "PUT", casModel.WritePrivate, s.UpdateAccount)
+	s.privateRouteRegistry.AddHandler("/api/v1/account/query/all/", "GET", casModel.ReadPrivate, s.QueryAllAccount)
+	s.privateRouteRegistry.AddHandler("/api/v1/account/query/:id", "GET", casModel.ReadPrivate, s.QueryAccount)
+	s.privateRouteRegistry.AddHandler("/api/v1/account/delete/:id", "DELETE", casModel.DeletePrivate, s.DeleteAccount)
+	s.privateRouteRegistry.AddHandler("/api/v1/account/update/:id", "PUT", casModel.WritePrivate, s.UpdateAccount)
 
 	// private
 	//---------------------------------------------------------------------------------------
-	s.privateRouteRegistry.AddHandler("/private/query/", "GET", casModel.ReadPrivate, s.QueryPrivateGroup)
-	s.privateRouteRegistry.AddHandler("/private/save/", "POST", casModel.WritePrivate, s.SavePrivateGroup)
-	s.privateRouteRegistry.AddHandler("/private/destory/", "GET", casModel.DeletePrivate, s.DestoryPrivateGroup)
+	s.privateRouteRegistry.AddHandler("/api/v1/private/query/", "GET", casModel.ReadPrivate, s.QueryPrivateGroup)
+	s.privateRouteRegistry.AddHandler("/api/v1/private/save/", "POST", casModel.WritePrivate, s.SavePrivateGroup)
+	s.privateRouteRegistry.AddHandler("/api/v1/private/destory/", "GET", casModel.DeletePrivate, s.DestoryPrivateGroup)
 
 	// upload file
 	//---------------------------------------------------------------------------------------
 	uploadFileURL := net.JoinURL(s.fileService, "/file/upload/")
-	uploadFileRoute := engine.CreateProxyRoute("/file/upload/", "POST", uploadFileURL, true)
+	uploadFileRoute := engine.CreateProxyRoute("/api/v1/file/upload/", "POST", uploadFileURL, true)
 	router.AddRoute(uploadFileRoute, s)
 
 	viewFileURL := net.JoinURL(s.fileService, "/file/download/")
-	viewFileRoute := engine.CreateProxyRoute("/file/view/", "GET", viewFileURL, true)
+	viewFileRoute := engine.CreateProxyRoute("/api/v1/file/view/", "GET", viewFileURL, true)
 	router.AddRoute(viewFileRoute, s)
 
 	// add more route define

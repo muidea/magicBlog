@@ -205,10 +205,12 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 
 // RegisterRoute 注册路由
 func (s *Registry) RegisterRoute(router engine.Router) {
+	// blog view routes
 	indexURL := "/static/default/"
 	indexRoute := engine.CreateProxyRoute("/", "GET", indexURL, true)
 	router.AddRoute(indexRoute, s)
 
+	// blog api routes
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------
 	loginRoute := engine.CreateRoute("/api/v1/account/login/", "POST", s.Login)

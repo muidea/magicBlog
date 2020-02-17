@@ -46,9 +46,11 @@
           <li class="nav-item">
             <a class="nav-link" href="about.html">关于本站</a>
           </li>
+          {{if .IsAuthOK}}
           <li class="nav-item">
             <a class="nav-link" href="edit.html">写博客</a>
           </li>
+          {{end}}
         </ul>
       </div>
     </div>

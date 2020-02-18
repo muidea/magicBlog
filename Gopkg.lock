@@ -14,6 +14,18 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:edfb7c206236d8ec7c107301c7d487479328bd947f8d827b61eb360e575fab04"
+  name = "github.com/muidea/magicCMS"
+  packages = [
+    "client",
+    "common",
+    "model",
+  ]
+  pruneopts = "UT"
+  revision = "f9bd5ffd55848244fabc20d93f044fd34e229bfa"
+
+[[projects]]
+  branch = "master"
   digest = "1:a7e4b1c5320549131686dba13db6d614c64ce3f280ad4d4caba6451acfe401c3"
   name = "github.com/muidea/magicCas"
   packages = [
@@ -23,11 +35,11 @@
     "toolkit/private",
   ]
   pruneopts = "UT"
-  revision = "1466eac20090fc013555b384e93ebb870198546f"
+  revision = "5ad576d7ab3d9f21b31f815bc188d503968b528a"
 
 [[projects]]
   branch = "master"
-  digest = "1:62f8feef5397f912c6c7154cc0701bbb1f772f8f04849986eecaae7eefc48b3c"
+  digest = "1:ad9987f993f6be19253c8dcd8b1e91d634ab9a7b4b4e81f11d17426b7082d562"
   name = "github.com/muidea/magicCommon"
   packages = [
     "common",
@@ -35,6 +47,7 @@
     "foundation/cache",
     "foundation/net",
     "foundation/util",
+    "route",
     "session",
   ]
   pruneopts = "UT"
@@ -79,14 +92,16 @@
   input-imports = [
     "github.com/muidea/magicBatis/client",
     "github.com/muidea/magicBatis/def",
+    "github.com/muidea/magicCMS/client",
+    "github.com/muidea/magicCMS/model",
     "github.com/muidea/magicCas/client",
-    "github.com/muidea/magicCas/common",
     "github.com/muidea/magicCas/model",
     "github.com/muidea/magicCas/toolkit/private",
     "github.com/muidea/magicCommon/common",
     "github.com/muidea/magicCommon/def",
     "github.com/muidea/magicCommon/foundation/net",
     "github.com/muidea/magicCommon/foundation/util",
+    "github.com/muidea/magicCommon/route",
     "github.com/muidea/magicCommon/session",
     "github.com/muidea/magicEngine",
     "github.com/muidea/magicUser/client",

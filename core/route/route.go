@@ -11,6 +11,7 @@ import (
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
+	commonRoute "github.com/muidea/magicCommon/route"
 
 	"github.com/muidea/magicCommon/session"
 
@@ -34,6 +35,8 @@ type Registry struct {
 	userService string
 	casService  string
 	fileService string
+	cmsService  string
+	cmsCatalog  int
 
 	bashPath string
 }
@@ -50,6 +53,8 @@ func NewRoute(
 		casService:           config.CasService(),
 		userService:          config.UserService(),
 		fileService:          config.FileService(),
+		cmsService:           config.CMSService(),
+		cmsCatalog:           config.CMSCatalog(),
 		bashPath:             "static/default",
 	}
 
@@ -216,9 +221,31 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 
 // View static view
 func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
+	type viewResult struct {
+		IsAuthOK bool        `json:"isAuthOK"`
+		Content  interface{} `json:"content"`
+	}
+
 	_, fileName := path.Split(req.URL.EscapedPath())
 	if fileName == "" {
 		fileName = "index.html"
+	}
+
+	view := &viewResult{}
+	switch fileName {
+	case "contact.html":
+	case "about.html":
+	case "post.html":
+	case "edit.html":
+	case "login.html":
+	default:
+		view.Content = s.filterPostList()
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
+	if authOk {
+		view.IsAuthOK = authOk
 	}
 
 	fullFilePath := path.Join(s.bashPath, fileName)
@@ -228,7 +255,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", "text/html; charset=utf-8")
-	t.Execute(res, nil)
+	t.Execute(res, view)
 }
 
 // RegisterRoute 注册路由
@@ -242,6 +269,9 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	router.AddRoute(viewRoute, s)
 
 	// blog api routes
+	postBlogRoute := commonRoute.CreateCasRoute("/api/v1/blog/post/", "POST", s.sessionRegistry, s.PostBlog)
+	router.AddRoute(postBlogRoute, s)
+
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------
 	loginRoute := engine.CreateRoute("/api/v1/account/login/", "POST", s.Login)

@@ -10,7 +10,7 @@
     "def",
   ]
   pruneopts = "UT"
-  revision = "d989a06e8c1a9b2842e2b99c6eba7e3ced62bf56"
+  revision = "ff800a980522fbdc0125b1a33571b71bd568c6a2"
 
 [[projects]]
   branch = "master"
@@ -22,24 +22,25 @@
     "model",
   ]
   pruneopts = "UT"
-  revision = "f9bd5ffd55848244fabc20d93f044fd34e229bfa"
+  revision = "2c634ad326e84883f32b71c9bf4d095b14cfe6b0"
 
 [[projects]]
   branch = "master"
-  digest = "1:a7e4b1c5320549131686dba13db6d614c64ce3f280ad4d4caba6451acfe401c3"
+  digest = "1:6daea5e50556d4e7d2239ee498b76e65b20303e95d076475bff0e764ec60e548"
   name = "github.com/muidea/magicCas"
   packages = [
     "client",
     "common",
     "model",
+    "toolkit/cas",
     "toolkit/private",
   ]
   pruneopts = "UT"
-  revision = "5ad576d7ab3d9f21b31f815bc188d503968b528a"
+  revision = "14d5b2cdc5eb535211ce045fce55012c9e9a1444"
 
 [[projects]]
   branch = "master"
-  digest = "1:ad9987f993f6be19253c8dcd8b1e91d634ab9a7b4b4e81f11d17426b7082d562"
+  digest = "1:62f8feef5397f912c6c7154cc0701bbb1f772f8f04849986eecaae7eefc48b3c"
   name = "github.com/muidea/magicCommon"
   packages = [
     "common",
@@ -47,11 +48,10 @@
     "foundation/cache",
     "foundation/net",
     "foundation/util",
-    "route",
     "session",
   ]
   pruneopts = "UT"
-  revision = "aaf7879413e2bd661bb071087eed789234327e0d"
+  revision = "438d60187ba1d7d454be292dd938a2074ab24aed"
 
 [[projects]]
   branch = "master"
@@ -72,19 +72,7 @@
     "util",
   ]
   pruneopts = "UT"
-  revision = "eed87e28b12b8a86c30586abd1ff27c40e1971e9"
-
-[[projects]]
-  branch = "master"
-  digest = "1:d8f6a41f54bfd899c9e5bba03bed13cf965c153d7d8fb37d4242436c6895e05f"
-  name = "github.com/muidea/magicUser"
-  packages = [
-    "client",
-    "common",
-    "model",
-  ]
-  pruneopts = "UT"
-  revision = "5e44eeb489082abb02cf5aa3ad020543c37f85c0"
+  revision = "bce4b357901c9b563a93e478c0eeac6124dfd8aa"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -96,16 +84,14 @@
     "github.com/muidea/magicCMS/model",
     "github.com/muidea/magicCas/client",
     "github.com/muidea/magicCas/model",
+    "github.com/muidea/magicCas/toolkit/cas",
     "github.com/muidea/magicCas/toolkit/private",
     "github.com/muidea/magicCommon/common",
     "github.com/muidea/magicCommon/def",
     "github.com/muidea/magicCommon/foundation/net",
     "github.com/muidea/magicCommon/foundation/util",
-    "github.com/muidea/magicCommon/route",
     "github.com/muidea/magicCommon/session",
     "github.com/muidea/magicEngine",
-    "github.com/muidea/magicUser/client",
-    "github.com/muidea/magicUser/model",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

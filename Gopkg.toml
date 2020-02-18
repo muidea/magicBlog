@@ -41,10 +41,6 @@
   branch = "master"
   name = "github.com/muidea/magicEngine"
 
-[[constraint]]
-  branch = "master"
-  name = "github.com/muidea/magicUser"
-
 [prune]
   go-tests = true
   unused-packages = true

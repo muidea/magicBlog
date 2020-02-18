@@ -11,26 +11,25 @@ import (
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
-	commonRoute "github.com/muidea/magicCommon/route"
 
 	"github.com/muidea/magicCommon/session"
 
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/core/handler"
 
-	casClient "github.com/muidea/magicCas/client"
+	cmsClient "github.com/muidea/magicCMS/client"
 	casModel "github.com/muidea/magicCas/model"
-	casPrivate "github.com/muidea/magicCas/toolkit/private"
+	casRegistry "github.com/muidea/magicCas/toolkit/cas"
+	privateRegistry "github.com/muidea/magicCas/toolkit/private"
 	engine "github.com/muidea/magicEngine"
-	userClient "github.com/muidea/magicUser/client"
-	userModel "github.com/muidea/magicUser/model"
 )
 
 // Registry 路由信息
 type Registry struct {
 	commonHandler        handler.CommonHandler
 	sessionRegistry      session.Registry
-	privateRouteRegistry casPrivate.RouteRegistry
+	privateRouteRegistry privateRegistry.RouteRegistry
+	casRouteRegistry     casRegistry.RouteRegistry
 
 	userService string
 	casService  string
@@ -46,11 +45,14 @@ func NewRoute(
 	sessionRegistry session.Registry,
 	commonHandler handler.CommonHandler,
 ) *Registry {
+	casService := config.CasService()
+
 	route := &Registry{
 		sessionRegistry:      sessionRegistry,
 		commonHandler:        commonHandler,
-		privateRouteRegistry: casPrivate.NewRouteRegistry(sessionRegistry),
-		casService:           config.CasService(),
+		privateRouteRegistry: privateRegistry.NewRouteRegistry(casService, sessionRegistry),
+		casRouteRegistry:     casRegistry.NewRouteRegistry(casService, sessionRegistry),
+		casService:           casService,
 		userService:          config.UserService(),
 		fileService:          config.FileService(),
 		cmsService:           config.CMSService(),
@@ -98,9 +100,9 @@ func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Reque
 	sessionInfo := &commonCommon.SessionInfo{}
 	sessionInfo.Decode(req)
 
-	casClient := casClient.NewClient(s.casService)
-	defer casClient.Release()
-	casClient.BindSession(sessionInfo)
+	cmsClient := cmsClient.NewClient(s.casService)
+	defer cmsClient.Release()
+	cmsClient.BindSession(sessionInfo)
 
 	var err error
 	defer func() {
@@ -110,7 +112,7 @@ func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Reque
 		}
 	}()
 
-	accountPtr, accountSession, accountErr := casClient.StatusAccount()
+	accountPtr, accountSession, accountErr := cmsClient.StatusAccount()
 	if accountErr != nil {
 		err = accountErr
 		log.Printf("get account status failed, err:%s", accountErr.Error())
@@ -191,11 +193,11 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		casClient := casClient.NewClient(s.casService)
-		defer casClient.Release()
-		casClient.BindSession(sessionInfo)
+		cmsClient := cmsClient.NewClient(s.casService)
+		defer cmsClient.Release()
+		cmsClient.BindSession(sessionInfo)
 
-		accountPtr, sessionPtr, err := casClient.LoginAccount(param.Account, param.Password)
+		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -269,8 +271,7 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	router.AddRoute(viewRoute, s)
 
 	// blog api routes
-	postBlogRoute := commonRoute.CreateCasRoute("/api/v1/blog/post/", "POST", s.sessionRegistry, s.PostBlog)
-	router.AddRoute(postBlogRoute, s)
+	s.casRouteRegistry.AddHandler("/api/v1/blog/post/", "POST", s.PostBlog)
 
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------
@@ -319,6 +320,7 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	// add more route define
 
 	s.privateRouteRegistry.RegisterRoute(router)
+	s.casRouteRegistry.RegisterRoute(router)
 }
 
 func (s *Registry) writelog(res http.ResponseWriter, req *http.Request, memo string) {
@@ -348,20 +350,4 @@ func (s *Registry) writelog(res http.ResponseWriter, req *http.Request, memo str
 	if logErr != nil {
 		log.Printf("WriteOpLog failed, err:%s", logErr.Error())
 	}
-}
-
-func (s *Registry) queryUser(sessionInfo *commonCommon.SessionInfo, id int) (ret *userModel.User, err error) {
-	userClient := userClient.NewClient(s.userService)
-	defer userClient.Release()
-	userClient.BindSession(sessionInfo)
-
-	userPtr, userErr := userClient.QueryUserByID(id)
-	if userErr != nil {
-		err = userErr
-		log.Printf("query user failed, err:%s", userErr.Error())
-		return
-	}
-
-	ret = userPtr
-	return
 }

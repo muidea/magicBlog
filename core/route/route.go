@@ -201,19 +201,25 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		fileName = "index.html"
 	}
 
+	curSession := s.sessionRegistry.GetSession(res, req)
+	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
+
 	view := &viewResult{}
 	switch fileName {
 	case "contact.html":
 	case "about.html":
 	case "post.html":
 	case "edit.html":
+		if !authOk {
+			http.Redirect(res, req, "/", http.StatusMovedPermanently)
+			return
+		}
+
 	case "login.html":
 	default:
 		view.Content = s.filterPostList()
 	}
 
-	curSession := s.sessionRegistry.GetSession(res, req)
-	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
 	if authOk {
 		view.IsAuthOK = authOk
 	}
@@ -250,10 +256,6 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	logoutRoute := engine.CreateProxyRoute("/api/v1/account/logout/", "DELETE", logoutURL, true)
 	router.AddRoute(logoutRoute, s)
 
-	statusURL := net.JoinURL(s.casService, "/access/status/")
-	statusRoute := engine.CreateProxyRoute("/api/v1/account/status/", "GET", statusURL, true)
-	router.AddRoute(statusRoute, s)
-
 	s.casRouteRegistry.RegisterRoute(router)
 }
 
@@ -267,12 +269,6 @@ func (s *Registry) writelog(res http.ResponseWriter, req *http.Request, memo str
 			accountView, accountOK := authVal.(*casModel.AccountView)
 			if accountOK {
 				account = accountView.Account
-				break
-			}
-
-			endpointView, endpointOK := authVal.(*casModel.EndpointView)
-			if endpointOK {
-				account = endpointView.Endpoint
 				break
 			}
 

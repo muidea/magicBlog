@@ -17,25 +17,21 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/core/handler"
 
-	cmsClient "github.com/muidea/magicCMS/client"
+	casClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
 	casRegistry "github.com/muidea/magicCas/toolkit/cas"
-	privateRegistry "github.com/muidea/magicCas/toolkit/private"
 	engine "github.com/muidea/magicEngine"
 )
 
 // Registry 路由信息
 type Registry struct {
-	commonHandler        handler.CommonHandler
-	sessionRegistry      session.Registry
-	privateRouteRegistry privateRegistry.RouteRegistry
-	casRouteRegistry     casRegistry.RouteRegistry
+	commonHandler    handler.CommonHandler
+	sessionRegistry  session.Registry
+	casRouteRegistry casRegistry.RouteRegistry
 
-	userService string
-	casService  string
-	fileService string
-	cmsService  string
-	cmsCatalog  int
+	casService string
+	cmsService string
+	cmsCatalog int
 
 	bashPath string
 }
@@ -48,30 +44,16 @@ func NewRoute(
 	casService := config.CasService()
 
 	route := &Registry{
-		sessionRegistry:      sessionRegistry,
-		commonHandler:        commonHandler,
-		privateRouteRegistry: privateRegistry.NewRouteRegistry(casService, sessionRegistry),
-		casRouteRegistry:     casRegistry.NewRouteRegistry(casService, sessionRegistry),
-		casService:           casService,
-		userService:          config.UserService(),
-		fileService:          config.FileService(),
-		cmsService:           config.CMSService(),
-		cmsCatalog:           config.CMSCatalog(),
-		bashPath:             "static/default",
+		sessionRegistry:  sessionRegistry,
+		commonHandler:    commonHandler,
+		casRouteRegistry: casRegistry.NewRouteRegistry(casService, sessionRegistry),
+		casService:       casService,
+		cmsService:       config.CMSService(),
+		cmsCatalog:       config.CMSCatalog(),
+		bashPath:         "static/default",
 	}
 
 	return route
-}
-
-func (s *Registry) recordCreateAccount(res http.ResponseWriter, req *http.Request) {
-	account := &casModel.AccountView{}
-	err := net.ParseJSONBody(req, account)
-	if err != nil {
-		return
-	}
-
-	memo := fmt.Sprintf("新建账号%s", account.Account)
-	s.writelog(res, req, memo)
 }
 
 func (s *Registry) recordLoginAccount(res http.ResponseWriter, req *http.Request) {
@@ -100,9 +82,9 @@ func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Reque
 	sessionInfo := &commonCommon.SessionInfo{}
 	sessionInfo.Decode(req)
 
-	cmsClient := cmsClient.NewClient(s.casService)
-	defer cmsClient.Release()
-	cmsClient.BindSession(sessionInfo)
+	casClient := casClient.NewClient(s.casService)
+	defer casClient.Release()
+	casClient.BindSession(sessionInfo)
 
 	var err error
 	defer func() {
@@ -112,7 +94,7 @@ func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Reque
 		}
 	}()
 
-	accountPtr, accountSession, accountErr := cmsClient.StatusAccount()
+	accountPtr, accountSession, accountErr := casClient.StatusAccount()
 	if accountErr != nil {
 		err = accountErr
 		log.Printf("get account status failed, err:%s", accountErr.Error())
@@ -121,16 +103,6 @@ func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Reque
 
 	curSession.SetOption(commonCommon.AuthAccount, accountPtr)
 	curSession.SetOption(commonCommon.SessionIdentity, accountSession)
-}
-
-func (s *Registry) recordChangePassword(res http.ResponseWriter, req *http.Request) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
-	if authOK {
-		acountPtr := authPtr.(*casModel.AccountView)
-		memo := fmt.Sprintf("账号%s修改密码", acountPtr.Account)
-		s.writelog(res, req, memo)
-	}
 }
 
 // Handle middleware handler
@@ -149,16 +121,12 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	ctx.Next()
 
 	switch req.URL.Path {
-	case "/api/v1/account/create/":
-		s.recordCreateAccount(res, req)
 	case "/api/v1/account/login/":
 		s.recordLoginAccount(res, req)
 	case "/api/v1/account/logout/":
 		s.recordLogoutAccount(res, req)
 	case "/api/v1/account/status/":
 		s.updateSessionAccount(res, req)
-	case "/api/v1/account/change/password/":
-		s.recordChangePassword(res, req)
 	}
 }
 
@@ -193,11 +161,11 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.casService)
-		defer cmsClient.Release()
-		cmsClient.BindSession(sessionInfo)
+		casClient := casClient.NewClient(s.casService)
+		defer casClient.Release()
+		casClient.BindSession(sessionInfo)
 
-		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
+		accountPtr, sessionPtr, err := casClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -286,40 +254,6 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	statusRoute := engine.CreateProxyRoute("/api/v1/account/status/", "GET", statusURL, true)
 	router.AddRoute(statusRoute, s)
 
-	createAccountURL := net.JoinURL(s.casService, "/account/create/")
-	createAccountRoute := engine.CreateProxyRoute("/api/v1/account/create/", "POST", createAccountURL, true)
-	router.AddRoute(createAccountRoute, s)
-
-	changePasswordURL := net.JoinURL(s.casService, "/account/password/")
-	changePasswordRoute := engine.CreateProxyRoute("/api/v1/account/change/password/", "PUT", changePasswordURL, true)
-	router.AddRoute(changePasswordRoute, s)
-
-	// update account,query account,delete account
-	//---------------------------------------------------------------------------------------
-	s.privateRouteRegistry.AddHandler("/api/v1/account/query/all/", "GET", casModel.ReadPrivate, s.QueryAllAccount)
-	s.privateRouteRegistry.AddHandler("/api/v1/account/query/:id", "GET", casModel.ReadPrivate, s.QueryAccount)
-	s.privateRouteRegistry.AddHandler("/api/v1/account/delete/:id", "DELETE", casModel.DeletePrivate, s.DeleteAccount)
-	s.privateRouteRegistry.AddHandler("/api/v1/account/update/:id", "PUT", casModel.WritePrivate, s.UpdateAccount)
-
-	// private
-	//---------------------------------------------------------------------------------------
-	s.privateRouteRegistry.AddHandler("/api/v1/private/query/", "GET", casModel.ReadPrivate, s.QueryPrivateGroup)
-	s.privateRouteRegistry.AddHandler("/api/v1/private/save/", "POST", casModel.WritePrivate, s.SavePrivateGroup)
-	s.privateRouteRegistry.AddHandler("/api/v1/private/destory/", "GET", casModel.DeletePrivate, s.DestoryPrivateGroup)
-
-	// upload file
-	//---------------------------------------------------------------------------------------
-	uploadFileURL := net.JoinURL(s.fileService, "/file/upload/")
-	uploadFileRoute := engine.CreateProxyRoute("/api/v1/file/upload/", "POST", uploadFileURL, true)
-	router.AddRoute(uploadFileRoute, s)
-
-	viewFileURL := net.JoinURL(s.fileService, "/file/download/")
-	viewFileRoute := engine.CreateProxyRoute("/api/v1/file/view/", "GET", viewFileURL, true)
-	router.AddRoute(viewFileRoute, s)
-
-	// add more route define
-
-	s.privateRouteRegistry.RegisterRoute(router)
 	s.casRouteRegistry.RegisterRoute(router)
 }
 

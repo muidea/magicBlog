@@ -17,12 +17,14 @@ $(function() {
       $this.prop("disabled", true); // Disable submit button until AJAX call is complete to prevent duplicate messages
       $.ajax({
         url: "/api/v1/blog/post/",
+        dataType:'json',
         type: "POST",
-        data: {
+        contentType : "application/json",
+        data: JSON.stringify({
           title: title,
           content: content,
           catalog: catalog
-        },
+        }),
         cache: false,
         success: function(result) {
           if (result.errorCode===0){
@@ -32,7 +34,7 @@ $(function() {
           $('#success').html("<div class='alert alert-danger'>");
           $('#success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
             .append("</button>");
-          $('#success > .alert-danger').append($("<strong>").text(result.reason));
+          $('#success > .alert-danger').append($("<small>").text(result.reason));
           $('#success > .alert-danger').append('</div>');            
           }
         },
@@ -41,7 +43,7 @@ $(function() {
           $('#success').html("<div class='alert alert-danger'>");
           $('#success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
             .append("</button>");
-          $('#success > .alert-danger').append($("<strong>").text("提交失败!"));
+          $('#success > .alert-danger').append($("<small>").text("提交失败!"));
           $('#success > .alert-danger').append('</div>');
         },
         complete: function() {

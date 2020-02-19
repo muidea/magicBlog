@@ -2,6 +2,7 @@ package route
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 
@@ -96,6 +97,7 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 
 		catalogList, catalogErr := s.queryCatalog(param.Catalog, cmsClient)
 		if catalogErr != nil {
+			log.Printf("queryCatalog failed, err:%s", catalogErr.Error())
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "提交Blog失败, 查询分类出错"
 			break

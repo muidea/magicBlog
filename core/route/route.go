@@ -19,7 +19,7 @@ import (
 
 	casClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
-	casRegistry "github.com/muidea/magicCas/toolkit/cas"
+	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"
 )
 
@@ -27,7 +27,7 @@ import (
 type Registry struct {
 	commonHandler    handler.CommonHandler
 	sessionRegistry  session.Registry
-	casRouteRegistry casRegistry.RouteRegistry
+	casRouteRegistry casRoute.CasRegistry
 
 	casService string
 	cmsService string
@@ -46,8 +46,8 @@ func NewRoute(
 	route := &Registry{
 		sessionRegistry:  sessionRegistry,
 		commonHandler:    commonHandler,
-		casRouteRegistry: casRegistry.NewRouteRegistry(casService, sessionRegistry),
-		casService:       casService,
+		casRouteRegistry: casRoute.NewCasRegistry(casService, sessionRegistry),
+		casService:       config.CasService(),
 		cmsService:       config.CMSService(),
 		cmsCatalog:       config.CMSCatalog(),
 		bashPath:         "static/default",

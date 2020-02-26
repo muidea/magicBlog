@@ -137,6 +137,7 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 	result := &loginResult{}
 	for {
 		sessionInfo := curSession.GetSessionInfo()
+		sessionInfo.Scope = commonCommon.ShareSession
 
 		param := &loginParam{}
 		err := net.ParseJSONBody(req, param)

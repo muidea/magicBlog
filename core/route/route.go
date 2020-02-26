@@ -57,7 +57,25 @@ func NewRoute(
 
 // Verify verify current session
 func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (ret *casModel.AccountView, err error) {
+	curSession := s.sessionRegistry.GetSession(res, req)
 
+	sessionInfo := curSession.GetSessionInfo()
+
+	casClient := casClient.NewClient(s.casService)
+	defer casClient.Release()
+	casClient.BindSession(sessionInfo)
+
+	accountPtr, accountSession, accountErr := casClient.VerifyAccount(nil)
+	if accountErr != nil {
+		err = accountErr
+		log.Printf("get account status failed, err:%s", accountErr.Error())
+		return
+	}
+
+	curSession.SetOption(commonCommon.AuthAccount, accountPtr)
+	curSession.SetSessionInfo(accountSession)
+
+	ret = accountPtr
 	return
 }
 

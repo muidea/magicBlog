@@ -41,19 +41,24 @@ func NewRoute(
 	sessionRegistry session.Registry,
 	commonHandler handler.CommonHandler,
 ) *Registry {
-	casService := config.CasService()
-
 	route := &Registry{
-		sessionRegistry:  sessionRegistry,
-		commonHandler:    commonHandler,
-		casRouteRegistry: casRoute.NewCasRegistry(casService, sessionRegistry),
-		casService:       config.CasService(),
-		cmsService:       config.CMSService(),
-		cmsCatalog:       config.CMSCatalog(),
-		bashPath:         "static/default",
+		sessionRegistry: sessionRegistry,
+		commonHandler:   commonHandler,
+		casService:      config.CasService(),
+		cmsService:      config.CMSService(),
+		cmsCatalog:      config.CMSCatalog(),
+		bashPath:        "static/default",
 	}
 
+	route.casRouteRegistry = casRoute.NewCasRegistry(route)
+
 	return route
+}
+
+// Verify verify current session
+func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (ret *casModel.AccountView, err error) {
+
+	return
 }
 
 func (s *Registry) recordLoginAccount(res http.ResponseWriter, req *http.Request) {
@@ -94,7 +99,7 @@ func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Reque
 		}
 	}()
 
-	accountPtr, accountSession, accountErr := casClient.StatusAccount()
+	accountPtr, accountSession, accountErr := casClient.VerifyAccount(nil)
 	if accountErr != nil {
 		err = accountErr
 		log.Printf("get account status failed, err:%s", accountErr.Error())

@@ -99,42 +99,11 @@ func (s *Registry) recordLogoutAccount(res http.ResponseWriter, req *http.Reques
 	}
 }
 
-func (s *Registry) updateSessionAccount(res http.ResponseWriter, req *http.Request) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-
-	sessionInfo := &commonCommon.SessionInfo{}
-	sessionInfo.Decode(req)
-
-	casClient := casClient.NewClient(s.casService)
-	defer casClient.Release()
-	casClient.BindSession(sessionInfo)
-
-	var err error
-	defer func() {
-		if err != nil {
-			curSession.RemoveOption(commonCommon.AuthAccount)
-			curSession.RemoveOption(commonCommon.SessionIdentity)
-		}
-	}()
-
-	accountPtr, accountSession, accountErr := casClient.VerifyAccount(nil)
-	if accountErr != nil {
-		err = accountErr
-		log.Printf("get account status failed, err:%s", accountErr.Error())
-		return
-	}
-
-	curSession.SetOption(commonCommon.AuthAccount, accountPtr)
-	curSession.SetOption(commonCommon.SessionIdentity, accountSession)
-}
-
 // Handle middleware handler
 func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 
-	sessionInfo := &commonCommon.SessionInfo{}
-	sessionInfo.Decode(req)
-	sessionInfo.ID = curSession.ID()
+	sessionInfo := curSession.GetSessionInfo()
 	sessionInfo.Scope = commonCommon.ShareSession
 
 	values := req.URL.Query()
@@ -149,7 +118,7 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	case "/api/v1/account/logout/":
 		s.recordLogoutAccount(res, req)
 	case "/api/v1/account/status/":
-		s.updateSessionAccount(res, req)
+		s.Verify(res, req)
 	}
 }
 
@@ -164,12 +133,11 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 		Redirect string `json:"redirect"`
 	}
 
-	sessionInfo := &commonCommon.SessionInfo{}
-	sessionInfo.Decode(req)
-
 	curSession := s.sessionRegistry.GetSession(res, req)
 	result := &loginResult{}
 	for {
+		sessionInfo := curSession.GetSessionInfo()
+
 		param := &loginParam{}
 		err := net.ParseJSONBody(req, param)
 		if err != nil {
@@ -239,6 +207,10 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 
 	case "login.html":
+		if authOk {
+			http.Redirect(res, req, "/", http.StatusMovedPermanently)
+			return
+		}
 	default:
 		view.Content = s.filterPostList()
 	}

@@ -8,7 +8,6 @@ import (
 
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
-	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
 )
@@ -73,7 +72,7 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 
 	curSession := s.sessionRegistry.GetSession(res, req)
 
-	sessionInfo, _ := curSession.GetOption(commonCommon.SessionIdentity)
+	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
 		param := &postParam{}
@@ -93,7 +92,7 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 		cmsClient := cmsClient.NewClient(s.cmsService)
 		defer cmsClient.Release()
 
-		cmsClient.BindSession(sessionInfo.(*commonCommon.SessionInfo))
+		cmsClient.BindSession(sessionInfo)
 
 		catalogList, catalogErr := s.queryCatalog(param.Catalog, cmsClient)
 		if catalogErr != nil {

@@ -213,7 +213,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 	default:
-		view.Content = s.filterPostList()
+		view.Content = s.filterPostList(res, req)
 	}
 
 	if authOk {

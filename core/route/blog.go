@@ -4,21 +4,89 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
+	"github.com/muidea/magicCommon/foundation/util"
 )
 
-func (s *Registry) filterPostList() interface{} {
+const currentCatalog = "current_catalog"
+const archiveCatalog = "archive_catalog"
 
-	return nil
+func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) interface{} {
+	filter := commonDef.NewFilter([]string{"catalog"})
+	filter.Decode(req)
+
+	var catalogPtr *cmsModel.CatalogLite
+	catalogStr, catalogOK := filter.ContentFilter.Items["catalog"]
+	if catalogOK {
+		val, err := strconv.Atoi(catalogStr)
+		if err == nil {
+			catalogPtr = &cmsModel.CatalogLite{ID: val}
+		}
+	}
+
+	type filterResult struct {
+		commonDef.Result
+		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
+		Archives []*cmsModel.CatalogLite `json:"archives"`
+		Articles []*cmsModel.ArticleView `json:"articles"`
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+
+	sessionInfo := curSession.GetSessionInfo()
+	result := &filterResult{}
+
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
+
+	cmsClient.BindSession(sessionInfo)
+	catalogList, catalogErr := s.queryCatalog(cmsClient)
+	if catalogErr == nil {
+		result.Catalogs = catalogList
+	}
+	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
+	if articleErr == nil {
+		result.Articles = articleList
+	}
+
+	return result
 }
 
-func (s *Registry) queryCatalog(catalog string, clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, -1)
+func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
+	blogArticle, _, blogErr := clnt.FilterArticle(catalog, pageFilter)
+	if blogErr != nil {
+		err = blogErr
+		return
+	}
+
+	ret = blogArticle
+	return
+}
+
+func (s *Registry) queryCatalog(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
+	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 1)
+	if blogErr != nil {
+		err = blogErr
+		return
+	}
+
+	for _, cv := range blogCatalog.Subs {
+		if cv.Name != currentCatalog && cv.Name != archiveCatalog {
+			ret = append(ret, cv.Lite())
+		}
+	}
+
+	return
+}
+
+func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
+	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 1)
 	if blogErr != nil {
 		err = blogErr
 		return
@@ -33,7 +101,7 @@ func (s *Registry) queryCatalog(catalog string, clnt cmsClient.Client) (ret []*c
 	}
 
 	items := strings.Split(catalog, ",")
-	items = append(items, "current_catalog")
+	items = append(items, currentCatalog, archiveCatalog)
 	for _, val := range items {
 		cv, exist := catalogMapInfo[val]
 		if !exist {
@@ -45,7 +113,7 @@ func (s *Registry) queryCatalog(catalog string, clnt cmsClient.Client) (ret []*c
 	}
 
 	for _, val := range newCatalogItems {
-		newCatalog, newErr := clnt.CreateCatalog(val, "auto create blog catalog", blogCatalog.Lite())
+		newCatalog, newErr := clnt.CreateCatalog(val, "auto create catalog", blogCatalog.Lite())
 		if newErr != nil {
 			err = newErr
 			return
@@ -94,9 +162,9 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 
 		cmsClient.BindSession(sessionInfo)
 
-		catalogList, catalogErr := s.queryCatalog(param.Catalog, cmsClient)
+		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
 		if catalogErr != nil {
-			log.Printf("queryCatalog failed, err:%s", catalogErr.Error())
+			log.Printf("getCatalogs failed, err:%s", catalogErr.Error())
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "提交Blog失败, 查询分类出错"
 			break

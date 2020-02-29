@@ -40,7 +40,11 @@ func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) in
 	curSession := s.sessionRegistry.GetSession(res, req)
 
 	sessionInfo := curSession.GetSessionInfo()
-	result := &filterResult{}
+	result := &filterResult{
+		Catalogs: []*cmsModel.CatalogLite{},
+		Archives: []*cmsModel.CatalogLite{},
+		Articles: []*cmsModel.ArticleView{},
+	}
 
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	defer cmsClient.Release()

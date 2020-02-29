@@ -74,32 +74,15 @@
         <div class="post-preview">
           <a href="post.html">
             <h2 class="post-title">
-              Man must explore, and this is exploration at its greatest
+              {{.Title}}
             </h2>
-            <h3 class="post-subtitle">
-              Problems look mighty small from 150 miles up
-            </h3>
           </a>
           <p class="post-meta">Posted by
-            <a href="#">Start Bootstrap</a>
-            on September 24, 2019</p>
+            <a href="#">{{.Creater.Account}}</a>
+            on {{.CreateDate}}</p>
         </div>
         <hr>
         {{end}}
-        <div class="post-preview">
-          <a href="post.html">
-            <h2 class="post-title">
-              Failure is not an option
-            </h2>
-            <h3 class="post-subtitle">
-              Many say exploration is part of our destiny, but it’s actually our duty to future generations.
-            </h3>
-          </a>
-          <p class="post-meta">Posted by
-            <a href="#">Start Bootstrap</a>
-            on July 8, 2019</p>
-        </div>
-        <hr>
         <!-- Pager -->
         <div class="clearfix">
           <a class="btn btn-primary float-right" href="#">查看更多 &rarr;</a>
@@ -113,9 +96,6 @@
             {{range $catalogs}}
               <div><a href="#">{{.Name}}</a></div>
             {{end}}
-            <div><a href="#">Ajax开发</a></div>
-            <div><a href="#">Go 语言</a></div>
-            <div><a href="#">系统架构</a></div>
           </div>
         </div>
         <div class="post-group">

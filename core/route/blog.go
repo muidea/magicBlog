@@ -71,6 +71,7 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.Catalog
 	blogArticle, _, blogErr := clnt.FilterArticle(catalog, pageFilter)
 	if blogErr != nil {
 		err = blogErr
+		log.Printf("FilterArticle failed, err:%s", err.Error())
 		return
 	}
 
@@ -79,14 +80,15 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.Catalog
 }
 
 func (s *Registry) queryArchive(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	if s.archiveCatalog == nil{
+	if s.archiveCatalog == nil {
 		err = fmt.Errorf("empty archive blogs")
 		return
 	}
-	
+
 	archiveList, blogErr := clnt.QueryCatalogTree(s.archiveCatalog.ID, 1)
 	if blogErr != nil {
 		err = blogErr
+		log.Printf("QueryCatalogTree failed, err:%s", err.Error())
 		return
 	}
 

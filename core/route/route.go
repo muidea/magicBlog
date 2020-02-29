@@ -17,6 +17,8 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/core/handler"
 
+	cmsModel "github.com/muidea/magicCMS/model"
+
 	casClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
 	casRoute "github.com/muidea/magicCas/toolkit/route"
@@ -33,7 +35,9 @@ type Registry struct {
 	cmsService string
 	cmsCatalog int
 
-	bashPath string
+	bashPath       string
+	currentCatalog *cmsModel.CatalogLite
+	archiveCatalog *cmsModel.CatalogLite
 }
 
 // NewRoute create route

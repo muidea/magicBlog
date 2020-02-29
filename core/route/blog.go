@@ -50,6 +50,10 @@ func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) in
 	if catalogErr == nil {
 		result.Catalogs = catalogList
 	}
+	archiveList, archiveErr := s.queryArchive(cmsClient)
+	if archiveErr == nil {
+		result.Archives = archiveList
+	}
 	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
 	if articleErr == nil {
 		result.Articles = articleList
@@ -69,6 +73,27 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.Catalog
 	return
 }
 
+func (s *Registry) queryArchive(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
+	archiveList, blogErr := clnt.QueryCatalogTree(s.archiveCatalog.ID, 1)
+	if blogErr != nil {
+		err = blogErr
+		return
+	}
+
+	for _, cv := range archiveList.Subs {
+		switch cv.Name {
+		case currentCatalog:
+			s.currentCatalog = cv.Lite()
+		case archiveCatalog:
+			s.archiveCatalog = cv.Lite()
+		default:
+			ret = append(ret, cv.Lite())
+		}
+	}
+
+	return
+}
+
 func (s *Registry) queryCatalog(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
 	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 1)
 	if blogErr != nil {
@@ -77,7 +102,12 @@ func (s *Registry) queryCatalog(clnt cmsClient.Client) (ret []*cmsModel.CatalogL
 	}
 
 	for _, cv := range blogCatalog.Subs {
-		if cv.Name != currentCatalog && cv.Name != archiveCatalog {
+		switch cv.Name {
+		case currentCatalog:
+			s.currentCatalog = cv.Lite()
+		case archiveCatalog:
+			s.archiveCatalog = cv.Lite()
+		default:
 			ret = append(ret, cv.Lite())
 		}
 	}

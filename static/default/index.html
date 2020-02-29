@@ -69,6 +69,8 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-6 mx-auto">
+        {{$articles := .Content.Articles}}
+        {{range $articles}}
         <div class="post-preview">
           <a href="post.html">
             <h2 class="post-title">
@@ -83,31 +85,7 @@
             on September 24, 2019</p>
         </div>
         <hr>
-        <div class="post-preview">
-          <a href="post.html">
-            <h2 class="post-title">
-              I believe every human has a finite number of heartbeats. I don't intend to waste any of mine.
-            </h2>
-          </a>
-          <p class="post-meta">Posted by
-            <a href="#">Start Bootstrap</a>
-            on September 18, 2019</p>
-        </div>
-        <hr>
-        <div class="post-preview">
-          <a href="post.html">
-            <h2 class="post-title">
-              Science has not yet mastered prophecy
-            </h2>
-            <h3 class="post-subtitle">
-              We predict too much for the next year and yet far too little for the next ten.
-            </h3>
-          </a>
-          <p class="post-meta">Posted by
-            <a href="#">Start Bootstrap</a>
-            on August 24, 2019</p>
-        </div>
-        <hr>
+        {{end}}
         <div class="post-preview">
           <a href="post.html">
             <h2 class="post-title">
@@ -131,6 +109,10 @@
         <div class="post-group">
           <div class="group-title">分类目录</div>
           <div class="group-items">
+            {{$catalogs := .Content.Catalogs}}
+            {{range $catalogs}}
+              <div><a href="#">{{.Name}}</a></div>
+            {{end}}
             <div><a href="#">Ajax开发</a></div>
             <div><a href="#">Go 语言</a></div>
             <div><a href="#">系统架构</a></div>

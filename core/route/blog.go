@@ -2,6 +2,7 @@ package route
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -78,6 +79,11 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.Catalog
 }
 
 func (s *Registry) queryArchive(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
+	if s.archiveCatalog == nil{
+		err = fmt.Errorf("empty archive blogs")
+		return
+	}
+	
 	archiveList, blogErr := clnt.QueryCatalogTree(s.archiveCatalog.ID, 1)
 	if blogErr != nil {
 		err = blogErr

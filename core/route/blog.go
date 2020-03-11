@@ -8,8 +8,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/muidea/magicBlog/config"
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
+	casClient "github.com/muidea/magicCas/client"
+	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
 	"github.com/muidea/magicCommon/foundation/util"
@@ -17,6 +20,17 @@ import (
 
 const currentCatalog = "current_catalog"
 const archiveCatalog = "archive_catalog"
+
+func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
+	casClient := casClient.NewClient(s.casService)
+	defer casClient.Release()
+
+	identityID := config.IdentityID()
+	authToken := config.AuthToken()
+	_, ret, err = casClient.VerifyEndpoint(identityID, authToken)
+
+	return
+}
 
 func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) interface{} {
 	filter := commonDef.NewFilter([]string{"catalog"})
@@ -38,13 +52,15 @@ func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) in
 		Articles []*cmsModel.ArticleView `json:"articles"`
 	}
 
-	curSession := s.sessionRegistry.GetSession(res, req)
-
-	sessionInfo := curSession.GetSessionInfo()
 	result := &filterResult{
 		Catalogs: []*cmsModel.CatalogLite{},
 		Archives: []*cmsModel.CatalogLite{},
 		Articles: []*cmsModel.ArticleView{},
+	}
+
+	sessionInfo, sessionErr := s.verifyEndpoint()
+	if sessionErr != nil {
+		return result
 	}
 
 	cmsClient := cmsClient.NewClient(s.cmsService)

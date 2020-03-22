@@ -69,7 +69,7 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 	defer casClient.Release()
 	casClient.BindSession(sessionInfo)
 
-	sessionInfo, sessionErr := casClient.VerifySession(nil)
+	sessionInfo, sessionErr := casClient.VerifySession()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", sessionErr.Error())

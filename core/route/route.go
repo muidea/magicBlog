@@ -102,6 +102,16 @@ func (s *Registry) recordLogoutAccount(res http.ResponseWriter, req *http.Reques
 	}
 }
 
+func (s *Registry) recordPostBlog(res http.ResponseWriter, req *http.Request, title string) {
+	curSession := s.sessionRegistry.GetSession(res, req)
+	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
+	if authOK {
+		acountPtr := authPtr.(*casModel.AccountView)
+		memo := fmt.Sprintf("%s发布%s", acountPtr.Account, title)
+		s.writelog(res, req, memo)
+	}
+}
+
 // Handle middleware handler
 func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)

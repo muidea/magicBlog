@@ -237,6 +237,8 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
+		s.recordPostBlog(res, req, param.Title)
+
 		result.ErrorCode = commonDef.Success
 		result.Redirect = "/"
 		break

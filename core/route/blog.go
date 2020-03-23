@@ -60,8 +60,10 @@ func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) in
 
 	sessionInfo, sessionErr := s.verifyEndpoint()
 	if sessionErr != nil {
+		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
 		return result
 	}
+	sessionInfo.Scope = commonCommon.ShareSession
 
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	defer cmsClient.Release()

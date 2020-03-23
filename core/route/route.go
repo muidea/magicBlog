@@ -17,9 +17,10 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/core/handler"
 
+	cmsClient "github.com/muidea/magicCMS/client"
+	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
-	casClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
 	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"
@@ -65,11 +66,11 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 
 	sessionInfo := curSession.GetSessionInfo()
 
-	casClient := casClient.NewClient(s.casService)
-	defer casClient.Release()
-	casClient.BindSession(sessionInfo)
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
+	cmsClient.BindSession(sessionInfo)
 
-	sessionInfo, sessionErr := casClient.VerifySession()
+	sessionInfo, sessionErr := cmsClient.VerifySession()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", sessionErr.Error())
@@ -115,11 +116,11 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	ctx.Next()
 
 	switch req.URL.Path {
-	case "/api/v1/account/login/":
+	case cmsCommon.LoginAccountURL:
 		s.recordLoginAccount(res, req)
-	case "/api/v1/account/logout/":
+	case cmsCommon.LogoutAccountURL:
 		s.recordLogoutAccount(res, req)
-	case "/api/v1/account/status/":
+	case cmsCommon.StatusAccountURL:
 		s.Verify(res, req)
 	}
 }
@@ -155,11 +156,11 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		casClient := casClient.NewClient(s.casService)
-		defer casClient.Release()
-		casClient.BindSession(sessionInfo)
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+		cmsClient.BindSession(sessionInfo)
 
-		accountPtr, sessionPtr, err := casClient.LoginAccount(param.Account, param.Password)
+		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -250,7 +251,7 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	loginRoute := engine.CreateRoute("/api/v1/account/login/", "POST", s.Login)
 	router.AddRoute(loginRoute, s)
 
-	logoutURL := net.JoinURL(s.casService, "/access/logout/")
+	logoutURL := net.JoinURL(s.cmsService, cmsCommon.LoginAccountURL)
 	logoutRoute := engine.CreateProxyRoute("/api/v1/account/logout/", "DELETE", logoutURL, true)
 	router.AddRoute(logoutRoute, s)
 

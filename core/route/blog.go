@@ -32,6 +32,112 @@ func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	return
 }
 
+func (s *Registry) filterAbout(res http.ResponseWriter, req *http.Request) interface{} {
+	filter := commonDef.NewFilter([]string{"catalog"})
+	filter.Decode(req)
+
+	var catalogPtr *cmsModel.CatalogLite
+	catalogStr, catalogOK := filter.ContentFilter.Items["catalog"]
+	if catalogOK {
+		val, err := strconv.Atoi(catalogStr)
+		if err == nil {
+			catalogPtr = &cmsModel.CatalogLite{ID: val}
+		}
+	}
+
+	type filterResult struct {
+		commonDef.Result
+		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
+		Archives []*cmsModel.CatalogLite `json:"archives"`
+		Articles []*cmsModel.ArticleView `json:"articles"`
+	}
+
+	result := &filterResult{
+		Catalogs: []*cmsModel.CatalogLite{},
+		Archives: []*cmsModel.CatalogLite{},
+		Articles: []*cmsModel.ArticleView{},
+	}
+
+	sessionInfo, sessionErr := s.verifyEndpoint()
+	if sessionErr != nil {
+		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
+		return result
+	}
+	sessionInfo.Scope = commonCommon.ShareSession
+
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
+
+	cmsClient.BindSession(sessionInfo)
+	catalogList, catalogErr := s.queryCatalog(cmsClient)
+	if catalogErr == nil {
+		result.Catalogs = catalogList
+	}
+	archiveList, archiveErr := s.queryArchive(cmsClient)
+	if archiveErr == nil {
+		result.Archives = archiveList
+	}
+	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
+	if articleErr == nil {
+		result.Articles = articleList
+	}
+
+	return result
+}
+
+func (s *Registry) filterContact(res http.ResponseWriter, req *http.Request) interface{} {
+	filter := commonDef.NewFilter([]string{"catalog"})
+	filter.Decode(req)
+
+	var catalogPtr *cmsModel.CatalogLite
+	catalogStr, catalogOK := filter.ContentFilter.Items["catalog"]
+	if catalogOK {
+		val, err := strconv.Atoi(catalogStr)
+		if err == nil {
+			catalogPtr = &cmsModel.CatalogLite{ID: val}
+		}
+	}
+
+	type filterResult struct {
+		commonDef.Result
+		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
+		Archives []*cmsModel.CatalogLite `json:"archives"`
+		Articles []*cmsModel.ArticleView `json:"articles"`
+	}
+
+	result := &filterResult{
+		Catalogs: []*cmsModel.CatalogLite{},
+		Archives: []*cmsModel.CatalogLite{},
+		Articles: []*cmsModel.ArticleView{},
+	}
+
+	sessionInfo, sessionErr := s.verifyEndpoint()
+	if sessionErr != nil {
+		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
+		return result
+	}
+	sessionInfo.Scope = commonCommon.ShareSession
+
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
+
+	cmsClient.BindSession(sessionInfo)
+	catalogList, catalogErr := s.queryCatalog(cmsClient)
+	if catalogErr == nil {
+		result.Catalogs = catalogList
+	}
+	archiveList, archiveErr := s.queryArchive(cmsClient)
+	if archiveErr == nil {
+		result.Archives = archiveList
+	}
+	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
+	if articleErr == nil {
+		result.Articles = articleList
+	}
+
+	return result
+}
+
 func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) interface{} {
 	filter := commonDef.NewFilter([]string{"catalog"})
 	filter.Decode(req)
@@ -111,21 +217,14 @@ func (s *Registry) queryArchive(clnt cmsClient.Client) (ret []*cmsModel.CatalogL
 	}
 
 	for _, cv := range archiveList.Subs {
-		switch cv.Name {
-		case currentCatalog:
-			s.currentCatalog = cv.Lite()
-		case archiveCatalog:
-			s.archiveCatalog = cv.Lite()
-		default:
-			ret = append(ret, cv.Lite())
-		}
+		ret = append(ret, cv.Lite())
 	}
 
 	return
 }
 
 func (s *Registry) queryCatalog(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 1)
+	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if blogErr != nil {
 		err = blogErr
 		return
@@ -134,9 +233,9 @@ func (s *Registry) queryCatalog(clnt cmsClient.Client) (ret []*cmsModel.CatalogL
 	for _, cv := range blogCatalog.Subs {
 		switch cv.Name {
 		case currentCatalog:
-			s.currentCatalog = cv.Lite()
+			s.currentCatalog = cv
 		case archiveCatalog:
-			s.archiveCatalog = cv.Lite()
+			s.archiveCatalog = cv
 		default:
 			ret = append(ret, cv.Lite())
 		}

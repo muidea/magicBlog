@@ -72,13 +72,13 @@
         {{$articles := .Content.Articles}}
         {{range $articles}}
         <div class="post-preview">
-          <a href="post.html">
+          <a href="post/{{.Title}}.html?pageid={{.ID}}">
             <h2 class="post-title">
               {{.Title}}
             </h2>
           </a>
           <p class="post-meta">Posted by
-            <a href="#">{{.Creater.Account}}</a>
+            <a href="post/author.html">{{.Creater.Account}}</a>
             on {{.CreateDate}}</p>
         </div>
         <hr>

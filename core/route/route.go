@@ -36,9 +36,9 @@ type Registry struct {
 	cmsService string
 	cmsCatalog int
 
-	bashPath       string
-	currentCatalog *cmsModel.CatalogLite
-	archiveCatalog *cmsModel.CatalogLite
+	basePath       string
+	currentCatalog *cmsModel.CatalogTree
+	archiveCatalog *cmsModel.CatalogTree
 }
 
 // NewRoute create route
@@ -52,7 +52,7 @@ func NewRoute(
 		casService:      config.CasService(),
 		cmsService:      config.CMSService(),
 		cmsCatalog:      config.CMSCatalog(),
-		bashPath:        "static/default",
+		basePath:        "static/default",
 	}
 
 	route.casRouteRegistry = casRoute.NewCasRegistry(route)
@@ -201,39 +201,45 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		Content  interface{} `json:"content"`
 	}
 
-	_, fileName := path.Split(req.URL.EscapedPath())
-	if fileName == "" {
-		fileName = "index.html"
-	}
-
 	curSession := s.sessionRegistry.GetSession(res, req)
 	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
 
-	view := &viewResult{}
-	switch fileName {
-	case "contact.html":
-	case "about.html":
-	case "post.html":
-	case "edit.html":
-		if !authOk {
-			http.Redirect(res, req, "/", http.StatusMovedPermanently)
-			return
+	view := &viewResult{IsAuthOK: authOk}
+	fileName := ""
+	for {
+		filter := &filter{}
+		err := filter.Decode(req)
+		if err != nil {
+			fileName = "404.html"
+			break
 		}
 
-	case "login.html":
-		if authOk {
-			http.Redirect(res, req, "/", http.StatusMovedPermanently)
-			return
+		switch fileName {
+		case "about.html":
+			view.Content = s.filterAbout(res, req)
+		case "contact.html":
+			view.Content = s.filterContact(res, req)
+		case "index.html":
+			view.Content = s.filterPostList(res, req)
+		case "post.html":
+		case "edit.html":
+			if !authOk {
+				http.Redirect(res, req, "/", http.StatusMovedPermanently)
+				return
+			}
+		case "login.html":
+			if authOk {
+				http.Redirect(res, req, "/", http.StatusMovedPermanently)
+				return
+			}
+		default:
+			view.Content = s.filterPostList(res, req)
 		}
-	default:
-		view.Content = s.filterPostList(res, req)
+
+		break
 	}
 
-	if authOk {
-		view.IsAuthOK = authOk
-	}
-
-	fullFilePath := path.Join(s.bashPath, fileName)
+	fullFilePath := path.Join(s.basePath, fileName)
 	t, err := template.ParseFiles(fullFilePath)
 	if err != nil {
 		log.Println(err)

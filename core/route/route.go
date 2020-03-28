@@ -17,10 +17,11 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/core/handler"
 
-	cmsClient "github.com/muidea/magicCMS/client"
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
+	casClient "github.com/muidea/magicCas/client"
+	casCommon "github.com/muidea/magicCas/common"
 	casModel "github.com/muidea/magicCas/model"
 	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"
@@ -66,11 +67,11 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 
 	sessionInfo := curSession.GetSessionInfo()
 
-	cmsClient := cmsClient.NewClient(s.cmsService)
-	defer cmsClient.Release()
-	cmsClient.BindSession(sessionInfo)
+	casClient := casClient.NewClient(s.casService)
+	defer casClient.Release()
+	casClient.BindSession(sessionInfo)
 
-	sessionInfo, sessionErr := cmsClient.VerifySession()
+	sessionInfo, sessionErr := casClient.VerifySession()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", sessionErr.Error())
@@ -166,11 +167,11 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
-		defer cmsClient.Release()
-		cmsClient.BindSession(sessionInfo)
+		casClient := casClient.NewClient(s.casService)
+		defer casClient.Release()
+		casClient.BindSession(sessionInfo)
 
-		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
+		accountPtr, sessionPtr, err := casClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -212,6 +213,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			fileName = "404.html"
 			break
+		}
+
+		fileName = filter.fileName
+		if fileName == "" {
+			fileName = "index.html"
 		}
 
 		switch fileName {
@@ -264,12 +270,16 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------
-	loginRoute := engine.CreateRoute("/api/v1/account/login/", "POST", s.Login)
+	loginRoute := engine.CreateRoute(cmsCommon.LoginAccountURL, "POST", s.Login)
 	router.AddRoute(loginRoute, s)
 
-	logoutURL := net.JoinURL(s.cmsService, cmsCommon.LoginAccountURL)
-	logoutRoute := engine.CreateProxyRoute("/api/v1/account/logout/", "DELETE", logoutURL, true)
+	logoutURL := net.JoinURL(s.casService, casCommon.LogoutURL)
+	logoutRoute := engine.CreateProxyRoute(cmsCommon.LogoutAccountURL, "DELETE", logoutURL, true)
 	router.AddRoute(logoutRoute, s)
+
+	statusURL := net.JoinURL(s.casService, casCommon.StatusURL)
+	statusRoute := engine.CreateProxyRoute(cmsCommon.StatusAccountURL, "GET", statusURL, true)
+	router.AddRoute(statusRoute, s)
 
 	s.casRouteRegistry.RegisterRoute(router)
 }
@@ -295,4 +305,35 @@ func (s *Registry) writelog(res http.ResponseWriter, req *http.Request, memo str
 	if logErr != nil {
 		log.Printf("WriteOpLog failed, err:%s", logErr.Error())
 	}
+}
+
+func (s *Registry) getCurrentAccount(res http.ResponseWriter, req *http.Request) (ret *casModel.AccountView, err error) {
+	curSession := s.sessionRegistry.GetSession(res, req)
+	authVal, ok := curSession.GetOption(commonCommon.AuthAccount)
+	if ok {
+		ret, ok = authVal.(*casModel.AccountView)
+		if ok {
+			return
+		}
+
+		err = fmt.Errorf("无效权限")
+		return
+	}
+
+	sessionInfo := curSession.GetSessionInfo()
+	casClient := casClient.NewClient(s.casService)
+	defer casClient.Release()
+	casClient.BindSession(sessionInfo)
+
+	accountInfo, accountSession, accountErr := casClient.StatusAccount()
+	if accountErr != nil {
+		err = accountErr
+		return
+	}
+
+	curSession.SetSessionInfo(accountSession)
+	curSession.SetOption(commonCommon.AuthAccount, accountInfo)
+	ret = accountInfo
+
+	return
 }

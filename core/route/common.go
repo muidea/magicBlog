@@ -30,7 +30,7 @@ func (s *filter) Decode(req *http.Request) error {
 
 	s.fileName = fileName
 
-	items := strings.Split(filePath, "/")
+	items := strings.Split(strings.Trim(filePath, "/"), "/")
 	itemSize := len(items)
 	// /view/xxx.html
 	if itemSize == 1 {

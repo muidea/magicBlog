@@ -39,7 +39,6 @@ type Registry struct {
 
 	basePath       string
 	currentCatalog *cmsModel.CatalogTree
-	archiveCatalog *cmsModel.CatalogTree
 }
 
 // NewRoute create route
@@ -198,20 +197,46 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 // View static view
 func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	type viewResult struct {
-		IsAuthOK bool        `json:"isAuthOK"`
-		Content  interface{} `json:"content"`
+		IsAuthOK bool                    `json:"isAuthOK"`
+		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
+		Archives []*cmsModel.CatalogLite `json:"archives"`
+		Content  interface{}             `json:"content"`
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
 	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
 
+	var content interface{}
+	var contentErr error
 	view := &viewResult{IsAuthOK: authOk}
 	fileName := ""
 	for {
+		cmsClnt, cmsErr := s.getCMSClient()
+		if cmsErr != nil {
+			fileName = "500.html"
+			break
+		}
+
+		catalogs, archives, infoErr := s.getCommonInfo(cmsClnt)
+		if infoErr != nil {
+			fileName = "500.html"
+			break
+		}
+
+		view.Catalogs = catalogs
+		view.Archives = archives
+
 		filter := &filter{}
-		err := filter.Decode(req)
+		err := filter.decode(req)
 		if err != nil {
 			fileName = "404.html"
+			break
+		}
+
+		if filter.isArchive() {
+			break
+		}
+		if filter.isCatalog() {
 			break
 		}
 
@@ -222,11 +247,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 
 		switch fileName {
 		case "about.html":
-			view.Content = s.filterAbout(res, req)
+			content, contentErr = s.filterAbout(filter, cmsClnt)
 		case "contact.html":
-			view.Content = s.filterContact(res, req)
+			content, contentErr = s.filterContact(filter, cmsClnt)
 		case "index.html":
-			view.Content = s.filterPostList(res, req)
+			content, contentErr = s.filterPostList(filter, cmsClnt)
 		case "post.html":
 		case "edit.html":
 			if !authOk {
@@ -239,10 +264,16 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		default:
-			view.Content = s.filterPostList(res, req)
+			fileName = "404.html"
 		}
 
 		break
+	}
+
+	if contentErr != nil {
+		fileName = "500.html"
+	} else {
+		view.Content = content
 	}
 
 	fullFilePath := path.Join(s.basePath, fileName)

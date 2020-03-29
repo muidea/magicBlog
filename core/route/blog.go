@@ -2,10 +2,8 @@ package route
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/muidea/magicBlog/config"
@@ -32,163 +30,69 @@ func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	return
 }
 
-func (s *Registry) filterAbout(res http.ResponseWriter, req *http.Request) interface{} {
-	filter := commonDef.NewFilter([]string{"catalog"})
-	filter.Decode(req)
-
-	var catalogPtr *cmsModel.CatalogLite
-	catalogStr, catalogOK := filter.ContentFilter.Items["catalog"]
-	if catalogOK {
-		val, err := strconv.Atoi(catalogStr)
-		if err == nil {
-			catalogPtr = &cmsModel.CatalogLite{ID: val}
-		}
-	}
-
-	type filterResult struct {
-		commonDef.Result
-		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
-		Archives []*cmsModel.CatalogLite `json:"archives"`
-		Articles []*cmsModel.ArticleView `json:"articles"`
-	}
-
-	result := &filterResult{
-		Catalogs: []*cmsModel.CatalogLite{},
-		Archives: []*cmsModel.CatalogLite{},
-		Articles: []*cmsModel.ArticleView{},
-	}
-
+func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
 	sessionInfo, sessionErr := s.verifyEndpoint()
 	if sessionErr != nil {
 		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
-		return result
+		err = sessionErr
+		return
 	}
+
 	sessionInfo.Scope = commonCommon.ShareSession
-
 	cmsClient := cmsClient.NewClient(s.cmsService)
-	defer cmsClient.Release()
-
 	cmsClient.BindSession(sessionInfo)
-	catalogList, catalogErr := s.queryCatalog(cmsClient)
-	if catalogErr == nil {
-		result.Catalogs = catalogList
-	}
-	archiveList, archiveErr := s.queryArchive(cmsClient)
-	if archiveErr == nil {
-		result.Archives = archiveList
-	}
-	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
-	if articleErr == nil {
-		result.Articles = articleList
-	}
 
-	return result
+	ret = cmsClient
+
+	return
 }
 
-func (s *Registry) filterContact(res http.ResponseWriter, req *http.Request) interface{} {
-	filter := commonDef.NewFilter([]string{"catalog"})
-	filter.Decode(req)
+func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalog []*cmsModel.CatalogLite, archive []*cmsModel.CatalogLite, err error) {
+	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
+	if blogErr != nil {
+		err = blogErr
+		return
+	}
 
-	var catalogPtr *cmsModel.CatalogLite
-	catalogStr, catalogOK := filter.ContentFilter.Items["catalog"]
-	if catalogOK {
-		val, err := strconv.Atoi(catalogStr)
-		if err == nil {
-			catalogPtr = &cmsModel.CatalogLite{ID: val}
+	var archiveTree *cmsModel.CatalogTree
+	catalog = []*cmsModel.CatalogLite{}
+	archive = []*cmsModel.CatalogLite{}
+	for _, cv := range blogCatalog.Subs {
+		switch cv.Name {
+		case currentCatalog:
+			s.currentCatalog = cv
+		case archiveCatalog:
+			archiveTree = cv
+		default:
+			catalog = append(catalog, cv.Lite())
+		}
+	}
+	if archiveTree != nil {
+		for _, cv := range archiveTree.Subs {
+			archive = append(archive, cv.Lite())
 		}
 	}
 
-	type filterResult struct {
-		commonDef.Result
-		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
-		Archives []*cmsModel.CatalogLite `json:"archives"`
-		Articles []*cmsModel.ArticleView `json:"articles"`
-	}
-
-	result := &filterResult{
-		Catalogs: []*cmsModel.CatalogLite{},
-		Archives: []*cmsModel.CatalogLite{},
-		Articles: []*cmsModel.ArticleView{},
-	}
-
-	sessionInfo, sessionErr := s.verifyEndpoint()
-	if sessionErr != nil {
-		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
-		return result
-	}
-	sessionInfo.Scope = commonCommon.ShareSession
-
-	cmsClient := cmsClient.NewClient(s.cmsService)
-	defer cmsClient.Release()
-
-	cmsClient.BindSession(sessionInfo)
-	catalogList, catalogErr := s.queryCatalog(cmsClient)
-	if catalogErr == nil {
-		result.Catalogs = catalogList
-	}
-	archiveList, archiveErr := s.queryArchive(cmsClient)
-	if archiveErr == nil {
-		result.Archives = archiveList
-	}
-	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
-	if articleErr == nil {
-		result.Articles = articleList
-	}
-
-	return result
+	return
 }
 
-func (s *Registry) filterPostList(res http.ResponseWriter, req *http.Request) interface{} {
-	filter := commonDef.NewFilter([]string{"catalog"})
-	filter.Decode(req)
+func (s *Registry) filterAbout(filter *filter, clnt cmsClient.Client) (ret *cmsModel.ArticleView, err error) {
+	return
+}
 
-	var catalogPtr *cmsModel.CatalogLite
-	catalogStr, catalogOK := filter.ContentFilter.Items["catalog"]
-	if catalogOK {
-		val, err := strconv.Atoi(catalogStr)
-		if err == nil {
-			catalogPtr = &cmsModel.CatalogLite{ID: val}
-		}
+func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (ret *cmsModel.ArticleView, err error) {
+	return
+}
+
+func (s *Registry) filterPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
+	articleList, articleErr := s.queryArticle(clnt, nil, nil)
+	if articleErr != nil {
+		err = articleErr
+		return
 	}
 
-	type filterResult struct {
-		commonDef.Result
-		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
-		Archives []*cmsModel.CatalogLite `json:"archives"`
-		Articles []*cmsModel.ArticleView `json:"articles"`
-	}
-
-	result := &filterResult{
-		Catalogs: []*cmsModel.CatalogLite{},
-		Archives: []*cmsModel.CatalogLite{},
-		Articles: []*cmsModel.ArticleView{},
-	}
-
-	sessionInfo, sessionErr := s.verifyEndpoint()
-	if sessionErr != nil {
-		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
-		return result
-	}
-	sessionInfo.Scope = commonCommon.ShareSession
-
-	cmsClient := cmsClient.NewClient(s.cmsService)
-	defer cmsClient.Release()
-
-	cmsClient.BindSession(sessionInfo)
-	catalogList, catalogErr := s.queryCatalog(cmsClient)
-	if catalogErr == nil {
-		result.Catalogs = catalogList
-	}
-	archiveList, archiveErr := s.queryArchive(cmsClient)
-	if archiveErr == nil {
-		result.Archives = archiveList
-	}
-	articleList, articleErr := s.queryArticle(cmsClient, catalogPtr, filter.PageFilter)
-	if articleErr == nil {
-		result.Articles = articleList
-	}
-
-	return result
+	ret = articleList
+	return
 }
 
 func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
@@ -203,49 +107,8 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.Catalog
 	return
 }
 
-func (s *Registry) queryArchive(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	if s.archiveCatalog == nil {
-		err = fmt.Errorf("empty archive blogs")
-		return
-	}
-
-	archiveList, blogErr := clnt.QueryCatalogTree(s.archiveCatalog.ID, 1)
-	if blogErr != nil {
-		err = blogErr
-		log.Printf("QueryCatalogTree failed, err:%s", err.Error())
-		return
-	}
-
-	for _, cv := range archiveList.Subs {
-		ret = append(ret, cv.Lite())
-	}
-
-	return
-}
-
-func (s *Registry) queryCatalog(clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
-	if blogErr != nil {
-		err = blogErr
-		return
-	}
-
-	for _, cv := range blogCatalog.Subs {
-		switch cv.Name {
-		case currentCatalog:
-			s.currentCatalog = cv
-		case archiveCatalog:
-			s.archiveCatalog = cv
-		default:
-			ret = append(ret, cv.Lite())
-		}
-	}
-
-	return
-}
-
 func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 1)
+	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if blogErr != nil {
 		err = blogErr
 		return
@@ -253,13 +116,12 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 
 	newCatalogItems := []string{}
 	ret = []*cmsModel.CatalogLite{}
-
 	catalogMapInfo := map[string]*cmsModel.CatalogLite{}
 	for _, cv := range blogCatalog.Subs {
 		catalogMapInfo[cv.Name] = cv.Lite()
 	}
 
-	items := strings.Split(catalog, ",")
+	items := strings.Split(strings.Trim(catalog, " "), ",")
 	items = append(items, currentCatalog, archiveCatalog)
 	for _, val := range items {
 		cv, exist := catalogMapInfo[val]

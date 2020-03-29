@@ -52,7 +52,7 @@
   </nav>
 
   <!-- Page Header -->
-  <header class="masthead" style="background-image: url('/static/default/img/home-bg.jpg')">
+  <header class="masthead" style="background-image: url('/static/default/img/about-bg.jpg')">
     <div class="overlay"></div>
     <div class="container">
       <div class="row">
@@ -69,39 +69,23 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-6 mx-auto">
-        {{range .Content}}
-        <div class="post-preview">
-          <a href="post/{{.Title}}.html?pageid={{.ID}}">
-            <h2 class="post-title">
-              {{.Title}}
-            </h2>
-          </a>
-          <p class="post-meta">Posted by
-            <a href="post/author.html">{{.Creater.Account}}</a>
-            on {{.CreateDate}}</p>
-        </div>
-        <hr>
-        {{end}}
-        <!-- Pager -->
-        <div class="clearfix">
-          <a class="btn btn-primary float-right" href="#">查看更多 &rarr;</a>
-        </div>
+        <p>500</p>
       </div>
       <div class="col-lg-2 col-md-4 mx-auto">
         <div class="post-group">
           <div class="group-title">分类目录</div>
           <div class="group-items">
-            {{range .Catalogs}}
-              <div><a href="#">{{.Name}}</a></div>
-            {{end}}
+            <div><a href="#">Ajax开发</a></div>
+            <div><a href="#">Go 语言</a></div>
+            <div><a href="#">系统架构</a></div>
           </div>
         </div>
         <div class="post-group">
           <div class="group-title">文章归档</div>
           <div class="group-items">
-            {{range .Archives}}
-              <div><a href="#">{{.Name}}</a></div>
-            {{end}}            
+            <div><a href="#">2020年一月</a></div>
+            <div><a href="#">2019年十二月</a></div>
+            <div><a href="#">2019年十一月</a></div>
           </div>
         </div>
       </div>

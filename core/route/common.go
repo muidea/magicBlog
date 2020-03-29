@@ -15,7 +15,15 @@ type filter struct {
 	archiveName string
 }
 
-func (s *filter) Decode(req *http.Request) error {
+func (s *filter) isArchive() bool {
+	return s.archiveName != "" && s.catalogName == ""
+}
+
+func (s *filter) isCatalog() bool {
+	return s.catalogName != "" && s.archiveName == ""
+}
+
+func (s *filter) decode(req *http.Request) error {
 	filePath, fileName := path.Split(req.URL.EscapedPath())
 
 	str := req.URL.Query().Get("pageid")
@@ -43,7 +51,7 @@ func (s *filter) Decode(req *http.Request) error {
 		switch val {
 		case "post":
 		default:
-			return fmt.Errorf("illegal path")
+			return fmt.Errorf("illegal path, url:%s", filePath)
 		}
 
 		return nil
@@ -62,11 +70,11 @@ func (s *filter) Decode(req *http.Request) error {
 		case "archive":
 			s.archiveName = name
 		default:
-			return fmt.Errorf("illegal path")
+			return fmt.Errorf("illegal path, url:%s", filePath)
 		}
 
 		return nil
 	}
 
-	return fmt.Errorf("illegal path")
+	return fmt.Errorf("illegal path, url:%s", filePath)
 }

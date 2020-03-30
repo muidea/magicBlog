@@ -24,7 +24,7 @@ func (s *filter) isCatalog() bool {
 }
 
 func (s *filter) decode(req *http.Request) error {
-	filePath, fileName := path.Split(req.URL.EscapedPath())
+	filePath, fileName := path.Split(req.URL.Path)
 
 	str := req.URL.Query().Get("pageid")
 	if str != "" {

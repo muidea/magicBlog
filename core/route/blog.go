@@ -78,7 +78,7 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.Ca
 }
 
 func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	if filter.fileName == "" {
+	if filter.fileName != "" {
 		return
 	}
 
@@ -106,7 +106,7 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 }
 
 func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	if filter.fileName == "" {
+	if filter.fileName != "" {
 		return
 	}
 

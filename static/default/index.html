@@ -33,17 +33,17 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="index.html">主页</a>
+            <a class="nav-link" href="/view/index.html">主页</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="contact.html">给我留言</a>
+            <a class="nav-link" href="/view/contact.html">给我留言</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="about.html">关于本站</a>
+            <a class="nav-link" href="/view/about.html">关于本站</a>
           </li>
           {{if .IsAuthOK}}
           <li class="nav-item">
-            <a class="nav-link" href="edit.html">写博客</a>
+            <a class="nav-link" href="/view/edit.html">写博客</a>
           </li>
           {{end}}
         </ul>
@@ -94,7 +94,7 @@
           <div class="group-title">分类目录</div>
           <div class="group-items">
             {{range .Catalogs}}
-              <div><a href="#">{{.Name}}</a></div>
+              <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a></div>
             {{end}}
           </div>
         </div>

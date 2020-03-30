@@ -234,9 +234,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 
 		if filter.isArchive() {
+			fileName, content, contentErr = s.filterArchive(filter, archives, cmsClnt)
 			break
 		}
 		if filter.isCatalog() {
+			fileName, content, contentErr = s.filterCatalog(filter, catalogs, cmsClnt)
 			break
 		}
 

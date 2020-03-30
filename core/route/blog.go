@@ -2,6 +2,7 @@ package route
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -47,7 +48,7 @@ func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
 	return
 }
 
-func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalog []*cmsModel.CatalogLite, archive []*cmsModel.CatalogLite, err error) {
+func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, err error) {
 	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if blogErr != nil {
 		err = blogErr
@@ -55,8 +56,8 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalog []*cmsModel.Cat
 	}
 
 	var archiveTree *cmsModel.CatalogTree
-	catalog = []*cmsModel.CatalogLite{}
-	archive = []*cmsModel.CatalogLite{}
+	catalogs = []*cmsModel.CatalogLite{}
+	archives = []*cmsModel.CatalogLite{}
 	for _, cv := range blogCatalog.Subs {
 		switch cv.Name {
 		case currentCatalog:
@@ -64,15 +65,71 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalog []*cmsModel.Cat
 		case archiveCatalog:
 			archiveTree = cv
 		default:
-			catalog = append(catalog, cv.Lite())
+			catalogs = append(catalogs, cv.Lite())
 		}
 	}
 	if archiveTree != nil {
 		for _, cv := range archiveTree.Subs {
-			archive = append(archive, cv.Lite())
+			archives = append(archives, cv.Lite())
 		}
 	}
 
+	return
+}
+
+func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	if filter.fileName == "" {
+		return
+	}
+
+	var archivePtr *cmsModel.CatalogLite
+	for _, val := range archives {
+		if filter.archiveName == val.Name {
+			archivePtr = val
+			break
+		}
+	}
+	if archivePtr == nil {
+		err = fmt.Errorf("illegal archive, name:%s", filter.archiveName)
+		return
+	}
+
+	articleList, articleErr := s.queryArticle(clnt, archivePtr, nil)
+	if articleErr != nil {
+		err = articleErr
+		return
+	}
+
+	fileName = "index.html"
+	content = articleList
+	return
+}
+
+func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	if filter.fileName == "" {
+		return
+	}
+
+	var catalogPtr *cmsModel.CatalogLite
+	for _, val := range catalogs {
+		if filter.catalogName == val.Name {
+			catalogPtr = val
+			break
+		}
+	}
+	if catalogPtr == nil {
+		err = fmt.Errorf("illegal catalog, name:%s", filter.catalogName)
+		return
+	}
+
+	articleList, articleErr := s.queryArticle(clnt, catalogPtr, nil)
+	if articleErr != nil {
+		err = articleErr
+		return
+	}
+
+	fileName = "index.html"
+	content = articleList
 	return
 }
 

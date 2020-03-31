@@ -109,7 +109,7 @@
           <div class="group-title">分类目录</div>
           <div class="group-items">
             {{range .Catalogs}}
-              <div><a href="#">{{.Name}}</a></div>
+              <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a></div>
             {{end}}
           </div>
         </div>
@@ -120,7 +120,7 @@
           <div class="group-title">文章归档</div>
           <div class="group-items">
             {{range .Archives}}
-              <div><a href="#">{{.Name}}</a></div>
+            <div><a href="/view/archive/{{.Name}}/">{{.Name}}</a></div>
             {{end}}            
           </div>
         </div>

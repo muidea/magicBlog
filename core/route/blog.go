@@ -78,10 +78,6 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.Ca
 }
 
 func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	if filter.fileName != "" {
-		return
-	}
-
 	var archivePtr *cmsModel.CatalogLite
 	for _, val := range archives {
 		if filter.archiveName == val.Name {
@@ -93,8 +89,19 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 		err = fmt.Errorf("illegal archive, name:%s", filter.archiveName)
 		return
 	}
+	if filter.fileName != "" {
+		articlePtr, articleErr := s.queryArticle(clnt, archivePtr, filter.pageID)
+		if articleErr != nil {
+			err = articleErr
+			return
+		}
 
-	articleList, articleErr := s.queryArticle(clnt, archivePtr, nil)
+		fileName = "post.html"
+		content = articlePtr
+		return
+	}
+
+	articleList, articleErr := s.queryArticleList(clnt, archivePtr, nil)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -106,10 +113,6 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 }
 
 func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	if filter.fileName != "" {
-		return
-	}
-
 	var catalogPtr *cmsModel.CatalogLite
 	for _, val := range catalogs {
 		if filter.catalogName == val.Name {
@@ -122,7 +125,19 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 		return
 	}
 
-	articleList, articleErr := s.queryArticle(clnt, catalogPtr, nil)
+	if filter.fileName != "" {
+		articlePtr, articleErr := s.queryArticle(clnt, catalogPtr, filter.pageID)
+		if articleErr != nil {
+			err = articleErr
+			return
+		}
+
+		fileName = "post.html"
+		content = articlePtr
+		return
+	}
+
+	articleList, articleErr := s.queryArticleList(clnt, catalogPtr, nil)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -142,7 +157,7 @@ func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (ret *cm
 }
 
 func (s *Registry) filterPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
-	articleList, articleErr := s.queryArticle(clnt, nil, nil)
+	articleList, articleErr := s.queryArticleList(clnt, nil, nil)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -152,7 +167,19 @@ func (s *Registry) filterPostList(filter *filter, clnt cmsClient.Client) (ret []
 	return
 }
 
-func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
+func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, id int) (ret *cmsModel.ArticleView, err error) {
+	blogArticle, blogErr := clnt.QueryArticle(id)
+	if blogErr != nil {
+		err = blogErr
+		log.Printf("QueryArticle failed, err:%s", err.Error())
+		return
+	}
+
+	ret = blogArticle
+	return
+}
+
+func (s *Registry) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
 	blogArticle, _, blogErr := clnt.FilterArticle(catalog, pageFilter)
 	if blogErr != nil {
 		err = blogErr

@@ -23,7 +23,7 @@
   <link href="/static/default/css/clean-blog.css" rel="stylesheet">
   <style>            
     .editormd-html-preview {
-        width: 90%;
+        width: 100%;
         margin: 0 auto;
     }
   </style>
@@ -41,17 +41,17 @@
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" href="index.html">主页</a>
+            <a class="nav-link" href="/view/index.html">主页</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="contact.html">给我留言</a>
+            <a class="nav-link" href="/view/contact.html">给我留言</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="about.html">关于本站</a>
+            <a class="nav-link" href="/view/about.html">关于本站</a>
           </li>
           {{if .IsAuthOK}}
           <li class="nav-item">
-            <a class="nav-link" href="edit.html">写博客</a>
+            <a class="nav-link" href="/view/edit.html">写博客</a>
           </li>
           {{end}}
         </ul>

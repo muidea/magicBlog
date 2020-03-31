@@ -175,10 +175,12 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 }
 
 func (s *Registry) filterAbout(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	fileName = "about.html"
 	return
 }
 
 func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	fileName = "contact.html"
 	return
 }
 

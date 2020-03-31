@@ -77,6 +77,32 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.Ca
 	return
 }
 
+func (s *Registry) filterPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), nil)
+	if articleErr != nil {
+		err = articleErr
+		return
+	}
+
+	var articlePtr *cmsModel.ArticleView
+	for _, val := range articleList {
+		fileName := fmt.Sprintf("%s.html", val.Title)
+		if fileName == filter.fileName {
+			articlePtr = val
+			break
+		}
+	}
+
+	if articlePtr == nil {
+		fileName = "404.html"
+		return
+	}
+
+	fileName = "post.html"
+	content = articlePtr
+	return
+}
+
 func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var archivePtr *cmsModel.CatalogLite
 	for _, val := range archives {
@@ -148,11 +174,11 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 	return
 }
 
-func (s *Registry) filterAbout(filter *filter, clnt cmsClient.Client) (ret *cmsModel.ArticleView, err error) {
+func (s *Registry) filterAbout(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	return
 }
 
-func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (ret *cmsModel.ArticleView, err error) {
+func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	return
 }
 

@@ -248,13 +248,8 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 
 		switch fileName {
-		case "about.html":
-			content, contentErr = s.filterAbout(filter, cmsClnt)
-		case "contact.html":
-			content, contentErr = s.filterContact(filter, cmsClnt)
 		case "index.html":
 			content, contentErr = s.filterPostList(filter, cmsClnt)
-		case "post.html":
 		case "edit.html":
 			if !authOk {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)
@@ -265,8 +260,12 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)
 				return
 			}
+		case "about.html":
+			fileName, content, contentErr = s.filterAbout(filter, cmsClnt)
+		case "contact.html":
+			fileName, content, contentErr = s.filterContact(filter, cmsClnt)
 		default:
-			fileName = "404.html"
+			fileName, content, contentErr = s.filterPost(filter, cmsClnt)
 		}
 
 		break

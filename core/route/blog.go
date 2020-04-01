@@ -241,7 +241,9 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 			catalogMapInfo[val] = nil
 			newCatalogItems = append(newCatalogItems, val)
 		} else if cv != nil {
-			ret = append(ret, cv)
+			if val != archiveCatalog {
+				ret = append(ret, cv)
+			}
 		}
 	}
 
@@ -251,8 +253,9 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 			err = newErr
 			return
 		}
-
-		ret = append(ret, newCatalog.Lite())
+		if val != archiveCatalog {
+			ret = append(ret, newCatalog.Lite())
+		}
 	}
 
 	return

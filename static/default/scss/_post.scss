@@ -44,13 +44,14 @@
 
 // Styling for the post page
 .post-group {
+  @include sans-serif-font;
   > .group-title {
     font-size: 20px;
     margin-top: 30px;
   }
 
   > .group-items {
-    font-size: 16px;
+    font-size: 15px;
     margin-top: 10px;
     margin-bottom: 10px;
     > a {

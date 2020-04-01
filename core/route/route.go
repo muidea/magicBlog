@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path"
 	"text/template"
+	"time"
 
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
@@ -197,12 +198,14 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 // View static view
 func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	type viewResult struct {
-		IsAuthOK bool                    `json:"isAuthOK"`
-		Catalogs []*cmsModel.CatalogLite `json:"catalogs"`
-		Archives []*cmsModel.CatalogLite `json:"archives"`
-		Content  interface{}             `json:"content"`
+		IsAuthOK    bool                    `json:"isAuthOK"`
+		ElapsedTime string                  `json:"elapsedTime"`
+		Catalogs    []*cmsModel.CatalogLite `json:"catalogs"`
+		Archives    []*cmsModel.CatalogLite `json:"archives"`
+		Content     interface{}             `json:"content"`
 	}
 
+	preTime := time.Now()
 	curSession := s.sessionRegistry.GetSession(res, req)
 	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
 
@@ -284,6 +287,9 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	elapsedTime := time.Now().Sub(preTime)
+	view.ElapsedTime = elapsedTime.String()
 	t.Execute(res, view)
 }
 

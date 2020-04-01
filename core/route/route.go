@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
 	"text/template"
 	"time"
@@ -200,6 +201,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	type viewResult struct {
 		IsAuthOK    bool                    `json:"isAuthOK"`
 		ElapsedTime string                  `json:"elapsedTime"`
+		CurrentURL  string                  `json:"currentUrl"`
 		Catalogs    []*cmsModel.CatalogLite `json:"catalogs"`
 		Archives    []*cmsModel.CatalogLite `json:"archives"`
 		Content     interface{}             `json:"content"`
@@ -213,6 +215,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	var contentErr error
 	view := &viewResult{IsAuthOK: authOk}
 	fileName := ""
+	filter := &filter{}
 	for {
 		cmsClnt, cmsErr := s.getCMSClient()
 		if cmsErr != nil {
@@ -229,7 +232,6 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		view.Catalogs = catalogs
 		view.Archives = archives
 
-		filter := &filter{}
 		err := filter.decode(req)
 		if err != nil {
 			fileName = "404.html"
@@ -287,6 +289,18 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	if filter.pageFilter != nil {
+		filter.pageFilter.PageNum++
+
+		qv := url.Values{}
+		qv = filter.pageFilter.Merge(qv)
+
+		curURL := url.URL{}
+		curURL.Path = req.URL.Path
+		curURL.RawQuery = qv.Encode()
+		view.CurrentURL = curURL.String()
+	}
 
 	elapsedTime := time.Now().Sub(preTime)
 	view.ElapsedTime = elapsedTime.String()

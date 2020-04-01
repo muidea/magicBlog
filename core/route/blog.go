@@ -78,7 +78,7 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.Ca
 }
 
 func (s *Registry) filterPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), nil)
+	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -127,7 +127,7 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 		return
 	}
 
-	articleList, articleErr := s.queryArticleList(clnt, archivePtr, nil)
+	articleList, articleErr := s.queryArticleList(clnt, archivePtr, filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -163,7 +163,7 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 		return
 	}
 
-	articleList, articleErr := s.queryArticleList(clnt, catalogPtr, nil)
+	articleList, articleErr := s.queryArticleList(clnt, catalogPtr, filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -185,7 +185,7 @@ func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (fileNam
 }
 
 func (s *Registry) filterPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
-	articleList, articleErr := s.queryArticleList(clnt, nil, nil)
+	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -208,6 +208,10 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.Catalog
 }
 
 func (s *Registry) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
+	if pageFilter == nil {
+		pageFilter = &util.PageFilter{PageSize: 10, PageNum: 1}
+	}
+
 	blogArticle, _, blogErr := clnt.FilterArticle(catalog, pageFilter)
 	if blogErr != nil {
 		err = blogErr

@@ -6,6 +6,8 @@ import (
 	"path"
 	"strconv"
 	"strings"
+
+	"github.com/muidea/magicCommon/foundation/util"
 )
 
 type filter struct {
@@ -13,6 +15,7 @@ type filter struct {
 	fileName    string
 	catalogName string
 	archiveName string
+	pageFilter  *util.PageFilter
 }
 
 func (s *filter) isArchive() bool {
@@ -25,6 +28,13 @@ func (s *filter) isCatalog() bool {
 
 func (s *filter) decode(req *http.Request) error {
 	filePath, fileName := path.Split(req.URL.Path)
+
+	pageFilter := &util.PageFilter{}
+	if pageFilter.Decode(req) {
+		s.pageFilter = pageFilter
+	} else {
+		s.pageFilter = &util.PageFilter{PageSize: 10, PageNum: 1}
+	}
 
 	str := req.URL.Query().Get("pageid")
 	if str != "" {

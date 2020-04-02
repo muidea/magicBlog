@@ -186,7 +186,22 @@ func (s *Registry) filterEdit(filter *filter, clnt cmsClient.Client) (fileName s
 		return
 	}
 
-	content = articleView
+	info := map[string]interface{}{}
+	info["ID"] = articleView.ID
+	info["Title"] = articleView.Title
+	info["Content"] = articleView.Content
+
+	catalogs := ""
+	for _, val := range articleView.Catalog {
+		if val.Name == s.currentCatalog.Name {
+			continue
+		}
+
+		catalogs = fmt.Sprintf("%s,%s", catalogs, val.Name)
+	}
+	info["Catalog"] = strings.Trim(catalogs, ",")
+
+	content = info
 	fileName = "edit.html"
 	return
 }

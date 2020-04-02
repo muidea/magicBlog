@@ -116,7 +116,7 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 		return
 	}
 	if filter.fileName != "" {
-		articlePtr, articleErr := s.queryArticle(clnt, archivePtr, filter.pageID)
+		articlePtr, articleErr := s.queryArticle(clnt, filter.pageID)
 		if articleErr != nil {
 			err = articleErr
 			return
@@ -152,7 +152,7 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 	}
 
 	if filter.fileName != "" {
-		articlePtr, articleErr := s.queryArticle(clnt, catalogPtr, filter.pageID)
+		articlePtr, articleErr := s.queryArticle(clnt, filter.pageID)
 		if articleErr != nil {
 			err = articleErr
 			return
@@ -171,6 +171,33 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 
 	fileName = "index.html"
 	content = articleList
+	return
+}
+
+func (s *Registry) filterEdit(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	if filter.action != "update" || filter.pageID <= 0 {
+		err = fmt.Errorf("illegal action, action:%s, pageId:%d", filter.action, filter.pageID)
+		return
+	}
+
+	articleView, articleErr := s.queryArticle(clnt, filter.pageID)
+	if articleErr != nil {
+		err = articleErr
+		return
+	}
+
+	content = articleView
+	fileName = "edit.html"
+	return
+}
+
+func (s *Registry) deletePost(filter *filter, clnt cmsClient.Client) (err error) {
+	if filter.action != "delete" || filter.pageID <= 0 {
+		err = fmt.Errorf("illegal action, action:%s, pageId:%d", filter.action, filter.pageID)
+		return
+	}
+
+	_, err = s.deleteArticle(clnt, filter.pageID)
 	return
 }
 
@@ -195,7 +222,7 @@ func (s *Registry) filterPostList(filter *filter, clnt cmsClient.Client) (ret []
 	return
 }
 
-func (s *Registry) queryArticle(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, id int) (ret *cmsModel.ArticleView, err error) {
+func (s *Registry) queryArticle(clnt cmsClient.Client, id int) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.QueryArticle(id)
 	if blogErr != nil {
 		err = blogErr
@@ -310,7 +337,7 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		_, err = cmsClient.CreateArticle(param.Title, param.Content, catalogList)
+		_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "提交Blog失败, 保存出错"
@@ -331,4 +358,40 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 	}
 
 	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+func (s *Registry) createArticle(clnt cmsClient.Client, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
+	blogArticle, blogErr := clnt.CreateArticle(title, content, catalogs)
+	if blogErr != nil {
+		err = blogErr
+		log.Printf("CreateArticle failed, err:%s", err.Error())
+		return
+	}
+
+	ret = blogArticle
+	return
+}
+
+func (s *Registry) deleteArticle(clnt cmsClient.Client, id int) (ret *cmsModel.ArticleView, err error) {
+	blogArticle, blogErr := clnt.DeleteArticle(id)
+	if blogErr != nil {
+		err = blogErr
+		log.Printf("DeleteArticle failed, err:%s", err.Error())
+		return
+	}
+
+	ret = blogArticle
+	return
+}
+
+func (s *Registry) updateArticle(clnt cmsClient.Client, id int, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
+	blogArticle, blogErr := clnt.UpdateArticle(id, title, content, catalogs)
+	if blogErr != nil {
+		err = blogErr
+		log.Printf("UpdateArticle failed, err:%s", err.Error())
+		return
+	}
+
+	ret = blogArticle
+	return
 }

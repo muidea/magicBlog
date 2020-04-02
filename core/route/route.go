@@ -260,6 +260,19 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)
 				return
 			}
+
+			action := filter.action
+			if action == "update" {
+				fileName, content, contentErr = s.filterEdit(filter, cmsClnt)
+			} else if action == "delete" {
+				contentErr = s.deletePost(filter, cmsClnt)
+				if contentErr == nil {
+					http.Redirect(res, req, "/", http.StatusMovedPermanently)
+					return
+				}
+			} else {
+				// nothing todo
+			}
 		case "login.html":
 			if authOk {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)

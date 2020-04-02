@@ -12,6 +12,7 @@ import (
 
 type filter struct {
 	pageID      int
+	action      string
 	fileName    string
 	catalogName string
 	archiveName string
@@ -36,6 +37,7 @@ func (s *filter) decode(req *http.Request) error {
 		s.pageFilter = &util.PageFilter{PageSize: 10, PageNum: 1}
 	}
 
+	s.action = req.URL.Query().Get("action")
 	str := req.URL.Query().Get("pageid")
 	if str != "" {
 		val, err := strconv.Atoi(str)

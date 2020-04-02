@@ -87,7 +87,7 @@ func (s *Registry) filterPost(filter *filter, clnt cmsClient.Client) (fileName s
 	var articlePtr *cmsModel.ArticleView
 	for _, val := range articleList {
 		fileName := fmt.Sprintf("%s.html", val.Title)
-		if fileName == filter.fileName {
+		if val.ID == filter.pageID && fileName == filter.fileName {
 			articlePtr = val
 			break
 		}

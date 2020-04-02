@@ -271,8 +271,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 					return
 				}
 			} else {
-				content = &cmsModel.ArticleView{}
-				// nothing todo
+				content = map[string]interface{}{"ID": 0, "Title": "", "Content": "", "Catalog": ""}
 			}
 		case "login.html":
 			if authOk {

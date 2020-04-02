@@ -104,12 +104,12 @@ func (s *Registry) recordLogoutAccount(res http.ResponseWriter, req *http.Reques
 	}
 }
 
-func (s *Registry) recordPostBlog(res http.ResponseWriter, req *http.Request, title string) {
+func (s *Registry) recordPostBlog(res http.ResponseWriter, req *http.Request, memo string) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
 	if authOK {
 		acountPtr := authPtr.(*casModel.AccountView)
-		memo := fmt.Sprintf("%s发布%s", acountPtr.Account, title)
+		memo = fmt.Sprintf("%s%s", acountPtr.Account, memo)
 		s.writelog(res, req, memo)
 	}
 }
@@ -271,6 +271,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 					return
 				}
 			} else {
+				content = &cmsModel.ArticleView{}
 				// nothing todo
 			}
 		case "login.html":

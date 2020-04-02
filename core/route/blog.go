@@ -295,6 +295,7 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 // PostBlog post blog
 func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
+		ID      int    `json:"id"`
 		Title   string `json:"title"`
 		Content string `json:"content"`
 		Catalog string `json:"catalog"`
@@ -337,14 +338,28 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
-		if err != nil {
-			result.ErrorCode = commonDef.Failed
-			result.Reason = "提交Blog失败, 保存出错"
-			break
+		memo := ""
+		if param.ID > 0 {
+			_, err = s.updateArticle(cmsClient, param.ID, param.Title, param.Content, catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "提交Blog失败, 更新出错"
+				break
+			}
+
+			memo = fmt.Sprintf("更新Blog%s", param.Title)
+		} else {
+			_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "提交Blog失败, 保存出错"
+				break
+			}
+
+			memo = fmt.Sprintf("新建Blog%s", param.Title)
 		}
 
-		s.recordPostBlog(res, req, param.Title)
+		s.recordPostBlog(res, req, memo)
 
 		result.ErrorCode = commonDef.Success
 		result.Redirect = "/"

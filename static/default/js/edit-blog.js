@@ -9,6 +9,7 @@ $(function() {
     submitSuccess: function($form, event) {
       event.preventDefault(); // prevent default submit behaviour
       // get values from FORM
+      var id = $("#blog-id").val();
       var title = $("#blog-title").val();
       var content = $('#blog-content').val();
       var catalog = $('#blog-catalog').val();
@@ -21,6 +22,7 @@ $(function() {
         type: "POST",
         contentType : "application/json",
         data: JSON.stringify({
+          id: Number(id),
           title: title,
           content: content,
           catalog: catalog

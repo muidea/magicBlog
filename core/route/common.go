@@ -11,7 +11,8 @@ import (
 )
 
 type filter struct {
-	pageID      int
+	postID      int
+	catalogID   int
 	action      string
 	fileName    string
 	catalogName string
@@ -45,7 +46,17 @@ func (s *filter) decode(req *http.Request) error {
 			return err
 		}
 
-		s.pageID = val
+		s.postID = val
+	}
+
+	str = req.URL.Query().Get("catalogid")
+	if str != "" {
+		val, err := strconv.Atoi(str)
+		if err != nil {
+			return err
+		}
+
+		s.catalogID = val
 	}
 
 	s.fileName = fileName

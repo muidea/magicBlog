@@ -48,7 +48,7 @@ func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
 	return
 }
 
-func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, err error) {
+func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, err error) {
 	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if blogErr != nil {
 		err = blogErr
@@ -77,7 +77,7 @@ func (s *Registry) getCommonInfo(clnt cmsClient.Client) (catalogs []*cmsModel.Ca
 	return
 }
 
-func (s *Registry) filterPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Registry) queryBlogPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
@@ -87,7 +87,7 @@ func (s *Registry) filterPost(filter *filter, clnt cmsClient.Client) (fileName s
 	var articlePtr *cmsModel.ArticleView
 	for _, val := range articleList {
 		fileName := fmt.Sprintf("%s.html", val.Title)
-		if val.ID == filter.pageID && fileName == filter.fileName {
+		if val.ID == filter.postID && fileName == filter.fileName {
 			articlePtr = val
 			break
 		}
@@ -103,7 +103,7 @@ func (s *Registry) filterPost(filter *filter, clnt cmsClient.Client) (fileName s
 	return
 }
 
-func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Registry) filterBlogArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var archivePtr *cmsModel.CatalogLite
 	for _, val := range archives {
 		if filter.archiveName == val.Name {
@@ -116,7 +116,7 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 		return
 	}
 	if filter.fileName != "" {
-		articlePtr, articleErr := s.queryArticle(clnt, filter.pageID)
+		articlePtr, articleErr := s.queryArticle(clnt, filter.postID)
 		if articleErr != nil {
 			err = articleErr
 			return
@@ -138,7 +138,7 @@ func (s *Registry) filterArchive(filter *filter, archives []*cmsModel.CatalogLit
 	return
 }
 
-func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var catalogPtr *cmsModel.CatalogLite
 	for _, val := range catalogs {
 		if filter.catalogName == val.Name {
@@ -152,7 +152,7 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 	}
 
 	if filter.fileName != "" {
-		articlePtr, articleErr := s.queryArticle(clnt, filter.pageID)
+		articlePtr, articleErr := s.queryArticle(clnt, filter.postID)
 		if articleErr != nil {
 			err = articleErr
 			return
@@ -174,13 +174,34 @@ func (s *Registry) filterCatalog(filter *filter, catalogs []*cmsModel.CatalogLit
 	return
 }
 
-func (s *Registry) filterEdit(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	if filter.action != "update" || filter.pageID <= 0 {
-		err = fmt.Errorf("illegal action, action:%s, pageId:%d", filter.action, filter.pageID)
+func (s *Registry) queryBlogAbout(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	fileName = "about.html"
+	return
+}
+
+func (s *Registry) queryBlogContact(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	fileName = "contact.html"
+	return
+}
+
+func (s *Registry) filterBlogPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
+	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
+	if articleErr != nil {
+		err = articleErr
 		return
 	}
 
-	articleView, articleErr := s.queryArticle(clnt, filter.pageID)
+	ret = articleList
+	return
+}
+
+func (s *Registry) queryBlogPostEdit(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	if filter.action != "update_post" || filter.postID <= 0 {
+		err = fmt.Errorf("illegal action, action:%s, postID:%d", filter.action, filter.postID)
+		return
+	}
+
+	articleView, articleErr := s.queryArticle(clnt, filter.postID)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -206,34 +227,45 @@ func (s *Registry) filterEdit(filter *filter, clnt cmsClient.Client) (fileName s
 	return
 }
 
-func (s *Registry) deletePost(filter *filter, clnt cmsClient.Client) (err error) {
-	if filter.action != "delete" || filter.pageID <= 0 {
-		err = fmt.Errorf("illegal action, action:%s, pageId:%d", filter.action, filter.pageID)
+func (s *Registry) deleteBlogPost(filter *filter, clnt cmsClient.Client) (err error) {
+	if filter.action != "delete_post" || filter.postID <= 0 {
+		err = fmt.Errorf("illegal action, action:%s, postID:%d", filter.action, filter.postID)
 		return
 	}
 
-	_, err = s.deleteArticle(clnt, filter.pageID)
+	_, err = s.deleteArticle(clnt, filter.postID)
 	return
 }
 
-func (s *Registry) filterAbout(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	fileName = "about.html"
-	return
-}
+func (s *Registry) deleteBlogCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (err error) {
+	if filter.action != "delete_catalog" || filter.catalogID <= 0 {
+		err = fmt.Errorf("illegal action, action:%s, catalogId:%d", filter.action, filter.catalogID)
+		return
+	}
 
-func (s *Registry) filterContact(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	fileName = "contact.html"
-	return
-}
+	var catalogPtr *cmsModel.CatalogLite
+	for _, val := range catalogs {
+		if val.ID == filter.catalogID {
+			catalogPtr = val
+			break
+		}
+	}
+	if catalogPtr == nil {
+		err = fmt.Errorf("illegal action, action:%s, catalogId:%d", filter.action, filter.catalogID)
+		return
+	}
 
-func (s *Registry) filterPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
-	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
+	articleList, articleErr := s.queryArticleList(clnt, catalogPtr, nil)
 	if articleErr != nil {
 		err = articleErr
 		return
 	}
+	if len(articleList) > 0 {
+		err = fmt.Errorf("delete catalog failed, catalog is busy. action:%s, catalogId:%d", filter.action, filter.catalogID)
+		return
+	}
 
-	ret = articleList
+	_, err = s.deleteCatalog(clnt, filter.catalogID)
 	return
 }
 
@@ -423,5 +455,17 @@ func (s *Registry) updateArticle(clnt cmsClient.Client, id int, title, content s
 	}
 
 	ret = blogArticle
+	return
+}
+
+func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.CatalogView, err error) {
+	blogCatalog, blogErr := clnt.DeleteCatalog(id)
+	if blogErr != nil {
+		err = blogErr
+		log.Printf("DeleteCatalog failed, err:%s", err.Error())
+		return
+	}
+
+	ret = blogCatalog
 	return
 }

@@ -223,8 +223,8 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalogs, archives, infoErr := s.getCommonInfo(cmsClnt)
-		if infoErr != nil {
+		catalogs, archives, commonErr := s.queryBlogCommon(cmsClnt)
+		if commonErr != nil {
 			fileName = "500.html"
 			break
 		}
@@ -239,11 +239,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 
 		if filter.isArchive() {
-			fileName, content, contentErr = s.filterArchive(filter, archives, cmsClnt)
+			fileName, content, contentErr = s.filterBlogArchive(filter, archives, cmsClnt)
 			break
 		}
 		if filter.isCatalog() {
-			fileName, content, contentErr = s.filterCatalog(filter, catalogs, cmsClnt)
+			fileName, content, contentErr = s.filterBlogCatalog(filter, catalogs, cmsClnt)
 			break
 		}
 
@@ -254,7 +254,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 
 		switch fileName {
 		case "index.html":
-			content, contentErr = s.filterPostList(filter, cmsClnt)
+			content, contentErr = s.filterBlogPostList(filter, cmsClnt)
 		case "edit.html":
 			if !authOk {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)
@@ -262,10 +262,16 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			}
 
 			action := filter.action
-			if action == "update" {
-				fileName, content, contentErr = s.filterEdit(filter, cmsClnt)
-			} else if action == "delete" {
-				contentErr = s.deletePost(filter, cmsClnt)
+			if action == "update_post" {
+				fileName, content, contentErr = s.queryBlogPostEdit(filter, cmsClnt)
+			} else if action == "delete_post" {
+				contentErr = s.deleteBlogPost(filter, cmsClnt)
+				if contentErr == nil {
+					http.Redirect(res, req, "/", http.StatusMovedPermanently)
+					return
+				}
+			} else if action == "delete_catalog" {
+				contentErr = s.deleteBlogCatalog(filter, catalogs, cmsClnt)
 				if contentErr == nil {
 					http.Redirect(res, req, "/", http.StatusMovedPermanently)
 					return
@@ -279,11 +285,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		case "about.html":
-			fileName, content, contentErr = s.filterAbout(filter, cmsClnt)
+			fileName, content, contentErr = s.queryBlogAbout(filter, cmsClnt)
 		case "contact.html":
-			fileName, content, contentErr = s.filterContact(filter, cmsClnt)
+			fileName, content, contentErr = s.queryBlogContact(filter, cmsClnt)
 		default:
-			fileName, content, contentErr = s.filterPost(filter, cmsClnt)
+			fileName, content, contentErr = s.queryBlogPost(filter, cmsClnt)
 		}
 
 		break

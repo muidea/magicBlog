@@ -82,8 +82,8 @@
               on {{.CreateDate}}              
               {{if $isAuthOK}}
               <span class="float-right">
-                <a href="edit.html?pageid={{.ID}}&action=update">更新</a> |
-                <a href="edit.html?pageid={{.ID}}&action=delete">删除</a>
+                <a href="edit.html?pageid={{.ID}}&action=update_post">更新</a> |
+                <a href="edit.html?pageid={{.ID}}&action=delete_post">删除</a>
               </span>
               {{end}}
             </p>
@@ -103,7 +103,12 @@
           <div class="group-title">分类目录</div>
           <div class="group-items">
             {{range .Catalogs}}
-              <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a></div>
+              <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a>
+                {{if $isAuthOK}}
+                <span class="float-right">
+                  <a href="edit.html?catalogid={{.ID}}&action=delete_catalog" >删除</a>
+                </span>
+                {{end}}</div>
             {{end}}
           </div>
         </div>

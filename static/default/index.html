@@ -82,8 +82,8 @@
               on {{.CreateDate}}              
               {{if $isAuthOK}}
               <span class="float-right">
-                <a href="edit.html?pageid={{.ID}}&action=update_post">更新</a> |
-                <a href="edit.html?pageid={{.ID}}&action=delete_post">删除</a>
+                <a href="/view/edit.html?pageid={{.ID}}&action=update_post">更新</a> |
+                <a href="/view/edit.html?pageid={{.ID}}&action=delete_post">删除</a>
               </span>
               {{end}}
             </p>
@@ -106,7 +106,7 @@
               <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a>
                 {{if $isAuthOK}}
                 <span class="float-right">
-                  <a href="edit.html?catalogid={{.ID}}&action=delete_catalog" >删除</a>
+                  <a href="/view/edit.html?catalogid={{.ID}}&action=delete_catalog" >删除</a>
                 </span>
                 {{end}}</div>
             {{end}}

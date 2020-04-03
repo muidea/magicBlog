@@ -271,11 +271,9 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 					return
 				}
 			} else if action == "delete_catalog" {
-				contentErr = s.deleteBlogCatalog(filter, catalogs, cmsClnt)
-				if contentErr == nil {
-					http.Redirect(res, req, "/", http.StatusMovedPermanently)
-					return
-				}
+				s.deleteBlogCatalog(filter, catalogs, cmsClnt)
+				http.Redirect(res, req, "/", http.StatusMovedPermanently)
+				return
 			} else {
 				content = map[string]interface{}{"ID": 0, "Title": "", "Content": "", "Catalog": ""}
 			}

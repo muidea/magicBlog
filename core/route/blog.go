@@ -489,6 +489,172 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusExpectationFailed)
 }
 
+// PostComment post comment
+func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
+	type postParam struct {
+		ID      int    `json:"id"`
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Catalog string `json:"catalog"`
+	}
+
+	type postResult struct {
+		commonDef.Result
+		Redirect string `json:"redirect"`
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+
+	sessionInfo := curSession.GetSessionInfo()
+	result := &postResult{}
+	for {
+		param := &postParam{}
+		err := net.ParseJSONBody(req, param)
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		if param.Title == "" || param.Catalog == "" {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+
+		cmsClient.BindSession(sessionInfo)
+
+		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
+		if catalogErr != nil {
+			log.Printf("getCatalogs failed, err:%s", catalogErr.Error())
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "提交Blog失败, 查询分类出错"
+			break
+		}
+
+		memo := ""
+		if param.ID > 0 {
+			_, err = s.updateArticle(cmsClient, param.ID, param.Title, param.Content, catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "提交Blog失败, 更新出错"
+				break
+			}
+
+			memo = fmt.Sprintf("更新Blog%s", param.Title)
+		} else {
+			_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "提交Blog失败, 保存出错"
+				break
+			}
+
+			memo = fmt.Sprintf("新建Blog%s", param.Title)
+		}
+
+		s.recordPostBlog(res, req, memo)
+
+		result.ErrorCode = commonDef.Success
+		result.Redirect = "/view/contact.html"
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+// ReplyComment reply comment
+func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
+	type postParam struct {
+		ID      int    `json:"id"`
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Catalog string `json:"catalog"`
+	}
+
+	type postResult struct {
+		commonDef.Result
+		Redirect string `json:"redirect"`
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+
+	sessionInfo := curSession.GetSessionInfo()
+	result := &postResult{}
+	for {
+		param := &postParam{}
+		err := net.ParseJSONBody(req, param)
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		if param.Title == "" || param.Catalog == "" {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+
+		cmsClient.BindSession(sessionInfo)
+
+		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
+		if catalogErr != nil {
+			log.Printf("getCatalogs failed, err:%s", catalogErr.Error())
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "提交Blog失败, 查询分类出错"
+			break
+		}
+
+		memo := ""
+		if param.ID > 0 {
+			_, err = s.updateArticle(cmsClient, param.ID, param.Title, param.Content, catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "提交Blog失败, 更新出错"
+				break
+			}
+
+			memo = fmt.Sprintf("更新Blog%s", param.Title)
+		} else {
+			_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "提交Blog失败, 保存出错"
+				break
+			}
+
+			memo = fmt.Sprintf("新建Blog%s", param.Title)
+		}
+
+		s.recordPostBlog(res, req, memo)
+
+		result.ErrorCode = commonDef.Success
+		result.Redirect = "/view/contact.html"
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
 func (s *Registry) createArticle(clnt cmsClient.Client, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.CreateArticle(title, content, catalogs)
 	if blogErr != nil {

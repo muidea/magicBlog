@@ -337,6 +337,13 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	// blog api routes
 	s.casRouteRegistry.AddHandler("/api/v1/blog/post/", "POST", s.PostBlog)
 
+	// comment api routes
+	commentRoute := engine.CreateRoute("/api/v1/comment/post/", "POST", s.PostComment)
+	router.AddRoute(commentRoute, s)
+
+	// reply comment api routes
+	s.casRouteRegistry.AddHandler("/api/v1/comment/reply/", "POST", s.ReplyComment)
+
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------
 	loginRoute := engine.CreateRoute(cmsCommon.LoginAccountURL, "POST", s.Login)

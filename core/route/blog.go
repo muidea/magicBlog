@@ -19,6 +19,7 @@ import (
 
 const currentCatalog = "current_catalog"
 const archiveCatalog = "archive_catalog"
+const systemCatalog = "system_catalog"
 
 func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	casClient := casClient.NewClient(s.casService)
@@ -48,7 +49,7 @@ func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
 	return
 }
 
-func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, err error) {
+func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, articleList []*cmsModel.ArticleView, err error) {
 	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if blogErr != nil {
 		err = blogErr
@@ -56,21 +57,51 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 	}
 
 	var archiveTree *cmsModel.CatalogTree
+	var systemTree *cmsModel.CatalogTree
 	catalogs = []*cmsModel.CatalogLite{}
 	archives = []*cmsModel.CatalogLite{}
 	for _, cv := range blogCatalog.Subs {
 		switch cv.Name {
 		case currentCatalog:
-			s.currentCatalog = cv
+			s.currentCatalog = cv.Lite()
 		case archiveCatalog:
 			archiveTree = cv
+		case systemCatalog:
+			systemTree = cv
 		default:
 			catalogs = append(catalogs, cv.Lite())
 		}
 	}
+
+	if s.currentCatalog == nil {
+		catalogView, catalogErr := clnt.CreateCatalog(currentCatalog, "auto create current catalog", blogCatalog.Lite())
+		if catalogErr != nil {
+			err = catalogErr
+			return
+		}
+
+		s.currentCatalog = catalogView.Lite()
+	}
+
 	if archiveTree != nil {
 		for _, cv := range archiveTree.Subs {
 			archives = append(archives, cv.Lite())
+		}
+	} else {
+		_, catalogErr := clnt.CreateCatalog(archiveCatalog, "auto create archive catalog", blogCatalog.Lite())
+		if catalogErr != nil {
+			err = catalogErr
+			return
+		}
+	}
+
+	if systemTree != nil {
+		articleList, err = s.queryArticleList(clnt, systemTree.Lite(), nil)
+	} else {
+		_, catalogErr := clnt.CreateCatalog(systemCatalog, "auto create system catalog", blogCatalog.Lite())
+		if catalogErr != nil {
+			err = catalogErr
+			return
 		}
 	}
 
@@ -78,7 +109,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 }
 
 func (s *Registry) queryBlogPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
+	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog, filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -174,18 +205,49 @@ func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.Catalo
 	return
 }
 
-func (s *Registry) queryBlogAbout(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Registry) queryBlogAbout(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	var articlePtr *cmsModel.ArticleView
+	for _, val := range articles {
+		fileName := fmt.Sprintf("%s.html", val.Title)
+		if fileName == filter.fileName {
+			articlePtr = val
+			break
+		}
+	}
+
+	if articlePtr == nil {
+		fileName = "404.html"
+		return
+	}
+
 	fileName = "about.html"
+	content = articlePtr
+
 	return
 }
 
-func (s *Registry) queryBlogContact(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Registry) queryBlogContact(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	var articlePtr *cmsModel.ArticleView
+	for _, val := range articles {
+		fileName := fmt.Sprintf("%s.html", val.Title)
+		if fileName == filter.fileName {
+			articlePtr = val
+			break
+		}
+	}
+
+	if articlePtr == nil {
+		fileName = "404.html"
+		return
+	}
+
 	fileName = "contact.html"
+	content = articlePtr
 	return
 }
 
 func (s *Registry) filterBlogPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
-	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog.Lite(), filter.pageFilter)
+	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog, filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
 		return
@@ -312,8 +374,11 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 	}
 
 	items := strings.Split(strings.Trim(catalog, " "), ",")
-	items = append(items, currentCatalog, archiveCatalog)
 	for _, val := range items {
+		if val == currentCatalog || val == archiveCatalog {
+			continue
+		}
+
 		cv, exist := catalogMapInfo[val]
 		if !exist {
 			catalogMapInfo[val] = nil
@@ -326,7 +391,7 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 	}
 
 	for _, val := range newCatalogItems {
-		newCatalog, newErr := clnt.CreateCatalog(val, "auto create catalog", blogCatalog.Lite())
+		newCatalog, newErr := clnt.CreateCatalog(val, "auto create blog catalog", blogCatalog.Lite())
 		if newErr != nil {
 			err = newErr
 			return
@@ -335,6 +400,8 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 			ret = append(ret, newCatalog.Lite())
 		}
 	}
+
+	ret = append(ret, s.currentCatalog)
 
 	return
 }

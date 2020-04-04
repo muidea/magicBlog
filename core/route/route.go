@@ -40,7 +40,7 @@ type Registry struct {
 	cmsCatalog int
 
 	basePath       string
-	currentCatalog *cmsModel.CatalogTree
+	currentCatalog *cmsModel.CatalogLite
 }
 
 // NewRoute create route
@@ -223,7 +223,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		catalogs, archives, commonErr := s.queryBlogCommon(cmsClnt)
+		catalogs, archives, articles, commonErr := s.queryBlogCommon(cmsClnt)
 		if commonErr != nil {
 			fileName = "500.html"
 			break
@@ -283,9 +283,9 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 				return
 			}
 		case "about.html":
-			fileName, content, contentErr = s.queryBlogAbout(filter, cmsClnt)
+			fileName, content, contentErr = s.queryBlogAbout(filter, articles, cmsClnt)
 		case "contact.html":
-			fileName, content, contentErr = s.queryBlogContact(filter, cmsClnt)
+			fileName, content, contentErr = s.queryBlogContact(filter, articles, cmsClnt)
 		default:
 			fileName, content, contentErr = s.queryBlogPost(filter, cmsClnt)
 		}

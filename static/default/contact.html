@@ -16,9 +16,19 @@
   <!-- Custom fonts for this template -->
   <link href="/static/default/lib/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
 
+  <!-- Custom editormd for this template -->
+  <link href="/static/default/lib/editor-md/css/editormd.preview.min.css" rel="stylesheet" />
+
   <!-- Custom styles for this template -->
   <link href="/static/default/css/clean-blog.css" rel="stylesheet">
 
+  <style>            
+    .editormd-html-preview {
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 auto;
+    }
+  </style>
 </head>
 
 <body>
@@ -69,7 +79,10 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-6 mx-auto">
-        <p>Want to get in touch? Fill out the form below to send me a message and I will get back to you as soon as possible!</p>
+        <h3>{{.Content.Title}}</h3>
+        <div id="blog-editormd">
+          <textarea style="display:none;" id="blog-content" name="content">{{.Content.Content}}</textarea>
+        </div>
         <!-- 给我留言 Form - Enter your email address on line 19 of the mail/contact_me.php file to make this form work. -->
         <!-- WARNING: Some web hosts do not allow emails to be sent through forms to common mail hosts like Gmail or Yahoo. It's recommended that you use a private domain email address! -->
         <!-- To use the contact form, your site must be on a live web host with PHP! The form will not work locally! -->
@@ -145,13 +158,33 @@
   <!-- Bootstrap core JavaScript -->
   <script src="/static/default/lib/jquery/jquery.min.js"></script>
   <script src="/static/default/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- 给我留言 Form JavaScript -->
-  <script src="/static/default/js/jqBootstrapValidation.js"></script>
-  <script src="/static/default/js/contact_me.js"></script>
+  <script src="/static/default/lib/editor-md/lib/marked.min.js"></script>
+  <script src="/static/default/lib/editor-md/lib/prettify.min.js"></script>
+  <script src="/static/default/lib/editor-md/lib/raphael.min.js"></script>
+  <script src="/static/default/lib/editor-md/lib/underscore.min.js"></script>
+  <script src="/static/default/lib/editor-md/lib/sequence-diagram.min.js"></script>
+  <script src="/static/default/lib/editor-md/lib/flowchart.min.js"></script>
+  <script src="/static/default/lib/editor-md/lib/jquery.flowchart.min.js"></script>
+  <script src="/static/default/lib/editor-md/editormd.min.js"></script>
 
   <!-- Custom scripts for this template -->
   <script src="/static/default/js/clean-blog.js"></script>
+
+  <script type="text/javascript">
+    var testEditor;
+    $(function () {
+      console.log($("#blog-content").val());
+
+      testEditor = editormd.markdownToHTML("blog-editormd", {
+        htmlDecode      : "style,script,iframe",  // you can filter tags decode
+        emoji           : true,
+        taskList        : true,
+        tex             : true,  // 默认不解析
+        flowChart       : true,  // 默认不解析
+        sequenceDiagram : true,  // 默认不解析
+      });
+    });
+  </script>
 
 </body>
 

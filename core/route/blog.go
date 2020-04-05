@@ -11,6 +11,7 @@ import (
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
 	casClient "github.com/muidea/magicCas/client"
+	casModel "github.com/muidea/magicCas/model"
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
@@ -492,10 +493,11 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 // PostComment post comment
 func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
-		ID      int    `json:"id"`
-		Title   string `json:"title"`
+		Creater string `json:"creater"`
+		EMail   string `json:"email"`
 		Content string `json:"content"`
-		Catalog string `json:"catalog"`
+		Origin  string `json:"origin"`
+		Host    int    `json:"host"`
 	}
 
 	type postResult struct {
@@ -503,9 +505,6 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 		Redirect string `json:"redirect"`
 	}
 
-	curSession := s.sessionRegistry.GetSession(res, req)
-
-	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
 		param := &postParam{}
@@ -516,50 +515,29 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		if param.Title == "" || param.Catalog == "" {
+		if param.Creater == "" || param.EMail == "" || param.Origin == "" || param.Host == 0 {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "非法参数,输入参数为空"
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient()
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "留言失败, 系统出错"
+			break
+		}
 		defer cmsClient.Release()
 
-		cmsClient.BindSession(sessionInfo)
-
-		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
-		if catalogErr != nil {
-			log.Printf("getCatalogs failed, err:%s", catalogErr.Error())
+		_, err = cmsClient.CreateComment(param.Content, param.Creater, &cmsModel.Unit{UID: param.Host, Type: cmsModel.ARTICLE}, 0)
+		if err != nil {
 			result.ErrorCode = commonDef.Failed
-			result.Reason = "提交Blog失败, 查询分类出错"
+			result.Reason = "留言失败, 保存出错"
 			break
 		}
 
-		memo := ""
-		if param.ID > 0 {
-			_, err = s.updateArticle(cmsClient, param.ID, param.Title, param.Content, catalogList)
-			if err != nil {
-				result.ErrorCode = commonDef.Failed
-				result.Reason = "提交Blog失败, 更新出错"
-				break
-			}
-
-			memo = fmt.Sprintf("更新Blog%s", param.Title)
-		} else {
-			_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
-			if err != nil {
-				result.ErrorCode = commonDef.Failed
-				result.Reason = "提交Blog失败, 保存出错"
-				break
-			}
-
-			memo = fmt.Sprintf("新建Blog%s", param.Title)
-		}
-
-		s.recordPostBlog(res, req, memo)
-
 		result.ErrorCode = commonDef.Success
-		result.Redirect = "/view/contact.html"
+		result.Redirect = param.Origin
 		break
 	}
 
@@ -575,10 +553,9 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 // ReplyComment reply comment
 func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
-		ID      int    `json:"id"`
-		Title   string `json:"title"`
 		Content string `json:"content"`
-		Catalog string `json:"catalog"`
+		Origin  string `json:"origin"`
+		Host    int    `json:"host"`
 	}
 
 	type postResult struct {
@@ -587,7 +564,6 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-
 	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
@@ -599,7 +575,7 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		if param.Title == "" || param.Catalog == "" {
+		if param.Origin == "" || param.Host == 0 {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "非法参数,输入参数为空"
 			break
@@ -610,39 +586,18 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 
 		cmsClient.BindSession(sessionInfo)
 
-		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
-		if catalogErr != nil {
-			log.Printf("getCatalogs failed, err:%s", catalogErr.Error())
+		authPtr, _ := curSession.GetOption(commonCommon.AuthAccount)
+		accountPtr := authPtr.(*casModel.AccountView)
+
+		_, err = cmsClient.CreateComment(param.Content, accountPtr.Account, &cmsModel.Unit{UID: param.Host, Type: cmsModel.COMMENT}, 0)
+		if err != nil {
 			result.ErrorCode = commonDef.Failed
-			result.Reason = "提交Blog失败, 查询分类出错"
+			result.Reason = "回复失败, 保存出错"
 			break
 		}
 
-		memo := ""
-		if param.ID > 0 {
-			_, err = s.updateArticle(cmsClient, param.ID, param.Title, param.Content, catalogList)
-			if err != nil {
-				result.ErrorCode = commonDef.Failed
-				result.Reason = "提交Blog失败, 更新出错"
-				break
-			}
-
-			memo = fmt.Sprintf("更新Blog%s", param.Title)
-		} else {
-			_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
-			if err != nil {
-				result.ErrorCode = commonDef.Failed
-				result.Reason = "提交Blog失败, 保存出错"
-				break
-			}
-
-			memo = fmt.Sprintf("新建Blog%s", param.Title)
-		}
-
-		s.recordPostBlog(res, req, memo)
-
 		result.ErrorCode = commonDef.Success
-		result.Redirect = "/view/contact.html"
+		result.Redirect = param.Origin
 		break
 	}
 

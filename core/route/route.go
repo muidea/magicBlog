@@ -88,8 +88,8 @@ func (s *Registry) recordLoginAccount(res http.ResponseWriter, req *http.Request
 	curSession := s.sessionRegistry.GetSession(res, req)
 	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
 	if authOK {
-		acountPtr := authPtr.(*casModel.AccountView)
-		memo := fmt.Sprintf("账号%s登录", acountPtr.Account)
+		accountPtr := authPtr.(*casModel.AccountView)
+		memo := fmt.Sprintf("账号%s登录", accountPtr.Account)
 		s.writelog(res, req, memo)
 	}
 }
@@ -98,8 +98,8 @@ func (s *Registry) recordLogoutAccount(res http.ResponseWriter, req *http.Reques
 	curSession := s.sessionRegistry.GetSession(res, req)
 	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
 	if authOK {
-		acountPtr := authPtr.(*casModel.AccountView)
-		memo := fmt.Sprintf("账号%s登出", acountPtr.Account)
+		accountPtr := authPtr.(*casModel.AccountView)
+		memo := fmt.Sprintf("账号%s登出", accountPtr.Account)
 		s.writelog(res, req, memo)
 	}
 }
@@ -108,8 +108,8 @@ func (s *Registry) recordPostBlog(res http.ResponseWriter, req *http.Request, me
 	curSession := s.sessionRegistry.GetSession(res, req)
 	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
 	if authOK {
-		acountPtr := authPtr.(*casModel.AccountView)
-		memo = fmt.Sprintf("%s%s", acountPtr.Account, memo)
+		accountPtr := authPtr.(*casModel.AccountView)
+		memo = fmt.Sprintf("%s%s", accountPtr.Account, memo)
 		s.writelog(res, req, memo)
 	}
 }
@@ -222,6 +222,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			fileName = "500.html"
 			break
 		}
+		defer cmsClnt.Release()
 
 		catalogs, archives, articles, commonErr := s.queryBlogCommon(cmsClnt)
 		if commonErr != nil {

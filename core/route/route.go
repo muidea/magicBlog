@@ -219,6 +219,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	for {
 		cmsClnt, cmsErr := s.getCMSClient()
 		if cmsErr != nil {
+			log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
 			fileName = "500.html"
 			break
 		}
@@ -226,6 +227,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 
 		catalogs, archives, articles, commonErr := s.queryBlogCommon(cmsClnt)
 		if commonErr != nil {
+			log.Printf("queryBlogCommon failed, err:%s", commonErr.Error())
 			fileName = "500.html"
 			break
 		}

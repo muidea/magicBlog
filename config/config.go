@@ -8,7 +8,7 @@ var cmsAuthToken = "magicBlog"
 var cmsService = "http://127.0.0.1:8880"
 var casService = "http://127.0.0.1:8081"
 var batisService = "http://127.0.0.1:8080"
-var cmsCatalog = 192
+var cmsCatalog = 248
 
 func init() {
 	flag.StringVar(&endpointName, "EndpointName", endpointName, "magicBlog endpoint name.")

@@ -8,6 +8,7 @@ $(function() {
     submitSuccess: function($form, event) {
       event.preventDefault(); // prevent default submit behaviour
       // get values from FORM
+      var host = $("input#host").val();
       var name = $("input#name").val();
       var email = $("input#email").val();
       var message = $("textarea#message").val();
@@ -19,9 +20,11 @@ $(function() {
         type: "POST",
         contentType : "application/json",
         data: JSON.stringify({
+          host: Number(host),
           name: name,
           email: email,
-          message: message
+          message: message,
+          origin: window.location.href
         }),
         cache: false,
         success: function(result) {

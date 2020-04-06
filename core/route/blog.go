@@ -493,9 +493,9 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 // PostComment post comment
 func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
-		Creater string `json:"creater"`
+		Name    string `json:"name"`
 		EMail   string `json:"email"`
-		Content string `json:"content"`
+		Message string `json:"message"`
 		Origin  string `json:"origin"`
 		Host    int    `json:"host"`
 	}
@@ -515,7 +515,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		if param.Creater == "" || param.EMail == "" || param.Origin == "" || param.Host == 0 {
+		if param.Name == "" || param.EMail == "" || param.Origin == "" || param.Host == 0 {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "非法参数,输入参数为空"
 			break
@@ -529,7 +529,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 		}
 		defer cmsClient.Release()
 
-		_, err = cmsClient.CreateComment(param.Content, param.Creater, &cmsModel.Unit{UID: param.Host, Type: cmsModel.ARTICLE}, 0)
+		_, err = cmsClient.CreateComment(param.Message, param.Name, &cmsModel.Unit{UID: param.Host, Type: cmsModel.ARTICLE}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "留言失败, 保存出错"

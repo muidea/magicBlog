@@ -242,8 +242,17 @@ func (s *Registry) queryBlogContact(filter *filter, articles []*cmsModel.Article
 		return
 	}
 
+	info := map[string]interface{}{}
+	commentList, commentErr := s.queryComments(clnt, articlePtr.ID, filter.pageFilter)
+	if commentErr != nil {
+		err = fmt.Errorf("queryComments failed,err:%s", commentErr.Error())
+		return
+	}
+	info["Content"] = articlePtr
+	info["Comments"] = commentList
+
 	fileName = "contact.html"
-	content = articlePtr
+	content = info
 	return
 }
 
@@ -655,5 +664,17 @@ func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.C
 	}
 
 	ret = blogCatalog
+	return
+}
+
+func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*cmsModel.CommentView, err error) {
+	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Unit{UID: id, Type: cmsModel.ARTICLE}, nil)
+	if blogErr != nil {
+		err = blogErr
+		log.Printf("FilterComment failed, err:%s", err.Error())
+		return
+	}
+
+	ret = blogComment
 	return
 }

@@ -130,8 +130,17 @@ func (s *Registry) queryBlogPost(filter *filter, clnt cmsClient.Client) (fileNam
 		return
 	}
 
+	info := map[string]interface{}{}
+	commentList, commentErr := s.queryComments(clnt, articlePtr.ID, filter.pageFilter)
+	if commentErr != nil {
+		err = fmt.Errorf("queryComments failed,err:%s", commentErr.Error())
+		return
+	}
+	info["Content"] = articlePtr
+	info["Comments"] = commentList
+
 	fileName = "post.html"
-	content = articlePtr
+	content = info
 	return
 }
 

@@ -85,6 +85,11 @@
         <div id="blog-editormd">
           <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
         </div>
+        <div>
+          {{range $Comments}}
+          <div>{{.Content}}</div>
+          {{end}}
+        </div>
         <!-- 给我留言 Form - Enter your email address on line 19 of the mail/contact_me.php file to make this form work. -->
         <!-- WARNING: Some web hosts do not allow emails to be sent through forms to common mail hosts like Gmail or Yahoo. It's recommended that you use a private domain email address! -->
         <!-- To use the contact form, your site must be on a live web host with PHP! The form will not work locally! -->
@@ -92,7 +97,7 @@
           <div class="control-group">
             <div class="form-group floating-label-form-group controls">
               <label>姓名</label>
-              <input id="host" style="display:none;" class="form-control" value="{{.Content.ID}}">
+              <input id="host" style="display:none;" class="form-control" value="{{$Content.ID}}">
               <input type="text" class="form-control" placeholder="姓名" id="name" required data-validation-required-message="Please enter your name.">
               <p class="help-block text-danger"></p>
             </div>

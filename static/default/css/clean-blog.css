@@ -224,18 +224,33 @@ header.masthead {
   .post-preview > a > .post-title {
     font-size: 24px; } }
 
-.post-group {
+.post-catalog {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   margin-bottom: 20px; }
-  .post-group > .group-title {
+  .post-catalog > .catalog-title {
     font-size: 24px;
     margin-top: 0px; }
-  .post-group > .group-items {
+  .post-catalog > .catalog-items {
     font-size: 15px;
     margin-bottom: 10px; }
-    .post-group > .group-items > a {
+    .post-catalog > .catalog-items > a {
       color: #212529; }
-      .post-group > .group-items > a:focus, .post-group > .group-items > a:hover {
+      .post-catalog > .catalog-items > a:focus, .post-catalog > .catalog-items > a:hover {
+        text-decoration: none;
+        color: #0085A1; }
+
+.post-comment {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin-bottom: 20px; }
+  .post-comment > .comment-title {
+    font-size: 24px;
+    margin-top: 0px; }
+  .post-comment > .comment-items {
+    font-size: 15px;
+    margin-bottom: 10px; }
+    .post-comment > .comment-items > a {
+      color: #212529; }
+      .post-comment > .comment-items > a:focus, .post-comment > .comment-items > a:hover {
         text-decoration: none;
         color: #0085A1; }
 

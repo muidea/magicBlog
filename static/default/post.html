@@ -108,9 +108,9 @@
       <div class="col-lg-2 col-md-4 mx-auto">
         {{$catalogSize:= len .Catalogs}}
         {{if gt $catalogSize 0}}
-        <div class="post-group">
-          <div class="group-title">分类目录</div>
-          <div class="group-items">
+        <div class="post-catalog">
+          <div class="catalog-title">分类目录</div>
+          <div class="catalog-items">
             {{range .Catalogs}}
               <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a></div>
             {{end}}
@@ -119,9 +119,9 @@
         {{end}}
         {{$archiveSize:= len .Archives}}
         {{if gt $archiveSize 0}}
-        <div class="post-group">
-          <div class="group-title">文章归档</div>
-          <div class="group-items">
+        <div class="post-catalog">
+          <div class="catalog-title">文章归档</div>
+          <div class="catalog-items">
             {{range .Archives}}
             <div><a href="/view/archive/{{.Name}}/">{{.Name}}</a></div>
             {{end}}            

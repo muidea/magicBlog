@@ -87,7 +87,14 @@
         </div>
         <div>
           {{range $Comments}}
-          <div>{{.Content}}</div>
+          <div class="comment-preview">
+            <div class="comment-meta">
+              {{.Creater}}发表于{{.CreateDate}}
+            </div>
+            <div class="comment-content">
+              {{.Content}}
+            </div>  
+          </div>
           <hr>
           {{end}}
         </div>

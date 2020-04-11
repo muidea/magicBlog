@@ -239,18 +239,18 @@ header.masthead {
         text-decoration: none;
         color: #0085A1; }
 
-.post-comment {
+.comment-preview {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   margin-bottom: 20px; }
-  .post-comment > .comment-title {
+  .comment-preview > .comment-content {
     font-size: 24px;
     margin-top: 0px; }
-  .post-comment > .comment-items {
+  .comment-preview > .comment-meta {
     font-size: 15px;
     margin-bottom: 10px; }
-    .post-comment > .comment-items > a {
+    .comment-preview > .comment-meta > a {
       color: #212529; }
-      .post-comment > .comment-items > a:focus, .post-comment > .comment-items > a:hover {
+      .comment-preview > .comment-meta > a:focus, .comment-preview > .comment-meta > a:hover {
         text-decoration: none;
         color: #0085A1; }
 

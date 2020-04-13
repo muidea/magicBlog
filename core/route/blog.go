@@ -547,7 +547,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 		}
 		defer cmsClient.Release()
 
-		_, err = cmsClient.CreateComment(param.Message, param.Name, &cmsModel.Unit{UID: param.Host, Type: cmsModel.ARTICLE}, 0)
+		_, err = cmsClient.CreateComment(param.Message, param.Name, &cmsModel.Unit{UID: param.Host, UType: cmsModel.ARTICLE}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "留言失败, 保存出错"
@@ -607,7 +607,7 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 		authPtr, _ := curSession.GetOption(commonCommon.AuthAccount)
 		accountPtr := authPtr.(*casModel.AccountView)
 
-		_, err = cmsClient.CreateComment(param.Content, accountPtr.Account, &cmsModel.Unit{UID: param.Host, Type: cmsModel.COMMENT}, 0)
+		_, err = cmsClient.CreateComment(param.Content, accountPtr.Account, &cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "回复失败, 保存出错"
@@ -677,7 +677,7 @@ func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.C
 }
 
 func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*cmsModel.CommentView, err error) {
-	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Unit{UID: id, Type: cmsModel.ARTICLE}, nil)
+	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Unit{UID: id, UType: cmsModel.ARTICLE}, nil)
 	if blogErr != nil {
 		err = blogErr
 		log.Printf("FilterComment failed, err:%s", err.Error())

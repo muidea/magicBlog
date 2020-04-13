@@ -215,6 +215,22 @@ func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.Catalo
 	return
 }
 
+func (s *Registry) queryBlogLogin(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	var articlePtr *cmsModel.ArticleView
+	for _, val := range articles {
+		fileName := fmt.Sprintf("%s.html", val.Title)
+		if fileName == filter.fileName {
+			articlePtr = val
+			break
+		}
+	}
+
+	fileName = "login.html"
+	content = articlePtr
+
+	return
+}
+
 func (s *Registry) queryBlogAbout(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var articlePtr *cmsModel.ArticleView
 	for _, val := range articles {

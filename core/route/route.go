@@ -285,6 +285,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)
 				return
 			}
+			fileName, content, contentErr = s.queryBlogLogin(filter, articles, cmsClnt)
 		case "about.html":
 			fileName, content, contentErr = s.queryBlogAbout(filter, articles, cmsClnt)
 		case "contact.html":

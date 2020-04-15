@@ -24,10 +24,10 @@ $('.post-comment').on('click', function(){
           '      <p class="help-block text-danger"></p>' +
           '    </div>' +
           '  </div>' +
-          '  <div class="success"></div>' +
+          '  <div class="success control-group"></div>' +
           '</form>',
       buttons: {
-          formSubmit: {
+        formSubmit: {
               text: '提交',
               btnClass: 'btn-blue',
               action: function(){
@@ -45,8 +45,10 @@ $('.post-comment').on('click', function(){
                   var message = this.$content.find('.message').val();
                   var host = $(".comment-panel .host").val();
 
+                  var result = true;
                   $.ajax({
                     url: "/api/v1/comment/post/",
+                    async:false,
                     dataType:'json',
                     type: "POST",
                     contentType : "application/json",
@@ -64,26 +66,24 @@ $('.post-comment').on('click', function(){
                       } else {
                       // Fail message
                       this.$content.find('.success').html("<div class='alert alert-danger'>");
-                      this.$content.find('.success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
-                        .append("</button>");
+                      this.$content.find('.success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
                         this.$content.find('.success > .alert-danger').append($("<small>").text(result.reason));
                       this.$content.find('.success > .alert-danger').append('</div>');
+
+                      result = false;
                       }
                     },
                     error: function() {
                       // Fail message
-                      this.$content.find('.success').html("<div class='alert alert-danger'>");
-                      this.$content.find('.success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
-                        .append("</button>");
-                      this.$content.find('.success > .alert-danger').append($("<small>").text("提交失败!"));
-                      this.$content.find('.success > .alert-danger').append('</div>');
-                    },
-                    complete: function() {
-                      setTimeout(function() {
-                        $this.prop("disabled", false); // Re-enable submit button when AJAX call is complete
-                      }, 1000);
+                      $('.commentForm .success').html("<div class='alert-danger'>");
+                      $('.commentForm .success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                      $('.commentForm .success > .alert-danger').append($("<small>").text("提交失败!"));
+                      $('.commentForm .success > .alert-danger').append('</div>');
+                      result = false;
                     }
                   });
+
+                  return result;
               }
           },
           cancel: {

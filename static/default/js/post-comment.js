@@ -24,7 +24,7 @@ $('.post-comment').on('click', function(){
           '      <p class="help-block text-danger"></p>' +
           '    </div>' +
           '  </div>' +
-          '  <div class="success control-group"></div>' +
+          '  <div class="result-panel control-group"></div>' +
           '</form>',
       buttons: {
         formSubmit: {
@@ -65,20 +65,20 @@ $('.post-comment').on('click', function(){
                         window.location.href = result.redirect;
                       } else {
                       // Fail message
-                      this.$content.find('.success').html("<div class='alert alert-danger'>");
-                      this.$content.find('.success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
-                        this.$content.find('.success > .alert-danger').append($("<small>").text(result.reason));
-                      this.$content.find('.success > .alert-danger').append('</div>');
+                      this.$content.find('.result-panel').html("<div class='alert alert-danger'>");
+                      this.$content.find('.result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                        this.$content.find('.result-panel > .alert-danger').append($("<small>").text(result.reason));
+                      this.$content.find('.result-panel > .alert-danger').append('</div>');
 
                       result = false;
                       }
                     },
                     error: function() {
                       // Fail message
-                      $('.commentForm .success').html("<div class='alert-danger'>");
-                      $('.commentForm .success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
-                      $('.commentForm .success > .alert-danger').append($("<small>").text("提交失败!"));
-                      $('.commentForm .success > .alert-danger').append('</div>');
+                      $('.commentForm .result-panel').html("<div class='alert-danger'>");
+                      $('.commentForm .result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                      $('.commentForm .result-panel > .alert-danger').append($("<small>").text("提交失败!"));
+                      $('.commentForm .result-panel > .alert-danger').append('</div>');
                       result = false;
                     }
                   });
@@ -97,11 +97,12 @@ $('.post-comment').on('click', function(){
               e.preventDefault();
               jc.$$formSubmit.trigger('click'); // reference the button and click it
           });
+
+          /*When clicking on Full hide fail/success boxes */
+          this.$content.find('.commentForm .control-group .controls .form-control').focus(function() {
+            $('.commentForm .result-panel').html('');
+          });
+
       }
   });
-});
-
-/*When clicking on Full hide fail/success boxes */
-$('.commentForm .name').focus(function() {
-  $('.commentForm .success').html('');
 });

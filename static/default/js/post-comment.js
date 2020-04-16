@@ -1,3 +1,91 @@
+
+submitComment = (url, title, id) => {
+  $.confirm({
+    title: title,
+    content: '' +
+        '<form name="sentMessage" class="commentForm" novalidate>' +
+        '  <div class="control-group">' +
+        '    <div class="form-group floating-label-form-group controls">' + 
+        '      <label>留言信息</label>' +
+        '      <textarea rows="5" class="message form-control" placeholder="留言信息"></textarea>' +
+        '      <p class="help-block text-danger"></p>' +
+        '    </div>' +
+        '  </div>' +
+        '  <div class="result-panel control-group"></div>' +
+        '</form>',
+    buttons: {
+      formSubmit: {
+            text: '提交',
+            btnClass: 'btn-blue',
+            action: function(){
+                var message = this.$content.find('.message').val();
+                var result = true;
+                $.ajax({
+                  url: url,
+                  async:false,
+                  dataType:'json',
+                  type: "POST",
+                  contentType : "application/json",
+                  data: JSON.stringify({
+                    host: Number(id),
+                    message: message,
+                    origin: window.location.href
+                  }),
+                  cache: false,
+                  success: function(result) {
+                    if (result.errorCode===0){
+                      window.location.href = result.redirect;
+                    } else {
+                      // Fail message
+                      $('.commentForm .result-panel').html("<div class='alert alert-danger'>");
+                      $('.commentForm .result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                      $('.commentForm .result-panel > .alert-danger').append($("<small>").text(result.reason));
+                      $('.commentForm .result-panel > .alert-danger').append('</div>');
+                      result = false;
+                    }
+                  },
+                  error: function() {
+                    // Fail message
+                    $('.commentForm .result-panel').html("<div class='alert-danger'>");
+                    $('.commentForm .result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                    $('.commentForm .result-panel > .alert-danger').append($("<small>").text("提交失败!"));
+                    $('.commentForm .result-panel > .alert-danger').append('</div>');
+                    result = false;
+                  }
+                });
+
+                return result;
+            }
+        },
+        formCancel: {
+          text: '取消',
+        },
+    },
+    onContentReady: function(){
+        // you can bind to the form
+        var jc = this;
+        this.$content.find('form').on('submit', function(e){ // if the user submits the form by pressing enter in the field.
+            e.preventDefault();
+            jc.$$formSubmit.trigger('click'); // reference the button and click it
+        });
+
+        /*When clicking on Full hide fail/success boxes */
+        this.$content.find('.commentForm .control-group .controls .form-control').focus(function() {
+          $('.commentForm .result-panel').html('');
+        });
+
+    }
+  });
+}
+
+onPostComment = (id) => {
+  submitComment("/api/v1/comment/post/","发表留言", id);
+}
+
+onReplyComment = (id) => {
+  submitComment("/api/v1/comment/reply/","回复留言", id);
+}
+
 $('.post-comment').on('click', function(){
   $.confirm({
       title: '发表留言',
@@ -64,13 +152,12 @@ $('.post-comment').on('click', function(){
                       if (result.errorCode===0){
                         window.location.href = result.redirect;
                       } else {
-                      // Fail message
-                      this.$content.find('.result-panel').html("<div class='alert alert-danger'>");
-                      this.$content.find('.result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
-                        this.$content.find('.result-panel > .alert-danger').append($("<small>").text(result.reason));
-                      this.$content.find('.result-panel > .alert-danger').append('</div>');
-
-                      result = false;
+                        // Fail message
+                        $('.commentForm .result-panel').html("<div class='alert alert-danger'>");
+                        $('.commentForm .result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                        $('.commentForm .result-panel > .alert-danger').append($("<small>").text(result.reason));
+                        $('.commentForm .result-panel > .alert-danger').append('</div>');
+                        result = false;
                       }
                     },
                     error: function() {

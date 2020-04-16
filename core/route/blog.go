@@ -587,7 +587,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 // ReplyComment reply comment
 func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
-		Content string `json:"content"`
+		Message string `json:"message"`
 		Origin  string `json:"origin"`
 		Host    int    `json:"host"`
 	}
@@ -623,7 +623,7 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 		authPtr, _ := curSession.GetOption(commonCommon.AuthAccount)
 		accountPtr := authPtr.(*casModel.AccountView)
 
-		_, err = cmsClient.CreateComment(param.Content, accountPtr.Account, &cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, 0)
+		_, err = cmsClient.CreateComment(param.Message, accountPtr.Account, &cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "回复失败, 保存出错"

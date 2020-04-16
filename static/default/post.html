@@ -93,7 +93,7 @@
             <div class="comment-meta">
               <p>{{.Creater}}<span style="font-size: small;">提交于{{.CreateDate}}</span>
               {{if $isAuthOK}}
-              <span class="float-right">回复</span>
+              <span class="float-right"> <a href="#" onclick="onReplyComment({{.ID}})" >回复</a></span>
               {{end}}</p>
             </div>
             <div class="comment-content">

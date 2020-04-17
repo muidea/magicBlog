@@ -490,12 +490,12 @@ func (s *Registry) archiveBlog() error {
 	}
 
 	var archiveCatalogPtr *cmsModel.CatalogLite
-	curTime := time.Now()
-	preDuration := time.Duration(curTime.UnixNano()) - time.Hour*24*2
-	preTime := time.Unix(int64(preDuration.Seconds()), preDuration.Nanoseconds())
-	archiveName := preTime.Format("2016年01月")
+	preDuration := time.Duration(time.Now().UnixNano()) - time.Hour*24*2
+	preTime := time.Unix(int64(preDuration.Seconds()), 0)
+	archiveName := fmt.Sprintf("%04d年%02d月", preTime.Year(), preTime.Month())
+
 	for _, val := range archives {
-		if archiveName != val.Name {
+		if archiveName == val.Name {
 			archiveCatalogPtr = val
 			break
 		}
@@ -516,7 +516,7 @@ func (s *Registry) archiveBlog() error {
 	}
 
 	for _, val := range archiveList {
-		catalogs := []*cmsModel.CatalogLite{}
+		catalogs := []*cmsModel.CatalogLite{archiveCatalogPtr}
 		for _, cv := range val.Catalog {
 			if cv.Name == archiveCatalogPtr.Name {
 				continue

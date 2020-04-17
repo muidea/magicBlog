@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/model"
@@ -22,6 +23,34 @@ import (
 const currentCatalog = "current_catalog"
 const archiveCatalog = "archive_catalog"
 const systemCatalog = "system_catalog"
+
+type archiveBlogTask struct {
+	registry     *Registry
+	preTimeStamp *time.Time
+}
+
+func (s *archiveBlogTask) Run() {
+	current := time.Now()
+	if s.preTimeStamp == nil {
+		s.preTimeStamp = &current
+		if current.Day() > 1 {
+			// 不是每月的第一天，不用计算
+			return
+		}
+	} else {
+		if s.preTimeStamp.Month() == current.Month() {
+			s.preTimeStamp = &current
+			// 月份没有变化，也不用计算
+			return
+		}
+	}
+
+	preTime := *s.preTimeStamp
+	s.preTimeStamp = &current
+
+	log.Printf("archive blog....., date:%s", preTime.Format("2006-01-02"))
+	s.registry.archiveBlog()
+}
 
 func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	casClient := casClient.NewClient(s.casService)
@@ -86,15 +115,19 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 	}
 
 	if archiveTree != nil {
+		s.archiveCatalog = archiveTree.Lite()
+
 		for _, cv := range archiveTree.Subs {
 			archives = append(archives, cv.Lite())
 		}
 	} else {
-		_, catalogErr := clnt.CreateCatalog(archiveCatalog, "auto create archive catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(archiveCatalog, "auto create archive catalog", blogCatalog.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
 		}
+
+		s.archiveCatalog = catalogPtr.Lite()
 	}
 
 	if systemTree != nil {
@@ -440,6 +473,69 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 	ret = append(ret, s.currentCatalog)
 
 	return
+}
+
+func (s *Registry) archiveBlog() error {
+	cmsClnt, cmsErr := s.getCMSClient()
+	if cmsErr != nil {
+		log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
+		return cmsErr
+	}
+	defer cmsClnt.Release()
+
+	_, archives, _, commonErr := s.queryBlogCommon(cmsClnt)
+	if commonErr != nil {
+		log.Printf("queryBlogCommon failed, err:%s", commonErr.Error())
+		return commonErr
+	}
+
+	var archiveCatalogPtr *cmsModel.CatalogLite
+	curTime := time.Now()
+	preDuration := time.Duration(curTime.UnixNano()) - time.Hour*24*2
+	preTime := time.Unix(int64(preDuration.Seconds()), preDuration.Nanoseconds())
+	archiveName := preTime.Format("2016年01月")
+	for _, val := range archives {
+		if archiveName != val.Name {
+			archiveCatalogPtr = val
+			break
+		}
+	}
+
+	if archiveCatalogPtr == nil {
+		catalogPtr, catalogErr := cmsClnt.CreateCatalog(archiveName, "create archive catalog", s.archiveCatalog)
+		if catalogErr == nil {
+			return catalogErr
+		}
+
+		archiveCatalogPtr = catalogPtr.Lite()
+	}
+
+	archiveList, archiveErr := s.queryArticleList(cmsClnt, s.currentCatalog, nil)
+	if archiveErr != nil {
+		return archiveErr
+	}
+
+	for _, val := range archiveList {
+		catalogs := []*cmsModel.CatalogLite{}
+		for _, cv := range val.Catalog {
+			if cv.Name == archiveCatalogPtr.Name {
+				continue
+			}
+
+			if cv.ID != s.currentCatalog.ID {
+				catalogs = append(catalogs, cv)
+			}
+		}
+
+		val.Catalog = catalogs
+
+		_, archiveErr := s.updateArticle(cmsClnt, val.ID, val.Title, val.Content, val.Catalog)
+		if archiveErr != nil {
+			return archiveErr
+		}
+	}
+
+	return nil
 }
 
 // PostBlog post blog

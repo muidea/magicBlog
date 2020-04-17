@@ -13,6 +13,7 @@ import (
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
+	"github.com/muidea/magicCommon/task"
 
 	"github.com/muidea/magicCommon/session"
 
@@ -41,6 +42,9 @@ type Registry struct {
 
 	basePath       string
 	currentCatalog *cmsModel.CatalogLite
+	archiveCatalog *cmsModel.CatalogLite
+
+	backgroundRoutine *task.BackgroundRoutine
 }
 
 // NewRoute create route
@@ -48,6 +52,9 @@ func NewRoute(
 	sessionRegistry session.Registry,
 	commonHandler handler.CommonHandler,
 ) *Registry {
+
+	backgroundRoutine := task.NewBackgroundRoutince()
+
 	route := &Registry{
 		sessionRegistry: sessionRegistry,
 		commonHandler:   commonHandler,
@@ -58,6 +65,9 @@ func NewRoute(
 	}
 
 	route.casRouteRegistry = casRoute.NewCasRegistry(route)
+	route.backgroundRoutine = backgroundRoutine
+
+	backgroundRoutine.Timer(&archiveBlogTask{registry: route}, 24*time.Hour, 2*time.Hour)
 
 	return route
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/muidea/magicBlog/config"
+	"github.com/muidea/magicBlog/model"
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
 	casClient "github.com/muidea/magicCas/client"
@@ -692,7 +693,7 @@ func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.C
 	return
 }
 
-func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*cmsModel.CommentView, err error) {
+func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*model.CommentView, err error) {
 	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Unit{UID: id, UType: cmsModel.ARTICLE}, nil)
 	if blogErr != nil {
 		err = blogErr
@@ -700,6 +701,21 @@ func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util
 		return
 	}
 
-	ret = blogComment
+	ret = []*model.CommentView{}
+	for _, val := range blogComment {
+		view := &model.CommentView{ID: val.ID, Content: val.Content, Creater: val.Creater, CreateDate: val.CreateDate}
+		replyComment, _, replyErr := clnt.FilterComment(val.Unit(), nil)
+
+		view.Reply = []interface{}{}
+		if replyErr == nil {
+			for _, sv := range replyComment {
+				rv := &model.CommentView{ID: sv.ID, Content: sv.Content, Creater: sv.Creater, CreateDate: sv.CreateDate}
+				view.Reply = append(view.Reply, rv)
+			}
+		}
+
+		ret = append(ret, view)
+	}
+
 	return
 }

@@ -94,13 +94,20 @@
           {{range $Comments}}
           <div class="comment-preview">
             <div class="comment-meta">
-              <p>{{.Creater}}<span style="font-size: small;">提交于{{.CreateDate}}</span>
+              {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
               {{if $isAuthOK}}
               <button class="btn float-right" onclick="onReplyComment({{.ID}})" >回复</button>
-              {{end}}</p>
+              {{end}}
             </div>
             <div class="comment-content">
               {{.Content}}
+            </div>
+            <div class="comment-reply">
+              {{range .Reply}}
+              <div class="reply-content">
+                {{.Creater}}:{{.Content}} <span class="reply-datetime">{{.CreateDate}}</span>
+              </div>
+              {{end}}
             </div>
           </div>
           {{end}}

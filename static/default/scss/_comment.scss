@@ -11,10 +11,26 @@
       font-size: 24px;
       margin-top: 0px;
     }
-  
+    
+    > .comment-reply {
+      font-size: 18px;
+      margin-top: 0px;
+      padding-left: 15px;
+      > .reply-content {
+        margin-top: 0px;
+        > .reply-datetime {
+          font-size: 14px;
+          color: $secondary;
+        }
+      }
+    }
+
     > .comment-meta {
       font-size: 15px;
-      margin-bottom: 10px;
+      > .comment-datetime {
+        font-size: 14px;
+        color: $secondary;
+      }
     }
   }
 

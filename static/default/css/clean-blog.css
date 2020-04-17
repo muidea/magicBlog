@@ -250,9 +250,20 @@ header.masthead {
     .comment-panel > .comment-preview > .comment-content {
       font-size: 24px;
       margin-top: 0px; }
+    .comment-panel > .comment-preview > .comment-reply {
+      font-size: 18px;
+      margin-top: 0px;
+      padding-left: 15px; }
+      .comment-panel > .comment-preview > .comment-reply > .reply-content {
+        margin-top: 0px; }
+        .comment-panel > .comment-preview > .comment-reply > .reply-content > .reply-datetime {
+          font-size: 14px;
+          color: #868e96; }
     .comment-panel > .comment-preview > .comment-meta {
-      font-size: 15px;
-      margin-bottom: 10px; }
+      font-size: 15px; }
+      .comment-panel > .comment-preview > .comment-meta > .comment-datetime {
+        font-size: 14px;
+        color: #868e96; }
   .comment-panel > .comment-form {
     font-size: 15px;
     margin-bottom: 10px; }

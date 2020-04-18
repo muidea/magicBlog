@@ -97,6 +97,7 @@
             <div class="comment-meta">
               {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
               {{if $isAuthOK}}
+              <button class="btn float-right" onclick="onDeleteComment({{.ID}})" >删除</button>
               <button class="btn float-right" onclick="onReplyComment({{.ID}})" >回复</button>
               {{end}}
             </div>
@@ -107,6 +108,9 @@
               {{range .Reply}}
               <div class="reply-content">
                 {{.Creater}}回复:{{.Content}} <span class="reply-datetime">{{.CreateDate}}</span>
+                {{if $isAuthOK}}
+                <button class="btn float-right" onclick="onDeleteComment({{.ID}})" >删除</button>
+                {{end}}
               </div>
               {{end}}
             </div>

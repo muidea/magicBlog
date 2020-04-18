@@ -751,6 +751,69 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusExpectationFailed)
 }
 
+// DeleteComment delete comment
+func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
+	type postParam struct {
+		Origin string `json:"origin"`
+		Host   int    `json:"host"`
+	}
+
+	type postResult struct {
+		commonDef.Result
+		Redirect string `json:"redirect"`
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+	sessionInfo := curSession.GetSessionInfo()
+	result := &postResult{}
+	for {
+		param := &postParam{}
+		err := net.ParseJSONBody(req, param)
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		if param.Origin == "" || param.Host == 0 {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+
+		cmsClient.BindSession(sessionInfo)
+
+		_, _, commentErr := cmsClient.FilterComment(&cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, nil)
+		if commentErr == nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "删除Comment失败,包含回复信息"
+			break
+		}
+
+		_, err = cmsClient.DeleteComment(param.Host)
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "删除Comment失败,删除数据出错"
+			break
+		}
+
+		result.ErrorCode = commonDef.Success
+		result.Redirect = param.Origin
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
 func (s *Registry) createArticle(clnt cmsClient.Client, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.CreateArticle(title, content, catalogs)
 	if blogErr != nil {

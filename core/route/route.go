@@ -313,8 +313,6 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		view.Content = content
 	}
 
-	log.Print(*view)
-
 	fullFilePath := path.Join(s.basePath, fileName)
 	t, err := template.ParseFiles(fullFilePath)
 	if err != nil {
@@ -359,6 +357,9 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 
 	// reply comment api routes
 	s.casRouteRegistry.AddHandler("/api/v1/comment/reply/", "POST", s.ReplyComment)
+
+	// delete comment api routes
+	s.casRouteRegistry.AddHandler("/api/v1/comment/delete/", "POST", s.DeleteComment)
 
 	// account login,logout,status,changepassword
 	//---------------------------------------------------------------------------------------

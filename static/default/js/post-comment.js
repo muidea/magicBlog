@@ -1,4 +1,79 @@
 
+deleteComment = (url, title, id) => {
+  $.confirm({
+    title: title,
+    content: '' +
+        '<form name="sentMessage" class="commentForm" novalidate>' +
+        '  <div class="control-group">确认删除该留言?</div>' +
+        '  <div class="result-panel control-group"></div>' +
+        '</form>',
+    buttons: {
+      formSubmit: {
+            text: '提交',
+            btnClass: 'btn-blue',
+            action: function(){
+                var result = true;
+                $.ajax({
+                  url: url,
+                  async:false,
+                  dataType:'json',
+                  type: "POST",
+                  contentType : "application/json",
+                  data: JSON.stringify({
+                    host: Number(id),
+                    origin: window.location.href
+                  }),
+                  cache: false,
+                  success: function(result) {
+                    if (result.errorCode===0){
+                      window.location.href = result.redirect;
+                    } else {
+                      // Fail message
+                      $('.commentForm .result-panel').html("<div class='alert alert-danger'>");
+                      $('.commentForm .result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                      $('.commentForm .result-panel > .alert-danger').append($("<small>").text(result.reason));
+                      $('.commentForm .result-panel > .alert-danger').append('</div>');
+                      result = false;
+                    }
+                  },
+                  error: function() {
+                    // Fail message
+                    $('.commentForm .result-panel').html("<div class='alert-danger'>");
+                    $('.commentForm .result-panel > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;").append("</button>");
+                    $('.commentForm .result-panel > .alert-danger').append($("<small>").text("提交失败!"));
+                    $('.commentForm .result-panel > .alert-danger').append('</div>');
+                    result = false;
+                  }
+                });
+
+                return result;
+            }
+        },
+        formCancel: {
+          text: '取消',
+        },
+    },
+    onContentReady: function(){
+        // you can bind to the form
+        var jc = this;
+        this.$content.find('form').on('submit', function(e){ // if the user submits the form by pressing enter in the field.
+            e.preventDefault();
+            jc.$$formSubmit.trigger('click'); // reference the button and click it
+        });
+
+        /*When clicking on Full hide fail/success boxes */
+        this.$content.find('.commentForm .control-group .controls .form-control').focus(function() {
+          $('.commentForm .result-panel').html('');
+        });
+
+    }
+  });
+}
+
+onDeleteComment = (id) => {
+  deleteComment("/api/v1/comment/delete/","删除留言",id);
+}
+
 replyComment = (url, title, id) => {
   $.confirm({
     title: title,

@@ -197,8 +197,15 @@ func (s *Registry) filterBlogArchive(filter *filter, archives []*cmsModel.Catalo
 			return
 		}
 
+		info := map[string]interface{}{}
+		commentList, commentErr := s.queryComments(clnt, articlePtr.ID, filter.pageFilter)
+		if commentErr == nil {
+			info["Comments"] = commentList
+		}
+		info["Content"] = articlePtr
+
 		fileName = "post.html"
-		content = articlePtr
+		content = info
 		return
 	}
 
@@ -233,8 +240,15 @@ func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.Catalo
 			return
 		}
 
+		info := map[string]interface{}{}
+		commentList, commentErr := s.queryComments(clnt, articlePtr.ID, filter.pageFilter)
+		if commentErr == nil {
+			info["Comments"] = commentList
+		}
+		info["Content"] = articlePtr
+
 		fileName = "post.html"
-		content = articlePtr
+		content = info
 		return
 	}
 

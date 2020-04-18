@@ -257,6 +257,8 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 		if filter.isCatalog() {
 			fileName, content, contentErr = s.filterBlogCatalog(filter, catalogs, cmsClnt)
+			log.Print(fileName)
+			log.Print(content)
 			break
 		}
 
@@ -312,6 +314,8 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	} else {
 		view.Content = content
 	}
+
+	log.Print(*view)
 
 	fullFilePath := path.Join(s.basePath, fileName)
 	t, err := template.ParseFiles(fullFilePath)

@@ -24,15 +24,6 @@
 
   <!-- Custom styles for this template -->
   <link href="/static/default/css/clean-blog.css" rel="stylesheet">
-
-  <style>
-    .editormd-html-preview {
-      width: 100%;
-      font-size: 20px;
-      margin: 0 auto;
-      padding: 0 auto;
-    }
-  </style>
 </head>
 
 <body>
@@ -87,8 +78,7 @@
       <div class="col-lg-10 col-md-6 mx-auto">
         <div class="content-panel">
           {{$Content := .Content.Content}}
-          <h3>{{$Content.Title}}</h3>
-          <div id="blog-editormd">
+          <div class="content" id="blog-editormd">
             <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
           </div>  
         </div>

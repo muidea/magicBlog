@@ -24,14 +24,6 @@
 
   <!-- Custom styles for this template -->
   <link href="/static/default/css/clean-blog.css" rel="stylesheet">
-  <style>            
-    .editormd-html-preview {
-        width: 100%;
-        font-size: 20px;
-        margin: 0 auto;
-        padding: 0 auto;
-    }
-  </style>
 </head>
 
 <body>
@@ -82,11 +74,15 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-10 col-md-6 mx-auto">
-        {{$Content := .Content.Content}}
-        {{$Comments := .Content.Comments}}
-        <h3>{{$Content.Title}}</h3>
-        <div id="blog-editormd">
-          <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
+        <div class="content-panel">
+          {{$Content := .Content.Content}}
+          <div class="head">
+            <div class="title">{{$Content.Title}}</div>
+            <div class="meta">{{$Content.CreateDate}} {{$Content.Creater.Account}}</div>
+          </div>
+          <div class="content" id="blog-editormd">
+            <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
+          </div>  
         </div>
         <div class="comment-panel">
           {{$Comments := .Content.Comments}}

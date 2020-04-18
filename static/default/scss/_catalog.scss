@@ -2,21 +2,24 @@
 .post-catalog {
   @include sans-serif-font;
   margin-bottom: 20px;
-  > .catalog-title {
-    font-size: 24px;
+
+  >.catalog-title {
+    font-size: 22px;
     margin-top: 0px;
   }
 
-  > .catalog-items {
+  >.catalog-items {
     font-size: 15px;
     margin-bottom: 10px;
-    > a {
+
+    >a {
       color: $gray-900;
+
       &:focus,
       &:hover {
         text-decoration: none;
         color: $primary;
       }
-    }  
+    }
   }
 }

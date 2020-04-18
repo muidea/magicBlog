@@ -71,11 +71,11 @@
       <div class="col-lg-10 col-md-6 mx-auto">
         {{range .Content}}
         <div class="post-preview">
-          <a href="{{.Title}}.html?pageid={{.ID}}">
-            <h2 class="post-title">
-              {{.Title}}
-            </h2>
-          </a>
+          <div class="post-title">
+            <a href="{{.Title}}.html?pageid={{.ID}}">
+                {{.Title}}
+            </a>  
+          </div>
           <div class="post-meta">
             <p>Posted by
               <a href="#">{{.Creater.Account}}</a>

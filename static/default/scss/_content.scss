@@ -2,23 +2,24 @@
 .content-panel {
   @include sans-serif-font;
   margin-bottom: 10px;
-  > .head {
-    text-align: center;  
-    > .title {
+
+  >.head {
+    text-align: center;
+
+    >.title {
       font-size: 26px;
     }
-    > .meta {
+
+    >.meta {
       font-size: 14px;
       color: $secondary;
     }
   }
 
-  > .content {
+  >.content {
     font-size: 20px;
     width: 100%;
     margin: 0 auto;
     padding: 0 auto;
-  }  
+  }
 }
-
-

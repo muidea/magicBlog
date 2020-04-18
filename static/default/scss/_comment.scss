@@ -3,20 +3,24 @@
   padding: 10px;
   font-weight: 400;
   background: #f5f5f5;
-  > .comment-preview {
+
+  >.comment-preview {
     @include sans-serif-font;
     margin-bottom: 10px;
     border-bottom: 1px dotted #DDD;
-    > .comment-meta {
+
+    >.comment-meta {
       font-size: 18px;
-      > .comment-datetime {
+
+      >.comment-datetime {
         font-size: 14px;
         color: $secondary;
       }
 
-      > .comment-action {
+      >.comment-action {
         float: right;
-        > button {
+
+        >button {
           font-size: 14px;
           float: right;
           padding: 5px;
@@ -27,24 +31,28 @@
       }
     }
 
-    > .comment-content {
+    >.comment-content {
       font-size: 18px;
       margin-top: 0px;
       word-wrap: break-word;
     }
-    
-    > .comment-reply {
+
+    >.comment-reply {
       margin-left: 15px;
-      > .reply-preview {
+
+      >.reply-preview {
         margin-bottom: 10px;
-        > .reply-meta {
-          > .reply-datetime {
+
+        >.reply-meta {
+          >.reply-datetime {
             font-size: 14px;
             color: $secondary;
           }
-          > .reply-action {
+
+          >.reply-action {
             float: right;
-            > button {
+
+            >button {
               font-size: 14px;
               float: right;
               padding: 5px;
@@ -54,8 +62,8 @@
             }
           }
         }
-  
-        > .reply-content {
+
+        >.reply-content {
           margin-top: 0px;
           word-wrap: break-word;
         }
@@ -71,6 +79,7 @@
   margin-bottom: 0;
   padding-bottom: 0.5em;
   border-bottom: 1px solid $gray-300;
+
   input,
   textarea {
     font-size: 1.5em;
@@ -83,11 +92,13 @@
     background: none;
     box-shadow: none !important;
     @include serif-font;
+
     &::-webkit-input-placeholder {
       color: $gray-600;
       @include serif-font;
     }
   }
+
   label {
     font-size: 0.85em;
     line-height: 1.764705882em;
@@ -102,6 +113,7 @@
     transition: top 0.3s ease, opacity 0.3s ease;
     opacity: 0;
   }
+
   .help-block {
     margin: 15px 0;
   }
@@ -119,8 +131,7 @@
     color: $primary;
   }
 }
+
 form .form-group:first-child .floating-label-form-group {
   border-top: 1px solid $gray-300;
 }
-
-

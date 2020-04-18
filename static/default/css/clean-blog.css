@@ -151,54 +151,18 @@ header.masthead {
     width: 100%;
     background-color: #212529;
     opacity: 0.5; }
-  header.masthead .page-heading,
-  header.masthead .post-heading,
   header.masthead .site-heading {
     padding: 10px 0 10px;
-    color: white; }
+    color: white;
+    text-align: left; }
     @media only screen and (min-width: 768px) {
-      header.masthead .page-heading,
-      header.masthead .post-heading,
       header.masthead .site-heading {
         padding: 10px 0; } }
-  header.masthead .page-heading,
-  header.masthead .site-heading {
-    text-align: left; }
-    header.masthead .page-heading .subheading,
-    header.masthead .site-heading .subheading {
-      font-size: 24px;
-      font-weight: 300;
-      line-height: 1.1;
-      display: block;
-      margin: 10px 0 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-  header.masthead .post-heading h1 {
-    font-size: 35px; }
-  header.masthead .post-heading .meta,
-  header.masthead .post-heading .subheading {
-    line-height: 1.1;
-    display: block; }
-  header.masthead .post-heading .subheading {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 10px 0 30px;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-  header.masthead .post-heading .meta {
-    font-size: 20px;
-    font-weight: 300;
-    font-style: italic;
-    font-family: 'Times New Roman', serif; }
-    header.masthead .post-heading .meta a {
-      color: #fff; }
-  @media only screen and (min-width: 768px) {
-    header.masthead .post-heading h1 {
-      font-size: 55px; }
-    header.masthead .post-heading .subheading {
-      font-size: 30px; } }
 
 .post-preview {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 400; }
+  font-weight: 400;
+  border-bottom: 1px dotted #DDD; }
   .post-preview > .post-title {
     font-size: 22px;
     margin-top: 5px;
@@ -222,6 +186,9 @@ header.masthead {
   @media only screen and (min-width: 768px) {
     .post-preview > a > .post-title {
       font-size: 24px; } }
+
+.post-more {
+  padding-top: 10px; }
 
 .post-catalog {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

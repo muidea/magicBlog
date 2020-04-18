@@ -2,6 +2,7 @@
 .post-preview {
   @include sans-serif-font;
   font-weight: 400;
+  border-bottom: 1px dotted #DDD;
 
   >.post-title {
     font-size: 22px;
@@ -44,4 +45,8 @@
       }
     }
   }
+}
+
+.post-more {
+  padding-top: 10px; 
 }

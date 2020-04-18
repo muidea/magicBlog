@@ -1,0 +1,18 @@
+// Styling for the post page
+.content-panel {
+  @include sans-serif-font;
+  margin-bottom: 10px;
+  > .title {
+    font-size: 18px;
+    > .content-datetime {
+      font-size: 14px;
+      color: $secondary;
+    }
+  }
+
+  > .content {
+    font-size: 20px;
+  }  
+}
+
+

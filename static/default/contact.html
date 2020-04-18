@@ -84,21 +84,25 @@
   <!-- Main Content -->
   <div class="container">
     <div class="row">
-      <div class="col-lg-8 col-md-6 mx-auto">
-        {{$Content := .Content.Content}}
-        {{$Comments := .Content.Comments}}
-        <h3>{{$Content.Title}}</h3>
-        <div id="blog-editormd">
-          <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
+      <div class="col-lg-10 col-md-6 mx-auto">
+        <div class="content-panel">
+          {{$Content := .Content.Content}}
+          <h3>{{$Content.Title}}</h3>
+          <div id="blog-editormd">
+            <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
+          </div>  
         </div>
         <div class="comment-panel">
+          {{$Comments := .Content.Comments}}
           {{range $Comments}}
           <div class="comment-preview">
             <div class="comment-meta">
               {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
               {{if $isAuthOK}}
-              <button class="btn float-right" onclick="onDeleteComment({{.ID}})" >删除</button>
-              <button class="btn float-right" onclick="onReplyComment({{.ID}})" >回复</button>
+              <div class="comment-action">
+                <button onclick="onDeleteComment({{.ID}})" >删除</button>
+                <button onclick="onReplyComment({{.ID}})" >回复</button>  
+              </div>
               {{end}}
             </div>
             <div class="comment-content">
@@ -106,11 +110,18 @@
             </div>
             <div class="comment-reply">
               {{range .Reply}}
-              <div class="reply-content">
-                {{.Creater}}回复:{{.Content}} <span class="reply-datetime">{{.CreateDate}}</span>
-                {{if $isAuthOK}}
-                <button class="btn float-right" onclick="onDeleteComment({{.ID}})" >删除</button>
-                {{end}}
+              <div class="reply-preview">
+                <div class="reply-meta">
+                  {{.Creater}}回复<span class="reply-datetime">{{.CreateDate}}</span>
+                  {{if $isAuthOK}}
+                  <div class="reply-action">
+                    <button onclick="onDeleteComment({{.ID}})" >删除</button>
+                  </div>
+                  {{end}}
+                </div>
+                <div class="reply-content">
+                  {{.Content}}
+                </div>  
               </div>
               {{end}}
             </div>

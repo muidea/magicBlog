@@ -786,8 +786,8 @@ func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
 
 		cmsClient.BindSession(sessionInfo)
 
-		_, _, commentErr := cmsClient.FilterComment(&cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, nil)
-		if commentErr == nil {
+		commentList, _, commentErr := cmsClient.FilterComment(&cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, nil)
+		if commentErr == nil && len(commentList) > 0 {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "删除Comment失败,包含回复信息"
 			break

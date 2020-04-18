@@ -315,12 +315,10 @@ func (s *Registry) queryBlogContact(filter *filter, articles []*cmsModel.Article
 
 	info := map[string]interface{}{}
 	commentList, commentErr := s.queryComments(clnt, articlePtr.ID, filter.pageFilter)
-	if commentErr != nil {
-		err = fmt.Errorf("queryComments failed,err:%s", commentErr.Error())
-		return
+	if commentErr == nil {
+		info["Comments"] = commentList
 	}
 	info["Content"] = articlePtr
-	info["Comments"] = commentList
 
 	fileName = "contact.html"
 	content = info

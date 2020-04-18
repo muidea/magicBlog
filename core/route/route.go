@@ -257,8 +257,6 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 		if filter.isCatalog() {
 			fileName, content, contentErr = s.filterBlogCatalog(filter, catalogs, cmsClnt)
-			log.Print(fileName)
-			log.Print(content)
 			break
 		}
 

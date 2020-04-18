@@ -292,8 +292,11 @@ func (s *Registry) queryBlogAbout(filter *filter, articles []*cmsModel.ArticleVi
 		return
 	}
 
+	info := map[string]interface{}{}
+	info["Content"] = articlePtr
+
 	fileName = "about.html"
-	content = articlePtr
+	content = info
 
 	return
 }

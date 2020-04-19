@@ -24,6 +24,7 @@ const currentCatalog = "current_catalog"
 const archiveCatalog = "archive_catalog"
 const systemCatalog = "system_catalog"
 const authorCatalog = "author_catalog"
+const settingTitle = "setting"
 
 type archiveBlogTask struct {
 	registry     *Registry
@@ -135,13 +136,17 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 	}
 
 	if systemTree != nil {
+		s.systemCatalog = systemTree.Lite()
+
 		articleList, err = s.queryArticleList(clnt, systemTree.Lite(), nil)
 	} else {
-		_, catalogErr := clnt.CreateCatalog(systemCatalog, "auto create system catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(systemCatalog, "auto create system catalog", blogCatalog.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
 		}
+
+		s.systemCatalog = catalogPtr.Lite()
 	}
 
 	if authorTree == nil {
@@ -154,6 +159,23 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 		s.authorCatalog = catalogPtr.Lite()
 	} else {
 		s.authorCatalog = authorTree.Lite()
+	}
+
+	return
+}
+
+func (s *Registry) getBlogSetting(articleList []*cmsModel.ArticleView) (ret *model.Setting, err error) {
+	var settingPtr *cmsModel.ArticleView
+	for _, val := range articleList {
+		if val.Title == settingTitle {
+			settingPtr = val
+			break
+		}
+	}
+
+	ret = &model.Setting{}
+	if settingPtr != nil {
+		err = json.Unmarshal([]byte(settingPtr.Content), ret)
 	}
 
 	return
@@ -423,22 +445,7 @@ func (s *Registry) queryBlogPostEdit(filter *filter, clnt cmsClient.Client) (fil
 }
 
 func (s *Registry) queryBlogSetting(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
-	var articlePtr *cmsModel.ArticleView
-	for _, val := range articles {
-		fileName := fmt.Sprintf("%s.html", val.Title)
-		if fileName == filter.fileName {
-			articlePtr = val
-			break
-		}
-	}
-
 	fileName = "setting.html"
-	if articlePtr != nil {
-		content = articlePtr
-	} else {
-		content = map[string]interface{}{"ID": 0, "Name": "", "Domain": "", "Keyword": "", "EMail": "", "ICP": ""}
-	}
-
 	return
 }
 
@@ -874,6 +881,84 @@ func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
 
 		result.ErrorCode = commonDef.Success
 		result.Redirect = param.Origin
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+// SettingBlog setting blog
+func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
+	type postResult struct {
+		commonDef.Result
+		Redirect string `json:"redirect"`
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+
+	sessionInfo := curSession.GetSessionInfo()
+	result := &postResult{}
+	for {
+		param := &model.Setting{}
+		err := net.ParseJSONBody(req, param)
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数"
+			break
+		}
+
+		if param.Name == "" || param.Domain == "" || param.EMail == "" || param.ICP == "" {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+
+		cmsClient.BindSession(sessionInfo)
+
+		catalogList := []*cmsModel.CatalogLite{s.systemCatalog}
+
+		title := settingTitle
+		content, contentErr := json.Marshal(param)
+		if contentErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "保存Blog设置失败"
+			break
+		}
+
+		memo := ""
+		if param.ID > 0 {
+			_, err = s.updateArticle(cmsClient, param.ID, title, string(content), catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "保存Blog设置失败, 更新出错"
+				break
+			}
+
+			memo = "保存Blog设置"
+		} else {
+			_, err = s.createArticle(cmsClient, title, string(content), catalogList)
+			if err != nil {
+				result.ErrorCode = commonDef.Failed
+				result.Reason = "保存Blog设置失败, 保存出错"
+				break
+			}
+
+			memo = "保存Blog设置"
+		}
+
+		s.recordPostBlog(res, req, memo)
+
+		result.ErrorCode = commonDef.Success
+		result.Redirect = "/"
 		break
 	}
 

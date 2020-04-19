@@ -19,6 +19,7 @@ import (
 
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/core/handler"
+	"github.com/muidea/magicBlog/model"
 
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
@@ -42,8 +43,11 @@ type Registry struct {
 
 	basePath       string
 	currentCatalog *cmsModel.CatalogLite
+	systemCatalog  *cmsModel.CatalogLite
 	archiveCatalog *cmsModel.CatalogLite
 	authorCatalog  *cmsModel.CatalogLite
+
+	blogSetting map[string]string
 
 	backgroundRoutine *task.BackgroundRoutine
 }
@@ -213,6 +217,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		IsAuthOK    bool                    `json:"isAuthOK"`
 		ElapsedTime string                  `json:"elapsedTime"`
 		CurrentURL  string                  `json:"currentUrl"`
+		Setting     *model.Setting          `json:"setting"`
 		Catalogs    []*cmsModel.CatalogLite `json:"catalogs"`
 		Archives    []*cmsModel.CatalogLite `json:"archives"`
 		Content     interface{}             `json:"content"`
@@ -241,6 +246,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			log.Printf("queryBlogCommon failed, err:%s", commonErr.Error())
 			fileName = "500.html"
 			break
+		}
+
+		settingPtr, settingErr := s.getBlogSetting(articles)
+		if settingErr == nil {
+			view.Setting = settingPtr
 		}
 
 		view.Catalogs = catalogs
@@ -362,6 +372,9 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 
 	// blog api routes
 	s.casRouteRegistry.AddHandler("/api/v1/blog/post/", "POST", s.PostBlog)
+
+	// setting api routes
+	s.casRouteRegistry.AddHandler("/api/v1/blog/setting/", "POST", s.SettingBlog)
 
 	// comment api routes
 	commentRoute := engine.CreateRoute("/api/v1/comment/post/", "POST", s.PostComment)

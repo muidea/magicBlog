@@ -2,7 +2,10 @@
 <html lang="zh-CN">
   {{$setting := .Setting}}
   {{$isAuthOK := .IsAuthOK}}
-
+  {{$content := .Content.Content}}
+  {{$comments := .Content.Comments}}
+  {{$catalogs := .Content.Catalogs}}
+  {{$archives := .Content.Archives}}
 <head>
 
   <meta charset="utf-8">
@@ -11,7 +14,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>走向全栈 - Start Bootstrap Theme</title>
+  <title>{{$content.Title}} - {{$setting.Domain}}</title>
 
   <!-- Bootstrap core CSS -->
   <link href="/static/default/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -48,7 +51,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/view/about.html">关于本站</a>
           </li>
-          {{if .IsAuthOK}}
+          {{if $isAuthOK}}
           <li class="nav-item">
             <a class="nav-link" href="/view/edit.html">写博客</a>
           </li>
@@ -80,18 +83,16 @@
     <div class="row">
       <div class="col-lg-10 col-md-6 mx-auto">
         <div class="content-panel">
-          {{$Content := .Content.Content}}
           <div class="head">
-            <div class="title">{{$Content.Title}}</div>
-            <div class="meta">{{$Content.CreateDate}} {{$Content.Creater.Account}}</div>
+            <div class="title">{{$content.Title}}</div>
+            <div class="meta">{{$content.CreateDate}} {{$content.Creater.Account}}</div>
           </div>
           <div class="content" id="blog-editormd">
-            <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
+            <textarea style="display:none;" id="blog-content" name="content">{{$content.Content}}</textarea>
           </div>  
         </div>
         <div class="comment-panel">
-          {{$Comments := .Content.Comments}}
-          {{range $Comments}}
+          {{range $comments}}
           <div class="comment-preview">
             <div class="comment-meta">
               {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
@@ -124,11 +125,11 @@
             </div>
           </div>
           {{end}}
-          <button class="btn btn-primary" onclick="onPostComment({{$Content.ID}})" >我要留言</button>
+          <button class="btn btn-primary" onclick="onPostComment({{$content.ID}})" >我要留言</button>
         </div>
       </div>
       <div class="col-lg-2 col-md-4 mx-auto">
-        {{$catalogSize:= len .Catalogs}}
+        {{$catalogSize:= len $catalogs}}
         {{if gt $catalogSize 0}}
         <div class="post-catalog">
           <div class="catalog-title">分类目录</div>
@@ -141,7 +142,7 @@
           </div>
         </div>
         {{end}}
-        {{$archiveSize:= len .Archives}}
+        {{$archiveSize:= len $archives}}
         {{if gt $archiveSize 0}}
         <div class="post-catalog">
           <div class="catalog-title">文章归档</div>

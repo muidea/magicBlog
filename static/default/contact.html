@@ -125,9 +125,11 @@
         {{if gt $catalogSize 0}}
         <div class="post-catalog">
           <div class="catalog-title">分类目录</div>
-          <div class="catalog-items">
+          <div class="catalog-content">
             {{range .Catalogs}}
-            <div><a href="/view/catalog/{{.Name}}/">{{.Name}}</a></div>
+              <div class="catalog-item" >
+                <a href="/view/catalog/{{.Name}}/">{{.Name}}</a>
+              </div>
             {{end}}
           </div>
         </div>
@@ -136,9 +138,11 @@
         {{if gt $archiveSize 0}}
         <div class="post-catalog">
           <div class="catalog-title">文章归档</div>
-          <div class="catalog-items">
+          <div class="catalog-content">
             {{range .Archives}}
-            <div><a href="/view/archive/{{.Name}}/">{{.Name}}</a></div>
+              <div class="catalog-item" >
+                <a href="/view/archive/{{.Name}}/">{{.Name}}</a>
+              </div>
             {{end}}
           </div>
         </div>

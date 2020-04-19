@@ -210,7 +210,8 @@ header.masthead {
         text-decoration: none;
         color: #0085A1; }
     .post-catalog > .catalog-content > .catalog-item > span > a {
-      color: #212529; }
+      color: #212529;
+      font-style: italic; }
       .post-catalog > .catalog-content > .catalog-item > span > a:focus, .post-catalog > .catalog-content > .catalog-item > span > a:hover {
         text-decoration: none;
         color: #0085A1; }

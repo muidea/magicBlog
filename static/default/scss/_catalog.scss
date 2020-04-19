@@ -26,7 +26,8 @@
       >span{
         >a {
           color: $gray-900;
-  
+          font-style: italic;
+
           &:focus,
           &:hover {
             text-decoration: none;

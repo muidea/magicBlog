@@ -296,6 +296,12 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 			} else {
 				content = map[string]interface{}{"ID": 0, "Title": "", "Content": "", "Catalog": ""}
 			}
+		case "setting.html":
+			if !authOk {
+				http.Redirect(res, req, "/", http.StatusMovedPermanently)
+				return
+			}
+			fileName, content, contentErr = s.queryBlogSetting(filter, articles, cmsClnt)
 		case "login.html":
 			if authOk {
 				http.Redirect(res, req, "/", http.StatusMovedPermanently)

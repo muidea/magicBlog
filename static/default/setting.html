@@ -16,9 +16,6 @@
   <!-- Custom fonts for this template -->
   <link href="/static/default/lib/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
 
-  <!-- Custom editormd for this template -->
-  <link href="/static/default/lib/editor-md/css/editormd.css" rel="stylesheet" />
-
   <!-- Custom styles for this template -->
   <link href="/static/default/css/clean-blog.css" rel="stylesheet">
 
@@ -74,25 +71,31 @@
   </header>
 
   <!-- Post Content -->
-  <div class="container">
-    <form id="editForm"  name="editBlog" novalidate>
+  <div class="container col-lg-10 col-md-10 mx-auto">
+    <form id="settingForm"  name="settingBlog" novalidate>
       <div class="form-group">
-        <label for="blog-title">标题</label>
-        <input id="blog-id" style="display:none;" class="form-control" value="{{.Content.ID}}">
-        <input id="blog-title" name="title" class="form-control" value="{{.Content.Title}}">
+        <label for="setting-name">站点名称</label>
+        <input id="setting-id" style="display:none;" class="form-control" value="{{.Content.ID}}">
+        <input id="setting-name" name="name" class="form-control" value="{{.Content.Name}}">
       </div>
       <div class="form-group">
-        <label for="blog-editormd">内容</label>
-        <div id="blog-editormd">
-          <textarea style="display:none;" id="blog-content" name="content">{{.Content.Content}}</textarea>
-        </div>
+        <label for="setting-domain">站点域名</label>
+        <input id="setting-domain" name="domain" class="form-control" value="{{.Content.Domain}}">
       </div>
       <div class="form-group">
-        <label for="blog-catalog">分组</label><span class="sub-title">(请输入分组名,以','分割)</span>
-        <input id="blog-catalog" name="catalog" class="form-control" value="{{.Content.Catalog}}" >
+        <label for="setting-keyword">SEO关键字</label>
+        <textarea id="setting-keyword" name="keyword" class="form-control" rows="3" >{{.Content.Keyword}}</textarea>
       </div>
-      <div id="success"></div>
-      <button type="submit" class="btn btn-primary" id="submitBlogButton">提交</button>
+      <div class="form-group">
+        <label for="setting-email">联系邮箱</label>
+        <input id="setting-email" name="email" class="form-control" value="{{.Content.EMail}}">
+      </div>
+      <div class="form-group">
+        <label for="setting-icp">站点ICP</label>
+        <input id="setting-icp" name="icp" class="form-control" value="{{.Content.ICP}}">
+      </div>
+      <div id="success" class="form-group"></div>
+      <button type="submit" class="btn btn-primary" id="submitBlogButton">保存设置</button>
     </form>
   </div>
   </div>
@@ -113,26 +116,13 @@
   <!-- Bootstrap core JavaScript -->
   <script src="/static/default/lib/jquery/jquery.min.js"></script>
   <script src="/static/default/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="/static/default/lib/editor-md/editormd.min.js"></script>
 
   <!-- 给我留言 Form JavaScript -->
   <script src="/static/default/js/jqBootstrapValidation.js"></script>
-  <script src="/static/default/js/edit-blog.js"></script>
+  <script src="/static/default/js/setting-blog.js"></script>
 
   <!-- Custom scripts for this template -->
   <script src="/static/default/js/clean-blog.js"></script>
-
-  <script type="text/javascript">
-    var testEditor;
-    $(function () {
-      testEditor = editormd("blog-editormd", {
-        width: "100%",
-        height: 640,
-        syncScrolling: "single",
-        path: "/static/default/lib/editor-md/lib/"
-      });
-    });
-  </script>
 
 </body>
 

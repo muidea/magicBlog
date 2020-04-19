@@ -422,6 +422,26 @@ func (s *Registry) queryBlogPostEdit(filter *filter, clnt cmsClient.Client) (fil
 	return
 }
 
+func (s *Registry) queryBlogSetting(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	var articlePtr *cmsModel.ArticleView
+	for _, val := range articles {
+		fileName := fmt.Sprintf("%s.html", val.Title)
+		if fileName == filter.fileName {
+			articlePtr = val
+			break
+		}
+	}
+
+	fileName = "setting.html"
+	if articlePtr != nil {
+		content = articlePtr
+	} else {
+		content = map[string]interface{}{"ID": 0, "Name": "", "Domain": "", "Keyword": "", "EMail": "", "ICP": ""}
+	}
+
+	return
+}
+
 func (s *Registry) deleteBlogPost(filter *filter, clnt cmsClient.Client) (err error) {
 	if filter.action != "delete_post" || filter.postID <= 0 {
 		err = fmt.Errorf("illegal action, action:%s, postID:%d", filter.action, filter.postID)

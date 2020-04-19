@@ -17,15 +17,20 @@ type filter struct {
 	fileName    string
 	catalogName string
 	archiveName string
+	authorName  string
 	pageFilter  *util.PageFilter
 }
 
 func (s *filter) isArchive() bool {
-	return s.archiveName != "" && s.catalogName == ""
+	return s.archiveName != "" && s.catalogName == "" && s.authorName == ""
 }
 
 func (s *filter) isCatalog() bool {
-	return s.catalogName != "" && s.archiveName == ""
+	return s.catalogName != "" && s.archiveName == "" && s.authorName == ""
+}
+
+func (s *filter) isAuthor() bool {
+	return s.authorName != "" && s.catalogName == "" && s.archiveName == ""
 }
 
 func (s *filter) decode(req *http.Request) error {
@@ -72,6 +77,8 @@ func (s *filter) decode(req *http.Request) error {
 	if itemSize == 2 {
 		val := items[1]
 		switch val {
+		case "author":
+			s.authorName = "author"
 		case "post":
 		default:
 			return fmt.Errorf("illegal path, url:%s", filePath)

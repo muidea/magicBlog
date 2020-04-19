@@ -23,6 +23,7 @@ import (
 const currentCatalog = "current_catalog"
 const archiveCatalog = "archive_catalog"
 const systemCatalog = "system_catalog"
+const authorCatalog = "author_catalog"
 
 type archiveBlogTask struct {
 	registry     *Registry
@@ -89,6 +90,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 
 	var archiveTree *cmsModel.CatalogTree
 	var systemTree *cmsModel.CatalogTree
+	var authorTree *cmsModel.CatalogTree
 	catalogs = []*cmsModel.CatalogLite{}
 	archives = []*cmsModel.CatalogLite{}
 	for _, cv := range blogCatalog.Subs {
@@ -99,19 +101,21 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 			archiveTree = cv
 		case systemCatalog:
 			systemTree = cv
+		case authorCatalog:
+			authorTree = cv
 		default:
 			catalogs = append(catalogs, cv.Lite())
 		}
 	}
 
 	if s.currentCatalog == nil {
-		catalogView, catalogErr := clnt.CreateCatalog(currentCatalog, "auto create current catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(currentCatalog, "auto create current catalog", blogCatalog.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
 		}
 
-		s.currentCatalog = catalogView.Lite()
+		s.currentCatalog = catalogPtr.Lite()
 	}
 
 	if archiveTree != nil {
@@ -138,6 +142,18 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 			err = catalogErr
 			return
 		}
+	}
+
+	if authorTree == nil {
+		catalogPtr, catalogErr := clnt.CreateCatalog(authorCatalog, "auto create author catalog", blogCatalog.Lite())
+		if catalogErr != nil {
+			err = catalogErr
+			return
+		}
+
+		s.authorCatalog = catalogPtr.Lite()
+	} else {
+		s.authorCatalog = authorTree.Lite()
 	}
 
 	return
@@ -258,6 +274,41 @@ func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.Catalo
 
 	fileName = "index.html"
 	content = articleList
+	return
+}
+
+func (s *Registry) filterBlogAuthor(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+	if s.authorCatalog == nil {
+		err = fmt.Errorf("illegal author catalog")
+		return
+	}
+
+	articleList, articleErr := s.queryArticleList(clnt, s.authorCatalog, nil)
+	if articleErr != nil {
+		err = articleErr
+		return
+	}
+
+	var articlePtr *cmsModel.ArticleView
+	for _, val := range articleList {
+		fileName := fmt.Sprintf("%s.html", val.Title)
+		if fileName == filter.fileName {
+			articlePtr = val
+			break
+		}
+	}
+
+	info := map[string]interface{}{}
+	if articlePtr != nil {
+		commentList, commentErr := s.queryComments(clnt, articlePtr.ID, filter.pageFilter)
+		if commentErr == nil {
+			info["Comments"] = commentList
+		}
+		info["Content"] = articlePtr
+	}
+
+	fileName = "post.html"
+	content = info
 	return
 }
 
@@ -466,9 +517,7 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 			catalogMapInfo[val] = nil
 			newCatalogItems = append(newCatalogItems, val)
 		} else if cv != nil {
-			if val != archiveCatalog {
-				ret = append(ret, cv)
-			}
+			ret = append(ret, cv)
 		}
 	}
 

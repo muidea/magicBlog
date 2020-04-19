@@ -43,6 +43,7 @@ type Registry struct {
 	basePath       string
 	currentCatalog *cmsModel.CatalogLite
 	archiveCatalog *cmsModel.CatalogLite
+	authorCatalog  *cmsModel.CatalogLite
 
 	backgroundRoutine *task.BackgroundRoutine
 }
@@ -257,6 +258,11 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		}
 		if filter.isCatalog() {
 			fileName, content, contentErr = s.filterBlogCatalog(filter, catalogs, cmsClnt)
+			break
+		}
+
+		if filter.isAuthor() {
+			fileName, content, contentErr = s.filterBlogAuthor(filter, cmsClnt)
 			break
 		}
 

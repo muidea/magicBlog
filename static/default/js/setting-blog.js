@@ -11,6 +11,7 @@ $(function() {
       // get values from FORM
       var id = $("#setting-id").val();
       var name = $("#setting-name").val();
+      var description = $("#setting-description").val();
       var domain = $('#setting-domain').val();
       var copyright = $('#setting-copyright').val();
       var keyword = $('#setting-keyword').val();
@@ -27,6 +28,7 @@ $(function() {
         data: JSON.stringify({
           id: Number(id),
           name: name,
+          description: description,
           domain: domain,
           copyright: copyright,
           keyword: keyword,

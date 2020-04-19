@@ -8,7 +8,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="keywords" content="{{$setting.Keyword}}" />
-  <meta name="description" content="">
+  <meta name="description" content="{{$setting.Description}}">
   <meta name="author" content="">
 
   <title>{{$setting.Name}} - {{$setting.Domain}}</title>
@@ -80,6 +80,10 @@
         <label for="setting-name">站点名称</label>
         <input id="setting-id" style="display:none;" class="form-control" value="{{$setting.ID}}">
         <input id="setting-name" name="name" class="form-control" value="{{$setting.Name}}">
+      </div>
+      <div class="form-group">
+        <label for="setting-description">站点描述</label>
+        <textarea id="setting-description" name="description" class="form-control" rows="4" >{{$setting.Description}}</textarea>
       </div>
       <div class="form-group">
         <label for="setting-domain">站点域名</label>

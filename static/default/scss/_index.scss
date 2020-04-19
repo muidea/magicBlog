@@ -26,14 +26,28 @@
     margin-top: 0;
     color: $gray-600;
 
-    >a {
-      text-decoration: none;
-      color: $gray-900;
+    >p {
+      >a {
+        color: $gray-900;
 
-      &:focus,
-      &:hover {
-        text-decoration: underline;
-        color: $primary;
+        &:focus,
+        &:hover {
+          text-decoration: none;
+          color: $primary;
+        }
+      }
+
+      >span {
+        >a {
+          color: $gray-900;
+          text-decoration: none;
+
+          &:focus,
+          &:hover {
+            text-decoration: none;
+            color: $primary;
+          }
+        }
       }
     }
   }
@@ -48,5 +62,5 @@
 }
 
 .post-more {
-  padding-top: 10px; 
+  padding-top: 10px;
 }

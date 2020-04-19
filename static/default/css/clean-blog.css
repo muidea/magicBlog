@@ -1,7 +1,7 @@
 body {
   font-size: 20px;
   color: #212529;
-  font-family: 'Times New Roman', serif; }
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 
 p {
   line-height: 1.5;
@@ -177,11 +177,16 @@ header.masthead {
     font-style: italic;
     margin-top: 0;
     color: #868e96; }
-    .post-preview > .post-meta > a {
-      text-decoration: none;
+    .post-preview > .post-meta > p > a {
       color: #212529; }
-      .post-preview > .post-meta > a:focus, .post-preview > .post-meta > a:hover {
-        text-decoration: underline;
+      .post-preview > .post-meta > p > a:focus, .post-preview > .post-meta > p > a:hover {
+        text-decoration: none;
+        color: #0085A1; }
+    .post-preview > .post-meta > p > span > a {
+      color: #212529;
+      text-decoration: none; }
+      .post-preview > .post-meta > p > span > a:focus, .post-preview > .post-meta > p > span > a:hover {
+        text-decoration: none;
         color: #0085A1; }
   @media only screen and (min-width: 768px) {
     .post-preview > a > .post-title {
@@ -196,12 +201,17 @@ header.masthead {
   .post-catalog > .catalog-title {
     font-size: 22px;
     margin-top: 0px; }
-  .post-catalog > .catalog-items {
+  .post-catalog > .catalog-content {
     font-size: 15px;
     margin-bottom: 10px; }
-    .post-catalog > .catalog-items > a {
+    .post-catalog > .catalog-content > .catalog-item > a {
       color: #212529; }
-      .post-catalog > .catalog-items > a:focus, .post-catalog > .catalog-items > a:hover {
+      .post-catalog > .catalog-content > .catalog-item > a:focus, .post-catalog > .catalog-content > .catalog-item > a:hover {
+        text-decoration: none;
+        color: #0085A1; }
+    .post-catalog > .catalog-content > .catalog-item > span > a {
+      color: #212529; }
+      .post-catalog > .catalog-content > .catalog-item > span > a:focus, .post-catalog > .catalog-content > .catalog-item > span > a:hover {
         text-decoration: none;
         color: #0085A1; }
 
@@ -244,7 +254,7 @@ header.masthead {
             font-size: 14px;
             float: right;
             padding: 5px;
-            font-weight: 600;
+            font-weight: 400;
             background-color: transparent;
             border: 1px solid transparent; }
         .comment-panel > .comment-preview > .comment-reply > .reply-preview > .reply-content {
@@ -259,7 +269,7 @@ header.masthead {
   border-bottom: 1px solid #dee2e6; }
   .floating-label-form-group input,
   .floating-label-form-group textarea {
-    font-size: 1.5em;
+    font-size: 1.2em;
     position: relative;
     z-index: 1;
     padding: 0;
@@ -267,12 +277,10 @@ header.masthead {
     border: none;
     border-radius: 0;
     background: none;
-    box-shadow: none !important;
-    font-family: 'Times New Roman', serif; }
+    box-shadow: none !important; }
     .floating-label-form-group input::-webkit-input-placeholder,
     .floating-label-form-group textarea::-webkit-input-placeholder {
-      color: #868e96;
-      font-family: 'Times New Roman', serif; }
+      color: #868e96; }
   .floating-label-form-group label {
     font-size: 0.85em;
     line-height: 1.764705882em;

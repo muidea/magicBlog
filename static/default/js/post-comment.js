@@ -4,7 +4,7 @@ deleteComment = (url, title, id) => {
     title: title,
     content: '' +
         '<form name="sentMessage" class="commentForm" novalidate>' +
-        '  <div class="control-group">确认删除该留言?</div>' +
+        '  <div class="control-group"><p>确认删除该留言?</p></div>' +
         '  <div class="result-panel control-group"></div>' +
         '</form>',
     buttons: {

@@ -56,7 +56,7 @@
               font-size: 14px;
               float: right;
               padding: 5px;
-              font-weight: 600;
+              font-weight: 400;
               background-color: transparent;
               border: 1px solid transparent;
             }
@@ -82,7 +82,7 @@
 
   input,
   textarea {
-    font-size: 1.5em;
+    font-size: 1.2em;
     position: relative;
     z-index: 1;
     padding: 0;
@@ -91,11 +91,9 @@
     border-radius: 0;
     background: none;
     box-shadow: none !important;
-    @include serif-font;
 
     &::-webkit-input-placeholder {
       color: $gray-600;
-      @include serif-font;
     }
   }
 

@@ -8,18 +8,32 @@
     margin-top: 0px;
   }
 
-  >.catalog-items {
+  >.catalog-content {
     font-size: 15px;
     margin-bottom: 10px;
 
-    >a {
-      color: $gray-900;
+    >.catalog-item{
+      >a {
+        color: $gray-900;
 
-      &:focus,
-      &:hover {
-        text-decoration: none;
-        color: $primary;
+        &:focus,
+        &:hover {
+          text-decoration: none;
+          color: $primary;
+        }
       }
+      
+      >span{
+        >a {
+          color: $gray-900;
+  
+          &:focus,
+          &:hover {
+            text-decoration: none;
+            color: $primary;
+          }
+        }
+      }  
     }
   }
 }

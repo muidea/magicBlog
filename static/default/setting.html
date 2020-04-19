@@ -77,24 +77,28 @@
     <form id="settingForm"  name="settingBlog" novalidate>
       <div class="form-group">
         <label for="setting-name">站点名称</label>
-        <input id="setting-id" style="display:none;" class="form-control" value="{{.Content.ID}}">
-        <input id="setting-name" name="name" class="form-control" value="{{.Content.Name}}">
+        <input id="setting-id" style="display:none;" class="form-control" value="{{$setting.ID}}">
+        <input id="setting-name" name="name" class="form-control" value="{{$setting.Name}}">
       </div>
       <div class="form-group">
         <label for="setting-domain">站点域名</label>
-        <input id="setting-domain" name="domain" class="form-control" value="{{.Content.Domain}}">
+        <input id="setting-domain" name="domain" class="form-control" value="{{$setting.Domain}}">
+      </div>
+      <div class="form-group">
+        <label for="setting-copyright">版权申明</label>
+        <input id="setting-copyright" name="copyright" class="form-control" value="{{$setting.Copyright}}">
       </div>
       <div class="form-group">
         <label for="setting-keyword">SEO关键字</label>
-        <textarea id="setting-keyword" name="keyword" class="form-control" rows="3" >{{.Content.Keyword}}</textarea>
+        <textarea id="setting-keyword" name="keyword" class="form-control" rows="3" >{{$setting.Keyword}}</textarea>
       </div>
       <div class="form-group">
         <label for="setting-email">联系邮箱</label>
-        <input id="setting-email" name="email" class="form-control" value="{{.Content.EMail}}">
+        <input id="setting-email" name="email" class="form-control" value="{{$setting.EMail}}">
       </div>
       <div class="form-group">
         <label for="setting-icp">站点ICP</label>
-        <input id="setting-icp" name="icp" class="form-control" value="{{.Content.ICP}}">
+        <input id="setting-icp" name="icp" class="form-control" value="{{$setting.ICP}}">
       </div>
       <div id="success" class="form-group"></div>
       <button type="submit" class="btn btn-primary" id="submitBlogButton">保存设置</button>
@@ -109,7 +113,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-md-10 mx-auto">
-          <p class="copyright text-muted">{{.ElapsedTime}}  copyright &copy; mulife.vip 2020</p>
+          <p class="copyright text-muted">{{.ElapsedTime}} {{$setting.Copyright}}</p>
         </div>
       </div>
     </div>

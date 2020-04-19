@@ -12,6 +12,7 @@ $(function() {
       var id = $("#setting-id").val();
       var name = $("#setting-name").val();
       var domain = $('#setting-domain').val();
+      var copyright = $('#setting-copyright').val();
       var keyword = $('#setting-keyword').val();
       var email = $('#setting-email').val();
       var icp = $('#setting-icp').val();
@@ -27,6 +28,7 @@ $(function() {
           id: Number(id),
           name: name,
           domain: domain,
+          copyright: copyright,
           keyword: keyword,
           email: email,
           icp:icp

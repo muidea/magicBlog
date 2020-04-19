@@ -2,7 +2,8 @@
 <html lang="zh-CN">
   {{$setting := .Setting}}
   {{$isAuthOK := .IsAuthOK}}
-
+  {{$content := .Content}}
+  {{$elapsedTime := .ElapsedTime}}
 <head>
 
   <meta charset="utf-8">
@@ -11,7 +12,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>登录,内容管理 - {{$setting.Domain}}</title>
+  <title>登录 - {{$setting.Domain}}</title>
 
   <!-- Bootstrap core CSS -->
   <link href="/static/default/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -24,15 +25,6 @@
 
   <!-- Custom styles for this template -->
   <link href="/static/default/css/clean-blog.css" rel="stylesheet">
-
-  <style>            
-    .editormd-html-preview {
-        width: 100%;
-        font-size: 20px;
-        margin: 0 auto;
-        padding: 0 auto;
-    }
-  </style>
 </head>
 
 <body>
@@ -55,7 +47,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/view/about.html">关于本站</a>
           </li>
-          {{if .IsAuthOK}}
+          {{if $isAuthOK}}
           <li class="nav-item">
             <a class="nav-link" href="/view/edit.html">写博客</a>
           </li>
@@ -86,12 +78,12 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-6 mx-auto">
-        {{if not .Content}}
+        {{if not $content}}
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe nostrum ullam eveniet pariatur voluptates odit, fuga atque ea nobis sit soluta odio, adipisci quas excepturi maxime quae totam ducimus consectetur?</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eius praesentium recusandae illo eaque architecto error, repellendus iusto reprehenderit, doloribus, minus sunt. Numquam at quae voluptatum in officia voluptas voluptatibus, minus!</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut consequuntur magnam, excepturi aliquid ex itaque esse est vero natus quae optio aperiam soluta voluptatibus corporis atque iste neque sit tempora!</p>
         {{else}}
-          {{.Content.Content}}
+          {{$content.Content}}
         {{end}}
       </div>
       <div class="col-lg-4 col-md-4 mx-auto">
@@ -119,7 +111,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-md-10 mx-auto">
-          <p class="copyright text-muted">{{.ElapsedTime}}  {{$setting.Copyright}}</p>
+          <p class="copyright text-muted">{{$elapsedTime}} {{$setting.Copyright}}</p>
         </div>
       </div>
     </div>
@@ -146,8 +138,6 @@
   <script type="text/javascript">
     var testEditor;
     $(function () {
-      console.log($("#blog-content").val());
-
       testEditor = editormd.markdownToHTML("blog-editormd", {
         htmlDecode      : "style,script,iframe",  // you can filter tags decode
         emoji           : true,

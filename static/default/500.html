@@ -2,8 +2,8 @@
 <html lang="zh-CN">
   {{$setting := .Setting}}
   {{$isAuthOK := .IsAuthOK}}
-
-<head>
+  {{$elapsedTime := .ElapsedTime}}
+  <head>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -86,7 +86,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-md-10 mx-auto">
-          <p class="copyright text-muted">{{.ElapsedTime}}   {{$setting.Copyright}}</p>
+          <p class="copyright text-muted">{{$elapsedTime}} {{$setting.Copyright}}</p>
         </div>
       </div>
     </div>

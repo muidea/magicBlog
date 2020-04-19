@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   {{$setting := .Setting}}
   {{$isAuthOK := .IsAuthOK}}
-
+  {{$elapsedTime := .ElapsedTime}}
 <head>
 
   <meta charset="utf-8">
@@ -114,7 +114,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-md-10 mx-auto">
-          <p class="copyright text-muted">{{.ElapsedTime}} {{$setting.Copyright}}</p>
+          <p class="copyright text-muted">{{$elapsedTime}} {{$setting.Copyright}}</p>
         </div>
       </div>
     </div>

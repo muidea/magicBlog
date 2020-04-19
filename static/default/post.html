@@ -4,9 +4,9 @@
 {{$isAuthOK := .IsAuthOK}}
 {{$content := .Content.Content}}
 {{$comments := .Content.Comments}}
-{{$catalogs := .Content.Catalogs}}
-{{$archives := .Content.Archives}}
-
+{{$catalogs := .Catalogs}}
+{{$archives := .Archives}}
+{{$elapsedTime := .ElapsedTime}}
 <head>
 
   <meta charset="utf-8">
@@ -137,7 +137,7 @@
         <div class="post-catalog">
           <div class="catalog-title">分类目录</div>
           <div class="catalog-content">
-            {{range .Catalogs}}
+            {{range $catalogs}}
             <div class="catalog-item">
               <a href="/view/catalog/{{.Name}}/">{{.Name}}</a>
             </div>
@@ -150,7 +150,7 @@
         <div class="post-catalog">
           <div class="catalog-title">文章归档</div>
           <div class="catalog-content">
-            {{range .Archives}}
+            {{range $archives}}
             <div class="catalog-item">
               <a href="/view/archive/{{.Name}}/">{{.Name}}</a>
             </div>
@@ -169,7 +169,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-md-10 mx-auto">
-          <p class="copyright text-muted">{{.ElapsedTime}} {{$setting.Copyright}}</p>
+          <p class="copyright text-muted">{{$elapsedTime}} {{$setting.Copyright}}</p>
         </div>
       </div>
     </div>

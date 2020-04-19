@@ -177,6 +177,9 @@ func (s *Registry) getBlogSetting(articleList []*cmsModel.ArticleView) (ret *mod
 	if settingPtr != nil {
 		err = json.Unmarshal([]byte(settingPtr.Content), ret)
 	}
+	if err == nil {
+		ret.ID = settingPtr.ID
+	}
 
 	return
 }

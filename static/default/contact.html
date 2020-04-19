@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  {{$setting := .Setting}}
-  {{$isAuthOK := .IsAuthOK}}
+{{$setting := .Setting}}
+{{$isAuthOK := .IsAuthOK}}
 
 <head>
   <meta charset="utf-8">
@@ -84,7 +84,7 @@
           {{$Content := .Content.Content}}
           <div class="content" id="blog-editormd">
             <textarea style="display:none;" id="blog-content" name="content">{{$Content.Content}}</textarea>
-          </div>  
+          </div>
         </div>
         <div class="comment-panel">
           {{$Comments := .Content.Comments}}
@@ -94,8 +94,8 @@
               {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
               {{if $isAuthOK}}
               <div class="comment-action">
-                <button onclick="onDeleteComment({{.ID}})" >删除</button>
-                <button onclick="onReplyComment({{.ID}})" >回复</button>  
+                <button onclick="onDeleteComment({{.ID}})">删除</button>
+                <button onclick="onReplyComment({{.ID}})">回复</button>
               </div>
               {{end}}
             </div>
@@ -109,19 +109,19 @@
                   {{.Creater}}回复<span class="reply-datetime">{{.CreateDate}}</span>
                   {{if $isAuthOK}}
                   <div class="reply-action">
-                    <button onclick="onDeleteComment({{.ID}})" >删除</button>
+                    <button onclick="onDeleteComment({{.ID}})">删除</button>
                   </div>
                   {{end}}
                 </div>
                 <div class="reply-content">
                   {{.Content}}
-                </div>  
+                </div>
               </div>
               {{end}}
             </div>
           </div>
           {{end}}
-          <button class="btn btn-primary" onclick="onPostComment({{$Content.ID}})" >我要留言</button>
+          <button class="btn btn-primary" onclick="onPostComment({{$Content.ID}})">我要留言</button>
         </div>
       </div>
       <div class="col-lg-2 col-md-4 mx-auto">
@@ -131,9 +131,9 @@
           <div class="catalog-title">分类目录</div>
           <div class="catalog-content">
             {{range .Catalogs}}
-              <div class="catalog-item" >
-                <a href="/view/catalog/{{.Name}}/">{{.Name}}</a>
-              </div>
+            <div class="catalog-item">
+              <a href="/view/catalog/{{.Name}}/">{{.Name}}</a>
+            </div>
             {{end}}
           </div>
         </div>
@@ -144,9 +144,9 @@
           <div class="catalog-title">文章归档</div>
           <div class="catalog-content">
             {{range .Archives}}
-              <div class="catalog-item" >
-                <a href="/view/archive/{{.Name}}/">{{.Name}}</a>
-              </div>
+            <div class="catalog-item">
+              <a href="/view/archive/{{.Name}}/">{{.Name}}</a>
+            </div>
             {{end}}
           </div>
         </div>
@@ -162,7 +162,7 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-10 col-md-10 mx-auto">
-          <p class="copyright text-muted">{{.ElapsedTime}}  {{$setting.Copyright}}</p>
+          <p class="copyright text-muted">{{.ElapsedTime}} {{$setting.Copyright}}</p>
         </div>
       </div>
     </div>

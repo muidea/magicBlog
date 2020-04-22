@@ -12,7 +12,6 @@ import (
 	"github.com/muidea/magicBlog/model"
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
-	casClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
@@ -55,12 +54,12 @@ func (s *archiveBlogTask) Run() {
 }
 
 func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
-	casClient := casClient.NewClient(s.casService)
-	defer casClient.Release()
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
 
 	identityID := config.IdentityID()
 	authToken := config.AuthToken()
-	_, ret, err = casClient.VerifyEndpoint(identityID, authToken)
+	_, ret, err = cmsClient.VerifyEndpoint(identityID, authToken)
 
 	return
 }

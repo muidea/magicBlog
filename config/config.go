@@ -6,7 +6,6 @@ var endpointName = "magicBlog"
 var cmsIdentityID = "magicBlog"
 var cmsAuthToken = "magicBlog"
 var cmsService = "http://127.0.0.1:8880"
-var casService = "http://127.0.0.1:8081"
 var batisService = "http://127.0.0.1:8080"
 var cmsCatalog = 248
 
@@ -16,7 +15,7 @@ func init() {
 	flag.StringVar(&cmsAuthToken, "AuthToken", cmsAuthToken, "magicCMS authority token.")
 	flag.StringVar(&cmsService, "CMSService", cmsService, "magicCMS service address")
 	flag.IntVar(&cmsCatalog, "CMSCatalog", cmsCatalog, "magicBlog's cms catalog id")
-	flag.StringVar(&casService, "CasService", casService, "magicCas service address")
+
 	flag.StringVar(&batisService, "BatisService", batisService, "magicBatis service address")
 }
 
@@ -33,11 +32,6 @@ func IdentityID() string {
 //AuthToken endpointName
 func AuthToken() string {
 	return cmsAuthToken
-}
-
-//CasService cas service addr
-func CasService() string {
-	return casService
 }
 
 //BatisService batis service addr

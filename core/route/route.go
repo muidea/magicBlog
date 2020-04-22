@@ -23,8 +23,7 @@ import (
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
-	casClient "github.com/muidea/magicCas/client"
-	casCommon "github.com/muidea/magicCas/common"
+	cmsClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
 	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"
@@ -35,7 +34,6 @@ type Registry struct {
 	sessionRegistry  session.Registry
 	casRouteRegistry casRoute.CasRegistry
 
-	casService string
 	cmsService string
 	cmsCatalog int
 
@@ -59,7 +57,6 @@ func NewRoute(
 
 	route := &Registry{
 		sessionRegistry: sessionRegistry,
-		casService:      config.CasService(),
 		cmsService:      config.CMSService(),
 		cmsCatalog:      config.CMSCatalog(),
 		basePath:        "static/default",
@@ -79,11 +76,11 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 
 	sessionInfo := curSession.GetSessionInfo()
 
-	casClient := casClient.NewClient(s.casService)
-	defer casClient.Release()
-	casClient.BindSession(sessionInfo)
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
+	cmsClient.BindSession(sessionInfo)
 
-	sessionInfo, sessionErr := casClient.VerifySession()
+	sessionInfo, sessionErr := cmsClient.VerifySession()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", sessionErr.Error())
@@ -145,11 +142,11 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		casClient := casClient.NewClient(s.casService)
-		defer casClient.Release()
-		casClient.BindSession(sessionInfo)
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+		cmsClient.BindSession(sessionInfo)
 
-		accountPtr, sessionPtr, err := casClient.LoginAccount(param.Account, param.Password)
+		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -353,11 +350,11 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	loginRoute := engine.CreateRoute(cmsCommon.LoginAccountURL, "POST", s.Login)
 	router.AddRoute(loginRoute, s)
 
-	logoutURL := net.JoinURL(s.casService, casCommon.LogoutURL)
+	logoutURL := net.JoinURL(s.cmsService, cmsCommon.LogoutAccountURL)
 	logoutRoute := engine.CreateProxyRoute(cmsCommon.LogoutAccountURL, "DELETE", logoutURL, true)
 	router.AddRoute(logoutRoute, s)
 
-	statusURL := net.JoinURL(s.casService, casCommon.StatusURL)
+	statusURL := net.JoinURL(s.cmsService, cmsCommon.StatusAccountURL)
 	statusRoute := engine.CreateProxyRoute(cmsCommon.StatusAccountURL, "GET", statusURL, true)
 	router.AddRoute(statusRoute, s)
 
@@ -378,11 +375,11 @@ func (s *Registry) getCurrentAccount(res http.ResponseWriter, req *http.Request)
 	}
 
 	sessionInfo := curSession.GetSessionInfo()
-	casClient := casClient.NewClient(s.casService)
-	defer casClient.Release()
-	casClient.BindSession(sessionInfo)
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	defer cmsClient.Release()
+	cmsClient.BindSession(sessionInfo)
 
-	accountInfo, accountSession, accountErr := casClient.StatusAccount()
+	accountInfo, accountSession, accountErr := cmsClient.StatusAccount()
 	if accountErr != nil {
 		err = accountErr
 		return

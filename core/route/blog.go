@@ -676,7 +676,6 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		memo := ""
 		if param.ID > 0 {
 			_, err = s.updateArticle(cmsClient, param.ID, param.Title, param.Content, catalogList)
 			if err != nil {
@@ -684,8 +683,6 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 				result.Reason = "提交Blog失败, 更新出错"
 				break
 			}
-
-			memo = fmt.Sprintf("更新Blog%s", param.Title)
 		} else {
 			_, err = s.createArticle(cmsClient, param.Title, param.Content, catalogList)
 			if err != nil {
@@ -693,11 +690,7 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 				result.Reason = "提交Blog失败, 保存出错"
 				break
 			}
-
-			memo = fmt.Sprintf("新建Blog%s", param.Title)
 		}
-
-		s.recordPostBlog(res, req, memo)
 
 		result.ErrorCode = commonDef.Success
 		result.Redirect = "/"
@@ -937,7 +930,6 @@ func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		memo := ""
 		if param.ID > 0 {
 			_, err = s.updateArticle(cmsClient, param.ID, title, string(content), catalogList)
 			if err != nil {
@@ -945,8 +937,6 @@ func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
 				result.Reason = "保存Blog设置失败, 更新出错"
 				break
 			}
-
-			memo = "保存Blog设置"
 		} else {
 			_, err = s.createArticle(cmsClient, title, string(content), catalogList)
 			if err != nil {
@@ -954,11 +944,7 @@ func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
 				result.Reason = "保存Blog设置失败, 保存出错"
 				break
 			}
-
-			memo = "保存Blog设置"
 		}
-
-		s.recordPostBlog(res, req, memo)
 
 		result.ErrorCode = commonDef.Success
 		result.Redirect = "/"

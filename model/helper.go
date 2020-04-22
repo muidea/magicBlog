@@ -2,10 +2,7 @@ package model
 
 import "github.com/muidea/magicBatis/client"
 
-var modelList = []interface{}{
-	&SysConfig{},
-	&OpLog{},
-}
+var modelList = []interface{}{}
 
 // InitializeModel initialze model
 func InitializeModel(clnt client.Client) (err error) {

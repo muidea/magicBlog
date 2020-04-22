@@ -18,7 +18,6 @@ import (
 	"github.com/muidea/magicCommon/session"
 
 	"github.com/muidea/magicBlog/config"
-	"github.com/muidea/magicBlog/core/handler"
 	"github.com/muidea/magicBlog/model"
 
 	cmsCommon "github.com/muidea/magicCMS/common"
@@ -33,7 +32,6 @@ import (
 
 // Registry 路由信息
 type Registry struct {
-	commonHandler    handler.CommonHandler
 	sessionRegistry  session.Registry
 	casRouteRegistry casRoute.CasRegistry
 
@@ -55,14 +53,12 @@ type Registry struct {
 // NewRoute create route
 func NewRoute(
 	sessionRegistry session.Registry,
-	commonHandler handler.CommonHandler,
 ) *Registry {
 
 	backgroundRoutine := task.NewBackgroundRoutince()
 
 	route := &Registry{
 		sessionRegistry: sessionRegistry,
-		commonHandler:   commonHandler,
 		casService:      config.CasService(),
 		cmsService:      config.CMSService(),
 		cmsCatalog:      config.CMSCatalog(),
@@ -99,36 +95,6 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 	return
 }
 
-func (s *Registry) recordLoginAccount(res http.ResponseWriter, req *http.Request) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
-	if authOK {
-		accountPtr := authPtr.(*casModel.AccountView)
-		memo := fmt.Sprintf("账号%s登录", accountPtr.Account)
-		s.writelog(res, req, memo)
-	}
-}
-
-func (s *Registry) recordLogoutAccount(res http.ResponseWriter, req *http.Request) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
-	if authOK {
-		accountPtr := authPtr.(*casModel.AccountView)
-		memo := fmt.Sprintf("账号%s登出", accountPtr.Account)
-		s.writelog(res, req, memo)
-	}
-}
-
-func (s *Registry) recordPostBlog(res http.ResponseWriter, req *http.Request, memo string) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
-	if authOK {
-		accountPtr := authPtr.(*casModel.AccountView)
-		memo = fmt.Sprintf("%s%s", accountPtr.Account, memo)
-		s.writelog(res, req, memo)
-	}
-}
-
 // Handle middleware handler
 func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)
@@ -143,10 +109,6 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	ctx.Next()
 
 	switch req.URL.Path {
-	case cmsCommon.LoginAccountURL:
-		s.recordLoginAccount(res, req)
-	case cmsCommon.LogoutAccountURL:
-		s.recordLogoutAccount(res, req)
 	case cmsCommon.StatusAccountURL:
 		s.Verify(res, req)
 	}
@@ -400,29 +362,6 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	router.AddRoute(statusRoute, s)
 
 	s.casRouteRegistry.RegisterRoute(router)
-}
-
-func (s *Registry) writelog(res http.ResponseWriter, req *http.Request, memo string) {
-	address := net.GetHTTPRemoteAddress(req)
-	account := ""
-	curSession := s.sessionRegistry.GetSession(res, req)
-	authVal, ok := curSession.GetOption(commonCommon.AuthAccount)
-	if ok {
-		for {
-			accountView, accountOK := authVal.(*casModel.AccountView)
-			if accountOK {
-				account = accountView.Account
-				break
-			}
-
-			break
-		}
-	}
-
-	_, logErr := s.commonHandler.WriteOpLog(account, address, memo)
-	if logErr != nil {
-		log.Printf("WriteOpLog failed, err:%s", logErr.Error())
-	}
 }
 
 func (s *Registry) getCurrentAccount(res http.ResponseWriter, req *http.Request) (ret *casModel.AccountView, err error) {

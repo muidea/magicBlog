@@ -5,11 +5,10 @@ import (
 	"log"
 
 	batisClient "github.com/muidea/magicBatis/client"
-	"github.com/muidea/magicCommon/session"
 	"github.com/muidea/magicBlog/config"
-	"github.com/muidea/magicBlog/core/handler"
 	"github.com/muidea/magicBlog/core/route"
 	"github.com/muidea/magicBlog/model"
+	"github.com/muidea/magicCommon/session"
 
 	engine "github.com/muidea/magicEngine"
 )
@@ -29,15 +28,9 @@ func New() (*Core, error) {
 		return nil, err
 	}
 
-	commonHandler, commonErr := handler.NewCommonHandler(clnt)
-	if commonErr != nil {
-		err = commonErr
-		return nil, err
-	}
-
 	sessionRegistry := session.CreateRegistry(nil)
 
-	routeRegister := route.NewRoute(sessionRegistry, commonHandler)
+	routeRegister := route.NewRoute(sessionRegistry)
 	if routeRegister == nil {
 		return nil, fmt.Errorf("NewRoute failed")
 	}

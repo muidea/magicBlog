@@ -93,7 +93,7 @@
           {{range $comments}}
           <div class="comment-preview">
             <div class="comment-meta">
-              {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
+              {{.Creater}}提交<span class="comment-datetime">{{.UpdateDate}}</span>
               {{if $isAuthOK}}
               <div class="comment-action">
                 <button onclick="onDeleteComment({{.ID}})">删除</button>
@@ -108,7 +108,7 @@
               {{range .Reply}}
               <div class="reply-preview">
                 <div class="reply-meta">
-                  {{.Creater}}回复<span class="reply-datetime">{{.CreateDate}}</span>
+                  {{.Creater}}回复<span class="reply-datetime">{{.UpdateDate}}</span>
                   {{if $isAuthOK}}
                   <div class="reply-action">
                     <button onclick="onDeleteComment({{.ID}})">删除</button>

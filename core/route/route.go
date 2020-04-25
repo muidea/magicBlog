@@ -20,10 +20,10 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/model"
 
+	cmsClient "github.com/muidea/magicCMS/client"
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
-	cmsClient "github.com/muidea/magicCas/client"
 	casModel "github.com/muidea/magicCas/model"
 	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"

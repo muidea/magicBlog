@@ -88,7 +88,7 @@
         <div class="content-panel">
           <div class="head">
             <div class="title">{{$content.Title}}</div>
-            <div class="meta">{{$content.CreateDate}} {{$content.Creater.Account}}</div>
+            <div class="meta">{{$content.UpdateDate}} {{$content.Creater.Name}}</div>
           </div>
           <div class="content" id="blog-editormd">
             <textarea style="display:none;" id="blog-content" name="content">{{$content.Content}}</textarea>
@@ -98,7 +98,7 @@
           {{range $comments}}
           <div class="comment-preview">
             <div class="comment-meta">
-              {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
+              {{.Creater}}提交<span class="comment-datetime">{{.UpdateDate}}</span>
               {{if $isAuthOK}}
               <div class="comment-action">
                 <button onclick="onDeleteComment({{.ID}})">删除</button>
@@ -113,7 +113,7 @@
               {{range .Reply}}
               <div class="reply-preview">
                 <div class="reply-meta">
-                  {{.Creater}}回复<span class="reply-datetime">{{.CreateDate}}</span>
+                  {{.Creater}}回复<span class="reply-datetime">{{.UpdateDate}}</span>
                   {{if $isAuthOK}}
                   <div class="reply-action">
                     <button onclick="onDeleteComment({{.ID}})">删除</button>

@@ -744,7 +744,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 		}
 		defer cmsClient.Release()
 
-		_, err = cmsClient.CreateComment(param.Message, param.Name, &cmsModel.Unit{UID: param.Host, UType: cmsModel.ARTICLE}, 0)
+		_, err = cmsClient.CreateComment(param.Message, param.Name, &cmsModel.Host{Code: param.Host, Type: cmsModel.ARTICLE}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "留言失败, 保存出错"
@@ -802,9 +802,9 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 		cmsClient.BindSession(sessionInfo)
 
 		authPtr, _ := curSession.GetOption(commonCommon.AuthAccount)
-		accountPtr := authPtr.(*casModel.AccountView)
+		entityPtr := authPtr.(*casModel.Entity)
 
-		_, err = cmsClient.CreateComment(param.Message, accountPtr.Account, &cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, 0)
+		_, err = cmsClient.CreateComment(param.Message, entityPtr.Name, &cmsModel.Host{Code: param.Host, Type: cmsModel.COMMENT}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "回复失败, 保存出错"
@@ -860,7 +860,7 @@ func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
 
 		cmsClient.BindSession(sessionInfo)
 
-		commentList, _, commentErr := cmsClient.FilterComment(&cmsModel.Unit{UID: param.Host, UType: cmsModel.COMMENT}, nil)
+		commentList, _, commentErr := cmsClient.FilterComment(&cmsModel.Host{Code: param.Host, Type: cmsModel.COMMENT}, nil)
 		if commentErr == nil && len(commentList) > 0 {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "删除Comment失败,包含回复信息"
@@ -1008,7 +1008,7 @@ func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.C
 }
 
 func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*model.CommentView, err error) {
-	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Unit{UID: id, UType: cmsModel.ARTICLE}, nil)
+	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Host{Code: id, Type: cmsModel.ARTICLE}, nil)
 	if blogErr != nil {
 		err = blogErr
 		log.Printf("FilterComment failed, err:%s", err.Error())
@@ -1018,7 +1018,7 @@ func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util
 	ret = []*model.CommentView{}
 	for _, val := range blogComment {
 		view := &model.CommentView{ID: val.ID, Content: val.Content, Creater: val.Creater, CreateDate: val.CreateDate}
-		replyComment, _, replyErr := clnt.FilterComment(val.Unit(), nil)
+		replyComment, _, replyErr := clnt.FilterComment(val.Host(), nil)
 
 		view.Reply = []interface{}{}
 		if replyErr == nil {

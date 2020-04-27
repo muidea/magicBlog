@@ -2,7 +2,6 @@ package route
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -24,7 +23,6 @@ import (
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
-	casModel "github.com/muidea/magicCas/model"
 	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"
 )
@@ -80,7 +78,7 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 	defer cmsClient.Release()
 	cmsClient.BindSession(sessionInfo)
 
-	sessionInfo, sessionErr := cmsClient.VerifySession()
+	_, sessionInfo, sessionErr := cmsClient.VerifyAccountStatus()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", sessionErr.Error())
@@ -104,11 +102,6 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	req.URL.RawQuery = values.Encode()
 
 	ctx.Next()
-
-	switch req.URL.Path {
-	case cmsCommon.StatusAccountURL:
-		s.Verify(res, req)
-	}
 }
 
 // Login account login
@@ -154,6 +147,47 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 		}
 
 		curSession.SetOption(commonCommon.AuthAccount, accountPtr)
+		curSession.SetSessionInfo(sessionPtr)
+
+		result.ErrorCode = commonDef.Success
+		result.Redirect = "/"
+		break
+	}
+
+	block, err := json.Marshal(result)
+	if err == nil {
+		res.Write(block)
+		return
+	}
+
+	res.WriteHeader(http.StatusExpectationFailed)
+}
+
+// Logout account logout
+func (s *Registry) Logout(res http.ResponseWriter, req *http.Request) {
+	type logoutResult struct {
+		commonDef.Result
+		Redirect string `json:"redirect"`
+	}
+
+	curSession := s.sessionRegistry.GetSession(res, req)
+	result := &logoutResult{}
+	for {
+		sessionInfo := curSession.GetSessionInfo()
+		sessionInfo.Scope = commonCommon.ShareSession
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		defer cmsClient.Release()
+		cmsClient.BindSession(sessionInfo)
+
+		sessionPtr, err := cmsClient.LogoutAccount()
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = err.Error()
+			break
+		}
+
+		curSession.RemoveOption(commonCommon.AuthAccount)
 		curSession.SetSessionInfo(sessionPtr)
 
 		result.ErrorCode = commonDef.Success
@@ -350,44 +384,8 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 	loginRoute := engine.CreateRoute(cmsCommon.LoginAccountURL, "POST", s.Login)
 	router.AddRoute(loginRoute, s)
 
-	logoutURL := net.JoinURL(s.cmsService, cmsCommon.LogoutAccountURL)
-	logoutRoute := engine.CreateProxyRoute(cmsCommon.LogoutAccountURL, "DELETE", logoutURL, true)
+	logoutRoute := engine.CreateRoute(cmsCommon.LogoutAccountURL, "DELETE", s.Logout)
 	router.AddRoute(logoutRoute, s)
 
-	statusURL := net.JoinURL(s.cmsService, cmsCommon.StatusAccountURL)
-	statusRoute := engine.CreateProxyRoute(cmsCommon.StatusAccountURL, "GET", statusURL, true)
-	router.AddRoute(statusRoute, s)
-
 	s.casRouteRegistry.RegisterRoute(router)
-}
-
-func (s *Registry) getCurrentAccount(res http.ResponseWriter, req *http.Request) (ret *casModel.AccountView, err error) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-	authVal, ok := curSession.GetOption(commonCommon.AuthAccount)
-	if ok {
-		ret, ok = authVal.(*casModel.AccountView)
-		if ok {
-			return
-		}
-
-		err = fmt.Errorf("无效权限")
-		return
-	}
-
-	sessionInfo := curSession.GetSessionInfo()
-	cmsClient := cmsClient.NewClient(s.cmsService)
-	defer cmsClient.Release()
-	cmsClient.BindSession(sessionInfo)
-
-	accountInfo, accountSession, accountErr := cmsClient.StatusAccount()
-	if accountErr != nil {
-		err = accountErr
-		return
-	}
-
-	curSession.SetSessionInfo(accountSession)
-	curSession.SetOption(commonCommon.AuthAccount, accountInfo)
-	ret = accountInfo
-
-	return
 }

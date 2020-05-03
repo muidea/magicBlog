@@ -321,6 +321,10 @@ func (s *Registry) filterBlogAuthor(filter *filter, clnt cmsClient.Client) (file
 			break
 		}
 	}
+	if articlePtr == nil {
+		fileName = "404.html"
+		return
+	}
 
 	info := map[string]interface{}{}
 	if articlePtr != nil {

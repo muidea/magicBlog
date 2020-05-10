@@ -53,21 +53,21 @@ func (s *archiveBlogTask) Run() {
 	s.registry.archiveBlog()
 }
 
-func (s *Registry) verifyEndpoint() (ret *commonCommon.SessionInfo, err error) {
+func (s *Registry) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	defer cmsClient.Release()
 
 	identityID := config.IdentityID()
 	authToken := config.AuthToken()
-	_, ret, err = cmsClient.VerifyEndpoint(identityID, authToken)
+	_, ret, err = cmsClient.ConfirmEndpoint(identityID, authToken)
 
 	return
 }
 
 func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
-	sessionInfo, sessionErr := s.verifyEndpoint()
+	sessionInfo, sessionErr := s.confirmEndpoint()
 	if sessionErr != nil {
-		log.Printf("verifyEndpoint failed, err:%s", sessionErr.Error())
+		log.Printf("confirmEndpoint failed, err:%s", sessionErr.Error())
 		err = sessionErr
 		return
 	}

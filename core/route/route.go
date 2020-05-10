@@ -78,7 +78,7 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 	defer cmsClient.Release()
 	cmsClient.BindSession(sessionInfo)
 
-	_, sessionInfo, sessionErr := cmsClient.VerifyAccountStatus()
+	_, sessionInfo, sessionErr := cmsClient.RefreshStatus()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", sessionErr.Error())
@@ -98,7 +98,7 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 	sessionInfo.Scope = commonCommon.ShareSession
 
 	values := req.URL.Query()
-	sessionInfo.Merge(values)
+	values = sessionInfo.Encode(values)
 	req.URL.RawQuery = values.Encode()
 
 	ctx.Next()
@@ -340,7 +340,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 		filter.pageFilter.PageNum++
 
 		qv := url.Values{}
-		qv = filter.pageFilter.Merge(qv)
+		qv = filter.pageFilter.Encode(qv)
 
 		curURL := url.URL{}
 		curURL.Path = req.URL.Path

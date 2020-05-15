@@ -12,11 +12,13 @@ import (
 	"github.com/muidea/magicBlog/model"
 	cmsClient "github.com/muidea/magicCMS/client"
 	cmsModel "github.com/muidea/magicCMS/model"
+	casCommon "github.com/muidea/magicCas/common"
 	casModel "github.com/muidea/magicCas/model"
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
 	"github.com/muidea/magicCommon/foundation/util"
+	"github.com/muidea/magicCommon/session"
 )
 
 const currentCatalog = "current_catalog"
@@ -64,7 +66,7 @@ func (s *Registry) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) 
 	return
 }
 
-func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
+func (s *Registry) getCMSClient(curSession session.Session) (ret cmsClient.Client, err error) {
 	sessionInfo, sessionErr := s.confirmEndpoint()
 	if sessionErr != nil {
 		log.Printf("confirmEndpoint failed, err:%s", sessionErr.Error())
@@ -75,6 +77,16 @@ func (s *Registry) getCMSClient() (ret cmsClient.Client, err error) {
 	sessionInfo.Scope = commonCommon.ShareSession
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	cmsClient.BindSession(sessionInfo)
+
+	var entityContext *casCommon.EntityContext
+	if curSession != nil {
+		authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
+		if authOK {
+			entityPtr := authPtr.(*casModel.Entity)
+			entityContext = casCommon.NewEntityContext(entityPtr)
+		}
+	}
+	cmsClient.AttachContext(entityContext)
 
 	ret = cmsClient
 
@@ -571,7 +583,7 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 }
 
 func (s *Registry) archiveBlog() error {
-	cmsClnt, cmsErr := s.getCMSClient()
+	cmsClnt, cmsErr := s.getCMSClient(nil)
 	if cmsErr != nil {
 		log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
 		return cmsErr
@@ -649,7 +661,6 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 
 	curSession := s.sessionRegistry.GetSession(res, req)
 
-	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
 		param := &postParam{}
@@ -666,10 +677,13 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
 		defer cmsClient.Release()
-
-		cmsClient.BindSession(sessionInfo)
 
 		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
 		if catalogErr != nil {
@@ -724,6 +738,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 		Redirect string `json:"redirect"`
 	}
 
+	curSession := s.sessionRegistry.GetSession(res, req)
 	result := &postResult{}
 	for {
 		param := &postParam{}
@@ -740,10 +755,10 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient, cmsErr := s.getCMSClient()
+		cmsClient, cmsErr := s.getCMSClient(curSession)
 		if cmsErr != nil {
 			result.ErrorCode = commonDef.Failed
-			result.Reason = "留言失败, 系统出错"
+			result.Reason = "非法参数,输入参数为空"
 			break
 		}
 		defer cmsClient.Release()
@@ -783,7 +798,6 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
 		param := &postParam{}
@@ -800,14 +814,17 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
 		defer cmsClient.Release()
 
-		cmsClient.BindSession(sessionInfo)
-
 		authPtr, _ := curSession.GetOption(commonCommon.AuthAccount)
-		entityPtr := authPtr.(*casModel.Entity)
 
+		entityPtr := authPtr.(*casModel.Entity)
 		_, err = cmsClient.CreateComment(param.Message, entityPtr.Name, &cmsModel.Host{Code: param.Host, Type: cmsModel.COMMENT}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
@@ -842,7 +859,6 @@ func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
 		param := &postParam{}
@@ -859,10 +875,13 @@ func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
 		defer cmsClient.Release()
-
-		cmsClient.BindSession(sessionInfo)
 
 		commentList, _, commentErr := cmsClient.FilterComment(&cmsModel.Host{Code: param.Host, Type: cmsModel.COMMENT}, nil)
 		if commentErr == nil && len(commentList) > 0 {
@@ -900,8 +919,6 @@ func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-
-	sessionInfo := curSession.GetSessionInfo()
 	result := &postResult{}
 	for {
 		param := &model.Setting{}
@@ -918,10 +935,13 @@ func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
 		defer cmsClient.Release()
-
-		cmsClient.BindSession(sessionInfo)
 
 		catalogList := []*cmsModel.CatalogLite{s.systemCatalog}
 

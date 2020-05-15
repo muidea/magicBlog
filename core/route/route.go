@@ -19,7 +19,6 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/model"
 
-	cmsClient "github.com/muidea/magicCMS/client"
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
@@ -74,17 +73,22 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 
 	sessionInfo := curSession.GetSessionInfo()
 
-	cmsClient := cmsClient.NewClient(s.cmsService)
+	cmsClient, cmsErr := s.getCMSClient(curSession)
+	if cmsErr != nil {
+		err = cmsErr
+		log.Printf("getCMSClient failed, err:%s", err.Error())
+		return
+	}
 	defer cmsClient.Release()
-	cmsClient.BindSession(sessionInfo)
 
-	_, sessionInfo, sessionErr := cmsClient.RefreshStatus()
+	sessionEntity, sessionInfo, sessionErr := cmsClient.RefreshStatus()
 	if sessionErr != nil {
 		err = sessionErr
-		log.Printf("verify current session failed, err:%s", sessionErr.Error())
+		log.Printf("verify current session failed, err:%s", err.Error())
 		return
 	}
 
+	curSession.SetOption(commonCommon.AuthAccount, sessionEntity)
 	curSession.SetSessionInfo(sessionInfo)
 
 	return
@@ -118,9 +122,6 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 	result := &loginResult{}
 	for {
-		sessionInfo := curSession.GetSessionInfo()
-		sessionInfo.Scope = commonCommon.ShareSession
-
 		param := &loginParam{}
 		err := net.ParseJSONBody(req, param)
 		if err != nil {
@@ -135,9 +136,13 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
 		defer cmsClient.Release()
-		cmsClient.BindSession(sessionInfo)
 
 		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
@@ -173,12 +178,13 @@ func (s *Registry) Logout(res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 	result := &logoutResult{}
 	for {
-		sessionInfo := curSession.GetSessionInfo()
-		sessionInfo.Scope = commonCommon.ShareSession
-
-		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = "非法参数,输入参数为空"
+			break
+		}
 		defer cmsClient.Release()
-		cmsClient.BindSession(sessionInfo)
 
 		sessionPtr, err := cmsClient.LogoutAccount()
 		if err != nil {
@@ -226,7 +232,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 	fileName := ""
 	filter := &filter{}
 	for {
-		cmsClnt, cmsErr := s.getCMSClient()
+		cmsClnt, cmsErr := s.getCMSClient(curSession)
 		if cmsErr != nil {
 			log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
 			fileName = "500.html"

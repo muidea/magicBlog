@@ -78,7 +78,7 @@ func (s *Registry) getCMSClient(curSession session.Session) (ret cmsClient.Clien
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	cmsClient.BindSession(sessionInfo)
 
-	var entityContext *casCommon.EntityContext
+	var entityContext commonCommon.ContextInfo
 	if curSession != nil {
 		authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
 		if authOK {
@@ -86,17 +86,17 @@ func (s *Registry) getCMSClient(curSession session.Session) (ret cmsClient.Clien
 			entityContext = casCommon.NewEntityContext(entityPtr)
 		}
 	}
+
 	cmsClient.AttachContext(entityContext)
 
 	ret = cmsClient
-
 	return
 }
 
 func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, articleList []*cmsModel.ArticleView, err error) {
-	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
-	if blogErr != nil {
-		err = blogErr
+	catalogPtr, catalogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
+	if catalogErr != nil {
+		err = catalogErr
 		return
 	}
 
@@ -105,7 +105,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 	var authorTree *cmsModel.CatalogTree
 	catalogs = []*cmsModel.CatalogLite{}
 	archives = []*cmsModel.CatalogLite{}
-	for _, cv := range blogCatalog.Subs {
+	for _, cv := range catalogPtr.Subs {
 		switch cv.Name {
 		case currentCatalog:
 			s.currentCatalog = cv.Lite()
@@ -121,7 +121,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 	}
 
 	if s.currentCatalog == nil {
-		catalogPtr, catalogErr := clnt.CreateCatalog(currentCatalog, "auto create current catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(currentCatalog, "auto create current catalog", catalogPtr.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
@@ -137,7 +137,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 			archives = append(archives, cv.Lite())
 		}
 	} else {
-		catalogPtr, catalogErr := clnt.CreateCatalog(archiveCatalog, "auto create archive catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(archiveCatalog, "auto create archive catalog", catalogPtr.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
@@ -151,7 +151,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 
 		articleList, err = s.queryArticleList(clnt, systemTree.Lite(), nil)
 	} else {
-		catalogPtr, catalogErr := clnt.CreateCatalog(systemCatalog, "auto create system catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(systemCatalog, "auto create system catalog", catalogPtr.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
@@ -161,7 +161,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.
 	}
 
 	if authorTree == nil {
-		catalogPtr, catalogErr := clnt.CreateCatalog(authorCatalog, "auto create author catalog", blogCatalog.Lite())
+		catalogPtr, catalogErr := clnt.CreateCatalog(authorCatalog, "auto create author catalog", catalogPtr.Lite())
 		if catalogErr != nil {
 			err = catalogErr
 			return
@@ -538,16 +538,16 @@ func (s *Registry) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.Cat
 }
 
 func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
-	blogCatalog, blogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
-	if blogErr != nil {
-		err = blogErr
+	catalogPtr, catalogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
+	if catalogErr != nil {
+		err = catalogErr
 		return
 	}
 
 	newCatalogItems := []string{}
 	ret = []*cmsModel.CatalogLite{}
 	catalogMapInfo := map[string]*cmsModel.CatalogLite{}
-	for _, cv := range blogCatalog.Subs {
+	for _, cv := range catalogPtr.Subs {
 		catalogMapInfo[cv.Name] = cv.Lite()
 	}
 
@@ -567,7 +567,7 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 	}
 
 	for _, val := range newCatalogItems {
-		newCatalog, newErr := clnt.CreateCatalog(val, "auto create blog catalog", blogCatalog.Lite())
+		newCatalog, newErr := clnt.CreateCatalog(val, "auto create blog catalog", catalogPtr.Lite())
 		if newErr != nil {
 			err = newErr
 			return
@@ -1020,14 +1020,14 @@ func (s *Registry) updateArticle(clnt cmsClient.Client, id int, title, content s
 }
 
 func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.CatalogView, err error) {
-	blogCatalog, blogErr := clnt.DeleteCatalog(id)
+	catalogPtr, blogErr := clnt.DeleteCatalog(id)
 	if blogErr != nil {
 		err = blogErr
 		log.Printf("DeleteCatalog failed, err:%s", err.Error())
 		return
 	}
 
-	ret = blogCatalog
+	ret = catalogPtr
 	return
 }
 

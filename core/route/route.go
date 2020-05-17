@@ -144,7 +144,7 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 		}
 		defer cmsClient.Release()
 
-		accountPtr, sessionPtr, err := cmsClient.LoginAccount(param.Account, param.Password)
+		accountPtr, _, err := cmsClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -152,7 +152,6 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 		}
 
 		curSession.SetOption(commonCommon.AuthAccount, accountPtr)
-		curSession.SetSessionInfo(sessionPtr)
 
 		result.ErrorCode = commonDef.Success
 		result.Redirect = "/"
@@ -186,7 +185,7 @@ func (s *Registry) Logout(res http.ResponseWriter, req *http.Request) {
 		}
 		defer cmsClient.Release()
 
-		sessionPtr, err := cmsClient.LogoutAccount()
+		_, err := cmsClient.LogoutAccount()
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
@@ -194,7 +193,6 @@ func (s *Registry) Logout(res http.ResponseWriter, req *http.Request) {
 		}
 
 		curSession.RemoveOption(commonCommon.AuthAccount)
-		curSession.SetSessionInfo(sessionPtr)
 
 		result.ErrorCode = commonDef.Success
 		result.Redirect = "/"

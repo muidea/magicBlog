@@ -93,7 +93,11 @@ func (s *Registry) getCMSClient(curSession session.Session) (ret cmsClient.Clien
 	return
 }
 
-func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (catalogs []*cmsModel.CatalogLite, archives []*cmsModel.CatalogLite, articleList []*cmsModel.ArticleView, err error) {
+func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (
+	catalogs []*cmsModel.CatalogLite,
+	archives []*cmsModel.CatalogLite,
+	articleList []*cmsModel.ArticleView,
+	err error) {
 	catalogPtr, catalogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if catalogErr != nil {
 		err = catalogErr

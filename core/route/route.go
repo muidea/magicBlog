@@ -71,8 +71,6 @@ func NewRoute(
 func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 
-	sessionInfo := curSession.GetSessionInfo()
-
 	cmsClient, cmsErr := s.getCMSClient(curSession)
 	if cmsErr != nil {
 		err = cmsErr
@@ -81,7 +79,7 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 	}
 	defer cmsClient.Release()
 
-	sessionEntity, sessionInfo, sessionErr := cmsClient.RefreshStatus()
+	sessionEntity, _, sessionErr := cmsClient.RefreshStatus()
 	if sessionErr != nil {
 		err = sessionErr
 		log.Printf("verify current session failed, err:%s", err.Error())
@@ -89,7 +87,6 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 	}
 
 	curSession.SetOption(commonCommon.AuthAccount, sessionEntity)
-	curSession.SetSessionInfo(sessionInfo)
 
 	return
 }

@@ -98,7 +98,7 @@
           {{range $comments}}
           <div class="comment-preview">
             <div class="comment-meta">
-              {{.Creater}}提交<span class="comment-datetime">{{.CreateDate}}</span>
+              {{.Creater}}留言<span class="comment-datetime">{{.CreateDate}}</span>
               {{if $isAuthOK}}
               <div class="comment-action">
                 <button onclick="onDeleteComment({{.ID}})">删除</button>

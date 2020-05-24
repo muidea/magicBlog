@@ -9,21 +9,26 @@ if [ $ENDPOINTNAME ]; then
     EXTRA_ARGS=$EXTRA_ARGS' -EndpointName='$ENDPOINTNAME
 fi
 
-if [ $CASSERVER ]; then
-    EXTRA_ARGS=$EXTRA_ARGS' -CasService='$CASSERVER
+if [ $BATISSERVICE ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -BatisService='$BATISSERVICE
 fi
 
-if [ $USERSERVER ]; then
-    EXTRA_ARGS=$EXTRA_ARGS' -UserService='$USERSERVER
+if [ $CMSSERVICE ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -CMSService='$CMSSERVICE
 fi
 
-if [ $FILESERVER ]; then
-    EXTRA_ARGS=$EXTRA_ARGS' -FileService='$FILESERVER
+if [ $CMSCATALOG ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -CMSCatalog='$CMSCATALOG
 fi
 
-if [ $BATISSERVER ]; then
-    EXTRA_ARGS=$EXTRA_ARGS' -BatisService='$BATISSERVER
+if [ $IDENTITYID ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -IdentityID='$IDENTITYID
 fi
+
+if [ $AUTHTOKEN ]; then
+    EXTRA_ARGS=$EXTRA_ARGS' -AuthToken='$AUTHTOKEN
+fi
+
 
 echo $EXTRA_ARGS
 

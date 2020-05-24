@@ -155,3 +155,4 @@ elif [ $action == 'build' ]; then
     build
 else
     all
+fi

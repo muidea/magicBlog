@@ -23,6 +23,10 @@ function cleanUp()
     if [ -f $binPath ]; then
         rm -f $binPath
     fi
+
+    if [ -f static ]; then
+        rm -f static
+    fi
 }
 
 function buildBin()
@@ -54,6 +58,17 @@ function prepareFile()
     else
         echo "prepareFile success."
     fi
+
+    prePath=$(pwd)
+    cd $projectPath
+    tar -caf $prePath/static static
+    if [ $? -ne 0 ]; then
+        echo "prepare file failed, tar static files failed exception."
+        exit 1
+    else
+        echo "tar static files filed success."
+    fi
+    cd $prePath
 }
 
 function checkImage()

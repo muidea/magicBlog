@@ -12,9 +12,10 @@ import (
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
+	"github.com/muidea/magicCommon/session"
 	"github.com/muidea/magicCommon/task"
 
-	"github.com/muidea/magicCommon/session"
+	casToolkit "github.com/muidea/magicCas/toolkit"
 
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/model"
@@ -22,14 +23,13 @@ import (
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
-	casRoute "github.com/muidea/magicCas/toolkit/route"
 	engine "github.com/muidea/magicEngine"
 )
 
 // Registry 路由信息
 type Registry struct {
 	sessionRegistry  session.Registry
-	casRouteRegistry casRoute.CasRegistry
+	casRouteRegistry casToolkit.CasRegistry
 
 	cmsService string
 	cmsCatalog int
@@ -59,7 +59,7 @@ func NewRoute(
 		basePath:        "static/default",
 	}
 
-	route.casRouteRegistry = casRoute.NewCasRegistry(route)
+	route.casRouteRegistry = toolkit.NewCasRegistry(route)
 	route.backgroundRoutine = backgroundRoutine
 
 	backgroundRoutine.Timer(&archiveBlogTask{registry: route}, 24*time.Hour, 2*time.Hour)

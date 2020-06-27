@@ -1,4 +1,4 @@
-package route
+package blog
 
 import (
 	"fmt"

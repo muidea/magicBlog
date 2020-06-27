@@ -1,4 +1,4 @@
-package route
+package blog
 
 import (
 	"encoding/json"
@@ -28,7 +28,7 @@ const authorCatalog = "author_catalog"
 const settingTitle = "setting"
 
 type archiveBlogTask struct {
-	registry     *Registry
+	registry     *Blog
 	preTimeStamp *time.Time
 }
 
@@ -55,7 +55,7 @@ func (s *archiveBlogTask) Run() {
 	s.registry.archiveBlog()
 }
 
-func (s *Registry) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) {
+func (s *Blog) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	defer cmsClient.Release()
 
@@ -66,7 +66,7 @@ func (s *Registry) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) 
 	return
 }
 
-func (s *Registry) getCMSClient(curSession session.Session) (ret cmsClient.Client, err error) {
+func (s *Blog) getCMSClient(curSession session.Session) (ret cmsClient.Client, err error) {
 	sessionInfo, sessionErr := s.confirmEndpoint()
 	if sessionErr != nil {
 		log.Printf("confirmEndpoint failed, err:%s", sessionErr.Error())
@@ -93,7 +93,7 @@ func (s *Registry) getCMSClient(curSession session.Session) (ret cmsClient.Clien
 	return
 }
 
-func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (
+func (s *Blog) queryBlogCommon(clnt cmsClient.Client) (
 	catalogs []*cmsModel.CatalogLite,
 	archives []*cmsModel.CatalogLite,
 	articleList []*cmsModel.ArticleView,
@@ -179,7 +179,7 @@ func (s *Registry) queryBlogCommon(clnt cmsClient.Client) (
 	return
 }
 
-func (s *Registry) getBlogSetting(articleList []*cmsModel.ArticleView) (ret *model.Setting, err error) {
+func (s *Blog) getBlogSetting(articleList []*cmsModel.ArticleView) (ret *model.Setting, err error) {
 	var settingPtr *cmsModel.ArticleView
 	for _, val := range articleList {
 		if val.Title == settingTitle {
@@ -199,7 +199,7 @@ func (s *Registry) getBlogSetting(articleList []*cmsModel.ArticleView) (ret *mod
 	return
 }
 
-func (s *Registry) queryBlogPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) queryBlogPost(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog, filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
@@ -232,7 +232,7 @@ func (s *Registry) queryBlogPost(filter *filter, clnt cmsClient.Client) (fileNam
 	return
 }
 
-func (s *Registry) filterBlogArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) filterBlogArchive(filter *filter, archives []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var archivePtr *cmsModel.CatalogLite
 	for _, val := range archives {
 		if filter.archiveName == val.Name {
@@ -274,7 +274,7 @@ func (s *Registry) filterBlogArchive(filter *filter, archives []*cmsModel.Catalo
 	return
 }
 
-func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) filterBlogCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var catalogPtr *cmsModel.CatalogLite
 	for _, val := range catalogs {
 		if filter.catalogName == val.Name {
@@ -317,7 +317,7 @@ func (s *Registry) filterBlogCatalog(filter *filter, catalogs []*cmsModel.Catalo
 	return
 }
 
-func (s *Registry) filterBlogAuthor(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) filterBlogAuthor(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	if s.authorCatalog == nil {
 		err = fmt.Errorf("illegal author catalog")
 		return
@@ -356,7 +356,7 @@ func (s *Registry) filterBlogAuthor(filter *filter, clnt cmsClient.Client) (file
 	return
 }
 
-func (s *Registry) queryBlogLogin(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) queryBlogLogin(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var articlePtr *cmsModel.ArticleView
 	for _, val := range articles {
 		fileName := fmt.Sprintf("%s.html", val.Title)
@@ -372,7 +372,7 @@ func (s *Registry) queryBlogLogin(filter *filter, articles []*cmsModel.ArticleVi
 	return
 }
 
-func (s *Registry) queryBlogAbout(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) queryBlogAbout(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var articlePtr *cmsModel.ArticleView
 	for _, val := range articles {
 		fileName := fmt.Sprintf("%s.html", val.Title)
@@ -396,7 +396,7 @@ func (s *Registry) queryBlogAbout(filter *filter, articles []*cmsModel.ArticleVi
 	return
 }
 
-func (s *Registry) queryBlogContact(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) queryBlogContact(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	var articlePtr *cmsModel.ArticleView
 	for _, val := range articles {
 		fileName := fmt.Sprintf("%s.html", val.Title)
@@ -423,7 +423,7 @@ func (s *Registry) queryBlogContact(filter *filter, articles []*cmsModel.Article
 	return
 }
 
-func (s *Registry) filterBlogPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
+func (s *Blog) filterBlogPostList(filter *filter, clnt cmsClient.Client) (ret []*cmsModel.ArticleView, err error) {
 	articleList, articleErr := s.queryArticleList(clnt, s.currentCatalog, filter.pageFilter)
 	if articleErr != nil {
 		err = articleErr
@@ -434,7 +434,7 @@ func (s *Registry) filterBlogPostList(filter *filter, clnt cmsClient.Client) (re
 	return
 }
 
-func (s *Registry) queryBlogPostEdit(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) queryBlogPostEdit(filter *filter, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	if filter.action != "update_post" || filter.postID <= 0 {
 		err = fmt.Errorf("illegal action, action:%s, postID:%d", filter.action, filter.postID)
 		return
@@ -466,12 +466,12 @@ func (s *Registry) queryBlogPostEdit(filter *filter, clnt cmsClient.Client) (fil
 	return
 }
 
-func (s *Registry) queryBlogSetting(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
+func (s *Blog) queryBlogSetting(filter *filter, articles []*cmsModel.ArticleView, clnt cmsClient.Client) (fileName string, content interface{}, err error) {
 	fileName = "setting.html"
 	return
 }
 
-func (s *Registry) deleteBlogPost(filter *filter, clnt cmsClient.Client) (err error) {
+func (s *Blog) deleteBlogPost(filter *filter, clnt cmsClient.Client) (err error) {
 	if filter.action != "delete_post" || filter.postID <= 0 {
 		err = fmt.Errorf("illegal action, action:%s, postID:%d", filter.action, filter.postID)
 		return
@@ -481,7 +481,7 @@ func (s *Registry) deleteBlogPost(filter *filter, clnt cmsClient.Client) (err er
 	return
 }
 
-func (s *Registry) deleteBlogCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (err error) {
+func (s *Blog) deleteBlogCatalog(filter *filter, catalogs []*cmsModel.CatalogLite, clnt cmsClient.Client) (err error) {
 	if filter.action != "delete_catalog" || filter.catalogID <= 0 {
 		err = fmt.Errorf("illegal action, action:%s, catalogId:%d", filter.action, filter.catalogID)
 		return
@@ -513,7 +513,7 @@ func (s *Registry) deleteBlogCatalog(filter *filter, catalogs []*cmsModel.Catalo
 	return
 }
 
-func (s *Registry) queryArticle(clnt cmsClient.Client, id int) (ret *cmsModel.ArticleView, err error) {
+func (s *Blog) queryArticle(clnt cmsClient.Client, id int) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.QueryArticle(id)
 	if blogErr != nil {
 		err = blogErr
@@ -525,7 +525,7 @@ func (s *Registry) queryArticle(clnt cmsClient.Client, id int) (ret *cmsModel.Ar
 	return
 }
 
-func (s *Registry) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
+func (s *Blog) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.CatalogLite, pageFilter *util.PageFilter) (ret []*cmsModel.ArticleView, err error) {
 	if pageFilter == nil {
 		pageFilter = &util.PageFilter{PageSize: 10, PageNum: 1}
 	}
@@ -541,7 +541,7 @@ func (s *Registry) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.Cat
 	return
 }
 
-func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
+func (s *Blog) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cmsModel.CatalogLite, err error) {
 	catalogPtr, catalogErr := clnt.QueryCatalogTree(s.cmsCatalog, 2)
 	if catalogErr != nil {
 		err = catalogErr
@@ -586,7 +586,7 @@ func (s *Registry) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cm
 	return
 }
 
-func (s *Registry) archiveBlog() error {
+func (s *Blog) archiveBlog() error {
 	cmsClnt, cmsErr := s.getCMSClient(nil)
 	if cmsErr != nil {
 		log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
@@ -650,7 +650,7 @@ func (s *Registry) archiveBlog() error {
 }
 
 // PostBlog post blog
-func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) PostBlog(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
 		ID      int    `json:"id"`
 		Title   string `json:"title"`
@@ -728,7 +728,7 @@ func (s *Registry) PostBlog(res http.ResponseWriter, req *http.Request) {
 }
 
 // PostComment post comment
-func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) PostComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
 		Name    string `json:"name"`
 		EMail   string `json:"email"`
@@ -789,7 +789,7 @@ func (s *Registry) PostComment(res http.ResponseWriter, req *http.Request) {
 }
 
 // ReplyComment reply comment
-func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) ReplyComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
 		Message string `json:"message"`
 		Origin  string `json:"origin"`
@@ -851,7 +851,7 @@ func (s *Registry) ReplyComment(res http.ResponseWriter, req *http.Request) {
 }
 
 // DeleteComment delete comment
-func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) DeleteComment(res http.ResponseWriter, req *http.Request) {
 	type postParam struct {
 		Origin string `json:"origin"`
 		Host   int    `json:"host"`
@@ -916,7 +916,7 @@ func (s *Registry) DeleteComment(res http.ResponseWriter, req *http.Request) {
 }
 
 // SettingBlog setting blog
-func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) SettingBlog(res http.ResponseWriter, req *http.Request) {
 	type postResult struct {
 		commonDef.Result
 		Redirect string `json:"redirect"`
@@ -987,7 +987,7 @@ func (s *Registry) SettingBlog(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusExpectationFailed)
 }
 
-func (s *Registry) createArticle(clnt cmsClient.Client, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
+func (s *Blog) createArticle(clnt cmsClient.Client, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.CreateArticle(title, content, catalogs)
 	if blogErr != nil {
 		err = blogErr
@@ -999,7 +999,7 @@ func (s *Registry) createArticle(clnt cmsClient.Client, title, content string, c
 	return
 }
 
-func (s *Registry) deleteArticle(clnt cmsClient.Client, id int) (ret *cmsModel.ArticleView, err error) {
+func (s *Blog) deleteArticle(clnt cmsClient.Client, id int) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.DeleteArticle(id)
 	if blogErr != nil {
 		err = blogErr
@@ -1011,7 +1011,7 @@ func (s *Registry) deleteArticle(clnt cmsClient.Client, id int) (ret *cmsModel.A
 	return
 }
 
-func (s *Registry) updateArticle(clnt cmsClient.Client, id int, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
+func (s *Blog) updateArticle(clnt cmsClient.Client, id int, title, content string, catalogs []*cmsModel.CatalogLite) (ret *cmsModel.ArticleView, err error) {
 	blogArticle, blogErr := clnt.UpdateArticle(id, title, content, catalogs)
 	if blogErr != nil {
 		err = blogErr
@@ -1023,7 +1023,7 @@ func (s *Registry) updateArticle(clnt cmsClient.Client, id int, title, content s
 	return
 }
 
-func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.CatalogView, err error) {
+func (s *Blog) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.CatalogView, err error) {
 	catalogPtr, blogErr := clnt.DeleteCatalog(id)
 	if blogErr != nil {
 		err = blogErr
@@ -1035,7 +1035,7 @@ func (s *Registry) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.C
 	return
 }
 
-func (s *Registry) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*model.CommentView, err error) {
+func (s *Blog) queryComments(clnt cmsClient.Client, id int, pageFilter *util.PageFilter) (ret []*model.CommentView, err error) {
 	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Host{Code: id, Type: cmsModel.ARTICLE}, nil)
 	if blogErr != nil {
 		err = blogErr

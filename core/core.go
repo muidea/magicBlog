@@ -1,19 +1,20 @@
 package core
 
 import (
-	"fmt"
 	"log"
 
+	engine "github.com/muidea/magicEngine"
+
 	batisClient "github.com/muidea/magicBatis/client"
-	"github.com/muidea/magicBlog/config"
-	"github.com/muidea/magicBlog/core/route"
-	"github.com/muidea/magicBlog/model"
+	casToolkit "github.com/muidea/magicCas/toolkit"
 	"github.com/muidea/magicCommon/session"
 
-	engine "github.com/muidea/magicEngine"
+	"github.com/muidea/magicBlog/config"
+	"github.com/muidea/magicBlog/core/service/blog"
+	"github.com/muidea/magicBlog/model"
 )
 
-// New 新建Protal
+// New 新建Core
 func New() (*Core, error) {
 	var err error
 	clnt := batisClient.NewClient(config.BatisService(), config.EndpointName())
@@ -22,33 +23,35 @@ func New() (*Core, error) {
 			clnt.Release()
 		}
 	}()
+
 	err = model.InitializeModel(clnt)
 	if err != nil {
 		log.Printf("initializeModel failed, err:%s", err.Error())
 		return nil, err
 	}
 
-	sessionRegistry := session.CreateRegistry(nil)
+	blogService := blog.New()
 
-	routeRegister := route.NewRoute(sessionRegistry)
-	if routeRegister == nil {
-		return nil, fmt.Errorf("NewRoute failed")
+	core := &Core{
+		blogService: blogService,
 	}
-
-	core := &Core{}
-	core.routeRegister = routeRegister
 
 	return core, nil
 }
 
-// Core Protal对象
+// Core Core对象
 type Core struct {
-	routeRegister *route.Registry
+	blogService *blog.Blog
 }
 
 // Startup 启动
 func (s *Core) Startup(router engine.Router) {
-	s.routeRegister.RegisterRoute(router)
+	sessionRegistry := session.CreateRegistry(nil)
+	casRouteRegistry := casToolkit.NewCasRegistry(s.blogService, router)
+
+	s.blogService.BindRegistry(sessionRegistry, casRouteRegistry)
+
+	s.blogService.RegisterHandler(router)
 }
 
 // Teardown 销毁

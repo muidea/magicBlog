@@ -1,4 +1,4 @@
-package route
+package blog
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 	commonCommon "github.com/muidea/magicCommon/common"
 	commonDef "github.com/muidea/magicCommon/def"
 	"github.com/muidea/magicCommon/foundation/net"
-	"github.com/muidea/magicCommon/session"
+	commonSession "github.com/muidea/magicCommon/session"
 	"github.com/muidea/magicCommon/task"
 
 	casToolkit "github.com/muidea/magicCas/toolkit"
@@ -26,9 +26,9 @@ import (
 	engine "github.com/muidea/magicEngine"
 )
 
-// Registry 路由信息
-type Registry struct {
-	sessionRegistry  session.Registry
+// Blog 路由信息
+type Blog struct {
+	sessionRegistry  commonSession.Registry
 	casRouteRegistry casToolkit.CasRegistry
 
 	cmsService string
@@ -45,30 +45,33 @@ type Registry struct {
 	backgroundRoutine *task.BackgroundRoutine
 }
 
-// NewRoute create route
-func NewRoute(
-	sessionRegistry session.Registry,
-) *Registry {
+// New create route
+func New() *Blog {
 
 	backgroundRoutine := task.NewBackgroundRoutince()
-
-	route := &Registry{
-		sessionRegistry: sessionRegistry,
-		cmsService:      config.CMSService(),
-		cmsCatalog:      config.CMSCatalog(),
-		basePath:        "static/default",
+	blog := &Blog{
+		cmsService: config.CMSService(),
+		cmsCatalog: config.CMSCatalog(),
+		basePath:   "static/default",
 	}
 
-	route.casRouteRegistry = toolkit.NewCasRegistry(route)
-	route.backgroundRoutine = backgroundRoutine
+	blog.backgroundRoutine = backgroundRoutine
 
-	backgroundRoutine.Timer(&archiveBlogTask{registry: route}, 24*time.Hour, 2*time.Hour)
+	backgroundRoutine.Timer(&archiveBlogTask{registry: blog}, 24*time.Hour, 2*time.Hour)
 
-	return route
+	return blog
+}
+
+func (s *Blog) BindRegistry(
+	sessionRegistry commonSession.Registry,
+	casRouteRegistry casToolkit.CasRegistry) {
+
+	s.sessionRegistry = sessionRegistry
+	s.casRouteRegistry = casRouteRegistry
 }
 
 // Verify verify current session
-func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error) {
+func (s *Blog) Verify(res http.ResponseWriter, req *http.Request) (err error) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 
 	cmsClient, cmsErr := s.getCMSClient(curSession)
@@ -92,7 +95,7 @@ func (s *Registry) Verify(res http.ResponseWriter, req *http.Request) (err error
 }
 
 // Handle middleware handler
-func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *http.Request) {
+func (s *Blog) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 
 	sessionInfo := curSession.GetSessionInfo()
@@ -106,7 +109,7 @@ func (s *Registry) Handle(ctx engine.RequestContext, res http.ResponseWriter, re
 }
 
 // Login account login
-func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 	type loginParam struct {
 		Account  string `json:"account"`
 		Password string `json:"password"`
@@ -165,7 +168,7 @@ func (s *Registry) Login(res http.ResponseWriter, req *http.Request) {
 }
 
 // Logout account logout
-func (s *Registry) Logout(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 	type logoutResult struct {
 		commonDef.Result
 		Redirect string `json:"redirect"`
@@ -206,7 +209,7 @@ func (s *Registry) Logout(res http.ResponseWriter, req *http.Request) {
 }
 
 // View static view
-func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
+func (s *Blog) View(res http.ResponseWriter, req *http.Request) {
 	type viewResult struct {
 		IsAuthOK    bool                    `json:"isAuthOK"`
 		ElapsedTime string                  `json:"elapsedTime"`
@@ -355,7 +358,7 @@ func (s *Registry) View(res http.ResponseWriter, req *http.Request) {
 }
 
 // RegisterRoute 注册路由
-func (s *Registry) RegisterRoute(router engine.Router) {
+func (s *Blog) RegisterHandler(router engine.Router) {
 	// blog view routes
 	indexURL := "/view/index.html"
 	indexRoute := engine.CreateProxyRoute("/", "GET", indexURL, true)
@@ -387,6 +390,4 @@ func (s *Registry) RegisterRoute(router engine.Router) {
 
 	logoutRoute := engine.CreateRoute(cmsCommon.LogoutAccountURL, "DELETE", s.Logout)
 	router.AddRoute(logoutRoute, s)
-
-	s.casRouteRegistry.RegisterRoute(router)
 }

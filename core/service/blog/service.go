@@ -357,7 +357,7 @@ func (s *Blog) View(res http.ResponseWriter, req *http.Request) {
 	t.Execute(res, view)
 }
 
-// RegisterRoute 注册路由
+// RegisterHandler 注册路由
 func (s *Blog) RegisterHandler(router engine.Router) {
 	// blog view routes
 	indexURL := "/view/index.html"

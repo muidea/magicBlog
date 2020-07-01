@@ -3,10 +3,11 @@ package blog
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	log "github.com/cihub/seelog"
 
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/model"
@@ -51,7 +52,7 @@ func (s *archiveBlogTask) Run() {
 	preTime := *s.preTimeStamp
 	s.preTimeStamp = &current
 
-	log.Printf("archive blog....., date:%s", preTime.Format("2006-01-02"))
+	log.Info("archive blog....., date:%s", preTime.Format("2006-01-02"))
 	s.registry.archiveBlog()
 }
 
@@ -69,7 +70,7 @@ func (s *Blog) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) {
 func (s *Blog) getCMSClient(curSession session.Session) (ret cmsClient.Client, err error) {
 	sessionInfo, sessionErr := s.confirmEndpoint()
 	if sessionErr != nil {
-		log.Printf("confirmEndpoint failed, err:%s", sessionErr.Error())
+		log.Error("confirmEndpoint failed, err:%s", sessionErr.Error())
 		err = sessionErr
 		return
 	}
@@ -517,7 +518,7 @@ func (s *Blog) queryArticle(clnt cmsClient.Client, id int) (ret *cmsModel.Articl
 	blogArticle, blogErr := clnt.QueryArticle(id)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("QueryArticle failed, err:%s", err.Error())
+		log.Error("QueryArticle failed, err:%s", err.Error())
 		return
 	}
 
@@ -533,7 +534,7 @@ func (s *Blog) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.Catalog
 	blogArticle, _, blogErr := clnt.FilterArticle(catalog, pageFilter)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("FilterArticle failed, err:%s", err.Error())
+		log.Error("FilterArticle failed, err:%s", err.Error())
 		return
 	}
 
@@ -589,14 +590,14 @@ func (s *Blog) getCatalogs(catalog string, clnt cmsClient.Client) (ret []*cmsMod
 func (s *Blog) archiveBlog() error {
 	cmsClnt, cmsErr := s.getCMSClient(nil)
 	if cmsErr != nil {
-		log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
+		log.Error("getCMSClient failed, err:%s", cmsErr.Error())
 		return cmsErr
 	}
 	defer cmsClnt.Release()
 
 	_, archives, _, commonErr := s.queryBlogCommon(cmsClnt)
 	if commonErr != nil {
-		log.Printf("queryBlogCommon failed, err:%s", commonErr.Error())
+		log.Error("queryBlogCommon failed, err:%s", commonErr.Error())
 		return commonErr
 	}
 
@@ -691,7 +692,7 @@ func (s *Blog) PostBlog(res http.ResponseWriter, req *http.Request) {
 
 		catalogList, catalogErr := s.getCatalogs(param.Catalog, cmsClient)
 		if catalogErr != nil {
-			log.Printf("getCatalogs failed, err:%s", catalogErr.Error())
+			log.Error("getCatalogs failed, err:%s", catalogErr.Error())
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "提交Blog失败, 查询分类出错"
 			break
@@ -991,7 +992,7 @@ func (s *Blog) createArticle(clnt cmsClient.Client, title, content string, catal
 	blogArticle, blogErr := clnt.CreateArticle(title, content, catalogs)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("CreateArticle failed, err:%s", err.Error())
+		log.Error("CreateArticle failed, err:%s", err.Error())
 		return
 	}
 
@@ -1003,7 +1004,7 @@ func (s *Blog) deleteArticle(clnt cmsClient.Client, id int) (ret *cmsModel.Artic
 	blogArticle, blogErr := clnt.DeleteArticle(id)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("DeleteArticle failed, err:%s", err.Error())
+		log.Error("DeleteArticle failed, err:%s", err.Error())
 		return
 	}
 
@@ -1015,7 +1016,7 @@ func (s *Blog) updateArticle(clnt cmsClient.Client, id int, title, content strin
 	blogArticle, blogErr := clnt.UpdateArticle(id, title, content, catalogs)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("UpdateArticle failed, err:%s", err.Error())
+		log.Error("UpdateArticle failed, err:%s", err.Error())
 		return
 	}
 
@@ -1027,7 +1028,7 @@ func (s *Blog) deleteCatalog(clnt cmsClient.Client, id int) (ret *cmsModel.Catal
 	catalogPtr, blogErr := clnt.DeleteCatalog(id)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("DeleteCatalog failed, err:%s", err.Error())
+		log.Error("DeleteCatalog failed, err:%s", err.Error())
 		return
 	}
 
@@ -1039,7 +1040,7 @@ func (s *Blog) queryComments(clnt cmsClient.Client, id int, pageFilter *util.Pag
 	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Host{Code: id, Type: cmsModel.ARTICLE}, nil)
 	if blogErr != nil {
 		err = blogErr
-		log.Printf("FilterComment failed, err:%s", err.Error())
+		log.Error("FilterComment failed, err:%s", err.Error())
 		return
 	}
 

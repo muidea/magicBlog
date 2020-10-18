@@ -1,10 +1,11 @@
 github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 h1:kHaBemcxl8o/pQ5VM1c8PVE1PubbNx3mjUr09OqWGCs=
 github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575/go.mod h1:9d6lWj8KzO/fd/NrVaLscBKmPigpZpn5YawRPw+e3Yo=
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
-github.com/muidea/magicBatis v0.0.0-20200620092408-d22606c8687c h1:kdNUzZctf8D+rF1qLPFOnV+Cg8az2Xr70EbeQmFWArs=
 github.com/muidea/magicBatis v0.0.0-20200620092408-d22606c8687c/go.mod h1:N9xuWWhTFwG8rHBz4xHc/u1/Asg/WDyVv6kVCQ+KpKY=
-github.com/muidea/magicCMS v0.0.0-20200627142749-c4f235467d15 h1:ac7xizfmVL9yUbx1XxbTO1/ZpSM1Z4wc0xmj4x87yVo=
-github.com/muidea/magicCMS v0.0.0-20200627142749-c4f235467d15/go.mod h1:TOkV5/4fOETgrytzs3UF0VsKzZuty1omhb/fGbU7eM8=
+github.com/muidea/magicBatis v0.0.0-20201018015538-b37bc2fe41a9 h1:bZDlYvcoFbPqaAd2oRXFcs8GAqNNcwCj1Q+/FbOO+Ik=
+github.com/muidea/magicBatis v0.0.0-20201018015538-b37bc2fe41a9/go.mod h1:UM7HpFxADoLZP5RSD73SYVNTWfXfVZs/xkII/tf+9Yo=
+github.com/muidea/magicCMS v0.0.0-20200628072456-6e23e8fdd50d h1:jt/z9wrlnwajfmI8L+kOYfZxbY5uiA5SKZJC7Pzlw2c=
+github.com/muidea/magicCMS v0.0.0-20200628072456-6e23e8fdd50d/go.mod h1:TOkV5/4fOETgrytzs3UF0VsKzZuty1omhb/fGbU7eM8=
 github.com/muidea/magicCas v0.0.0-20200624105851-a18c2f444ba8 h1:liZ3HtwQCx8kWAIsiFSjagUywYX5I62yquS1SpNtmrk=
 github.com/muidea/magicCas v0.0.0-20200624105851-a18c2f444ba8/go.mod h1:NBEDhELRVxwgNBzrPyG96zXegkwxOxeQJEL+T4ffD5s=
 github.com/muidea/magicCommon v0.0.0-20200514111530-cd196fc1df6d/go.mod h1:sPlk8MNlT7F03KXGzakrtQ2lkbRXRLgSE7O7C0cmCnY=
@@ -16,6 +17,7 @@ github.com/muidea/magicEngine v0.0.0-20200620083407-5c94cf6ff793/go.mod h1:hXy/u
 github.com/muidea/magicEngine v0.0.0-20200620092726-660b2483d050 h1:g9a+yblCpyXH/+lwGOemdpIdZeL7XxeNQn2UHMIUAOI=
 github.com/muidea/magicEngine v0.0.0-20200620092726-660b2483d050/go.mod h1:pfFI5o05gCTQHrjHxwrhLd4uAAIfaTAGxymsy1fj5YA=
 github.com/muidea/magicFile v0.0.0-20200622115940-f1c02ec2c49a/go.mod h1:2zULpMrUZGg2FxT/vgjsP/tC3EWuZWvaFE7cdaP6ajk=
-github.com/muidea/magicOrm v0.0.0-20200620083540-52eeee605287 h1:QOIZVRBDwADucAQFgY66p2QhUO42rEuyGrZ8DjsUtxw=
 github.com/muidea/magicOrm v0.0.0-20200620083540-52eeee605287/go.mod h1:Cjo9MZLOwGtseLT8DRUJRbbl8pYotdf7vm+sYdRqCz8=
+github.com/muidea/magicOrm v0.0.0-20201018014804-e352ee592622 h1:HqEJhWTeGS7RLFsChW+dZV80EjJ/7zhJfghPxwaI9EQ=
+github.com/muidea/magicOrm v0.0.0-20201018014804-e352ee592622/go.mod h1:NedpFphDEYahbS/ZLrnYapm/wZAf3Yjbhpbw9n7mv0k=
 github.com/muidea/magicVMI v0.0.0-20200625141538-82f0cc8c0ce0/go.mod h1:vGIkuq+9oUVwJ9/kwxI5GcgDB90cfs0Rsg2qsXlSXIo=

@@ -530,7 +530,7 @@ func (s *Blog) queryArticleList(clnt cmsClient.Client, catalog *cmsModel.Catalog
 	blogArticle, _, blogErr := clnt.FilterArticle(catalog, pageFilter)
 	if blogErr != nil {
 		err = blogErr
-		log.Error("FilterArticle failed, err:%s", err.Error())
+		log.Errorf("FilterArticle failed, err:%s", err.Error())
 		return
 	}
 

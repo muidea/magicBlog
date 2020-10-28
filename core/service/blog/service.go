@@ -20,6 +20,7 @@ import (
 	"github.com/muidea/magicBlog/config"
 	"github.com/muidea/magicBlog/model"
 
+	cmsClient "github.com/muidea/magicCMS/client"
 	cmsCommon "github.com/muidea/magicCMS/common"
 	cmsModel "github.com/muidea/magicCMS/model"
 
@@ -99,11 +100,13 @@ func (s *Blog) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *h
 	curSession := s.sessionRegistry.GetSession(res, req)
 
 	sessionInfo := curSession.GetSessionInfo()
-	sessionInfo.Scope = commonCommon.ShareSession
+	if sessionInfo.ID != "" {
+		sessionInfo.Scope = commonCommon.ShareSession
 
-	values := req.URL.Query()
-	values = sessionInfo.Encode(values)
-	req.URL.RawQuery = values.Encode()
+		values := req.URL.Query()
+		values = sessionInfo.Encode(values)
+		req.URL.RawQuery = values.Encode()
+	}
 
 	ctx.Next()
 }
@@ -120,6 +123,8 @@ func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
+	defer curSession.Flush(res, req)
+
 	result := &loginResult{}
 	for {
 		param := &loginParam{}
@@ -136,21 +141,21 @@ func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 			break
 		}
 
-		cmsClient, cmsErr := s.getCMSClient(curSession)
-		if cmsErr != nil {
-			result.ErrorCode = commonDef.Failed
-			result.Reason = "非法参数,输入参数为空"
-			break
-		}
+		sessionInfo := curSession.GetSessionInfo()
+		sessionInfo.Scope = commonCommon.ShareSession
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient.BindSession(sessionInfo)
 		defer cmsClient.Release()
 
-		accountPtr, _, err := cmsClient.LoginAccount(param.Account, param.Password)
+		accountPtr, accountSession, err := cmsClient.LoginAccount(param.Account, param.Password)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = err.Error()
 			break
 		}
 
+		curSession.SetSessionInfo(accountSession)
 		curSession.SetOption(commonCommon.AuthAccount, accountPtr)
 
 		result.ErrorCode = commonDef.Success
@@ -177,12 +182,11 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 	curSession := s.sessionRegistry.GetSession(res, req)
 	result := &logoutResult{}
 	for {
-		cmsClient, cmsErr := s.getCMSClient(curSession)
-		if cmsErr != nil {
-			result.ErrorCode = commonDef.Failed
-			result.Reason = "非法参数,输入参数为空"
-			break
-		}
+		sessionInfo := curSession.GetSessionInfo()
+		sessionInfo.Scope = commonCommon.ShareSession
+
+		cmsClient := cmsClient.NewClient(s.cmsService)
+		cmsClient.BindSession(sessionInfo)
 		defer cmsClient.Release()
 
 		_, err := cmsClient.LogoutAccount()

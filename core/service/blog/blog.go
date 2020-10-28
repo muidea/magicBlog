@@ -68,27 +68,26 @@ func (s *Blog) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) {
 }
 
 func (s *Blog) getCMSClient(curSession session.Session) (ret cmsClient.Client, err error) {
-	sessionInfo, sessionErr := s.confirmEndpoint()
-	if sessionErr != nil {
-		log.Error("confirmEndpoint failed, err:%s", sessionErr.Error())
-		err = sessionErr
-		return
+	var sessionInfo *commonCommon.SessionInfo
+	var entityContext commonCommon.ContextInfo
+
+	cmsClient := cmsClient.NewClient(s.cmsService)
+	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
+	if !authOK {
+		sessionInfo, err = s.confirmEndpoint()
+		if err != nil {
+			log.Errorf("confirmEndpoint failed, err:%s", err.Error())
+			return
+		}
+	} else {
+		sessionInfo = curSession.GetSessionInfo()
+		entityPtr := authPtr.(*casModel.Entity)
+		entityContext = casCommon.NewEntityContext(entityPtr)
+		cmsClient.AttachContext(entityContext)
 	}
 
 	sessionInfo.Scope = commonCommon.ShareSession
-	cmsClient := cmsClient.NewClient(s.cmsService)
 	cmsClient.BindSession(sessionInfo)
-
-	var entityContext commonCommon.ContextInfo
-	if curSession != nil {
-		authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
-		if authOK {
-			entityPtr := authPtr.(*casModel.Entity)
-			entityContext = casCommon.NewEntityContext(entityPtr)
-		}
-	}
-
-	cmsClient.AttachContext(entityContext)
 
 	ret = cmsClient
 	return

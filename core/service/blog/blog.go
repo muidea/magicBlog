@@ -826,7 +826,7 @@ func (s *Blog) ReplyComment(res http.ResponseWriter, req *http.Request) {
 		authPtr, _ := curSession.GetOption(commonCommon.AuthAccount)
 
 		entityPtr := authPtr.(*casModel.Entity)
-		_, err = cmsClient.CreateComment(param.Message, entityPtr.Name, &cmsModel.Host{Code: param.Host, Type: cmsModel.COMMENT}, 0)
+		_, err = cmsClient.CreateComment(param.Message, entityPtr.EName, &cmsModel.Host{Code: param.Host, Type: cmsModel.COMMENT}, 0)
 		if err != nil {
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "回复失败, 保存出错"

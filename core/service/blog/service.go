@@ -158,8 +158,14 @@ func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 		curSession.SetSessionInfo(accountSession)
 		curSession.SetOption(commonCommon.AuthAccount, accountPtr)
 
+		vals := url.Values{}
+		vals = accountSession.Encode(vals)
+		url := url.URL{}
+		url.Path = "/"
+		url.RawQuery = vals.Encode()
+
 		result.ErrorCode = commonDef.Success
-		result.Redirect = "/"
+		result.Redirect = url.String()
 		break
 	}
 
@@ -180,6 +186,7 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
+	defer curSession.Flush(res, req)
 	result := &logoutResult{}
 	for {
 		sessionInfo := curSession.GetSessionInfo()
@@ -189,17 +196,24 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 		cmsClient.BindSession(sessionInfo)
 		defer cmsClient.Release()
 
-		_, err := cmsClient.LogoutAccount()
-		if err != nil {
+		accountSession, accountErr := cmsClient.LogoutAccount()
+		if accountErr != nil {
 			result.ErrorCode = commonDef.Failed
-			result.Reason = err.Error()
+			result.Reason = accountErr.Error()
 			break
 		}
 
 		curSession.RemoveOption(commonCommon.AuthAccount)
+		curSession.SetSessionInfo(accountSession)
+
+		vals := url.Values{}
+		vals = accountSession.Encode(vals)
+		url := url.URL{}
+		url.Path = "/"
+		url.RawQuery = vals.Encode()
 
 		result.ErrorCode = commonDef.Success
-		result.Redirect = "/"
+		result.Redirect = url.String()
 		break
 	}
 
@@ -387,7 +401,7 @@ func (s *Blog) RegisterHandler(router engine.Router) {
 	// delete comment api routes
 	s.casRouteRegistry.AddHandler("/api/v1/comment/delete/", "POST", s.DeleteComment)
 
-	// account login,logout,status,changepassword
+	// account login,logout,change password
 	//---------------------------------------------------------------------------------------
 	loginRoute := engine.CreateRoute(cmsCommon.LoginAccountURL, "POST", s.Login)
 	router.AddRoute(loginRoute, s)

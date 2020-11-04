@@ -150,8 +150,10 @@ func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 
 		vals := url.Values{}
 		vals = accountSession.Encode(vals)
+		vals.Set("redirect", "/")
+
 		url := url.URL{}
-		url.Path = "/"
+		url.Path = "/redirect"
 		url.RawQuery = vals.Encode()
 
 		result.ErrorCode = commonDef.Success
@@ -198,8 +200,10 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 
 		vals := url.Values{}
 		vals = accountSession.Encode(vals)
+		vals.Set("redirect", "/")
+
 		url := url.URL{}
-		url.Path = "/"
+		url.Path = "/redirect"
 		url.RawQuery = vals.Encode()
 
 		result.ErrorCode = commonDef.Success
@@ -360,8 +364,59 @@ func (s *Blog) View(res http.ResponseWriter, req *http.Request) {
 		view.CurrentURL = curURL.String()
 	}
 
-	elapsedTime := time.Now().Sub(preTime)
-	view.ElapsedTime = elapsedTime.String()
+	view.ElapsedTime = time.Now().Sub(preTime).String()
+	t.Execute(res, view)
+}
+
+// Redirect redirect
+func (s *Blog) Redirect(res http.ResponseWriter, req *http.Request) {
+	type viewResult struct {
+		IsAuthOK    bool
+		Setting     *model.Setting
+		ElapsedTime string
+		Redirect    string
+	}
+
+	preTime := time.Now()
+	curSession := s.sessionRegistry.GetSession(res, req)
+	_, authOk := curSession.GetOption(commonCommon.AuthAccount)
+
+	curSession.Flush(res, req)
+	view := &viewResult{IsAuthOK: authOk}
+	fileName := "redirect.html"
+	for {
+		cmsClnt, cmsErr := s.getCMSClient(curSession)
+		if cmsErr != nil {
+			log.Printf("getCMSClient failed, err:%s", cmsErr.Error())
+			fileName = "500.html"
+			break
+		}
+		defer cmsClnt.Release()
+
+		_, _, articles, commonErr := s.queryBlogCommon(cmsClnt)
+		if commonErr != nil {
+			log.Printf("queryBlogCommon failed, err:%s", commonErr.Error())
+			fileName = "500.html"
+			break
+		}
+
+		settingPtr, settingErr := s.getBlogSetting(articles)
+		if settingErr == nil {
+			view.Setting = settingPtr
+		}
+		break
+	}
+
+	fullFilePath := path.Join(s.basePath, fileName)
+	t, err := template.ParseFiles(fullFilePath)
+	if err != nil {
+		log.Println(err)
+	}
+
+	res.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	view.Redirect = req.URL.Query().Get("redirect")
+	view.ElapsedTime = time.Now().Sub(preTime).String()
 	t.Execute(res, view)
 }
 
@@ -374,6 +429,8 @@ func (s *Blog) RegisterHandler(router engine.Router) {
 
 	viewRoute := engine.CreateRoute("/view/**", "GET", s.View)
 	router.AddRoute(viewRoute, s)
+
+	s.casRouteRegistry.AddHandler("/redirect", "GET", s.Redirect)
 
 	// blog api routes
 	s.casRouteRegistry.AddHandler("/api/v1/blog/post/", "POST", s.PostBlog)

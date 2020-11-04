@@ -3,10 +3,11 @@ github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575/go.mod h1:9d6lWj8KzO/
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/muidea/magicBatis v0.0.0-20201103011502-0c77139fc59c h1:sP+BH3veB7Zlnrj9sCmcWapPknGVuse1Aa58c9bpuA0=
 github.com/muidea/magicBatis v0.0.0-20201103011502-0c77139fc59c/go.mod h1:cTSWL4xkE7lzzQKAg7TygiE+SJLrlizQaL7Lr5q487s=
-github.com/muidea/magicCMS v0.0.0-20201103012601-954225b620b4 h1:lM6gPkIWLnDO3XemJeLUA+IqSumcNgBPAWPS66q7DGU=
-github.com/muidea/magicCMS v0.0.0-20201103012601-954225b620b4/go.mod h1:rgbyUr0Reh8g6d2jim9YEIenOOblXyDJAFrY/hOkreo=
-github.com/muidea/magicCas v0.0.0-20201103011958-fb5846273b51 h1:NqdnwL23OSq/CE59EwCHaL1uDQuq6MJHKorfZO1Feb0=
+github.com/muidea/magicCMS v0.0.0-20201104092156-b95715fb1eee h1:4STR+fkgUXFwGAbZcY5aPYyKdt/SR9cGbQuU10SWEg8=
+github.com/muidea/magicCMS v0.0.0-20201104092156-b95715fb1eee/go.mod h1:rgbyUr0Reh8g6d2jim9YEIenOOblXyDJAFrY/hOkreo=
 github.com/muidea/magicCas v0.0.0-20201103011958-fb5846273b51/go.mod h1:8UsfZzqgAhqbeu28bDquEymW0OldgIMlHKNKZRvjTbU=
+github.com/muidea/magicCas v0.0.0-20201104091904-f6fa1e2bcdb5 h1:VzN2cLQjbyLiyV70ntQ6fuVtTVZEBjRL6CQoacVs2NU=
+github.com/muidea/magicCas v0.0.0-20201104091904-f6fa1e2bcdb5/go.mod h1:8UsfZzqgAhqbeu28bDquEymW0OldgIMlHKNKZRvjTbU=
 github.com/muidea/magicCommon v0.0.0-20200620083717-a96894d85cdf/go.mod h1:61sBCad8+6GFUUCk5OnaloJuNPq7u/ISflVh4+Gvyx8=
 github.com/muidea/magicCommon v0.0.0-20201027133841-b2a64c4e37cf h1:ABqFMsBfEHWYVBdGkkUhR1XIRycVex0Txy4HIe6wzTo=
 github.com/muidea/magicCommon v0.0.0-20201027133841-b2a64c4e37cf/go.mod h1:xkP/pDQBgx0Q56Ajd6crE9kOTUaasMmA+WVOZ5sWbCs=

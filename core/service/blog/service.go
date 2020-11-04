@@ -48,7 +48,6 @@ type Blog struct {
 
 // New create route
 func New() *Blog {
-
 	backgroundRoutine := task.NewBackgroundRoutince()
 	blog := &Blog{
 		cmsService: config.CMSService(),
@@ -83,31 +82,22 @@ func (s *Blog) Verify(res http.ResponseWriter, req *http.Request) (err error) {
 	}
 	defer cmsClient.Release()
 
-	sessionEntity, _, sessionErr := cmsClient.RefreshStatus()
-	if sessionErr != nil {
-		err = sessionErr
+	refreshEntity, refreshSession, refreshErr := cmsClient.RefreshStatus()
+	if refreshErr != nil {
+		err = refreshErr
 		log.Printf("verify current session failed, err:%s", err.Error())
 		return
 	}
 
-	curSession.SetOption(commonCommon.AuthAccount, sessionEntity)
+	curSession.SetOption(commonCommon.AuthAccount, refreshEntity)
+	curSession.SetSessionInfo(refreshSession)
+	curSession.Flush(res, req)
 
 	return
 }
 
 // Handle middleware handler
 func (s *Blog) Handle(ctx engine.RequestContext, res http.ResponseWriter, req *http.Request) {
-	curSession := s.sessionRegistry.GetSession(res, req)
-
-	sessionInfo := curSession.GetSessionInfo()
-	if sessionInfo.ID != "" {
-		sessionInfo.Scope = commonCommon.ShareSession
-
-		values := req.URL.Query()
-		values = sessionInfo.Encode(values)
-		req.URL.RawQuery = values.Encode()
-	}
-
 	ctx.Next()
 }
 
@@ -123,7 +113,6 @@ func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-	defer curSession.Flush(res, req)
 
 	result := &loginResult{}
 	for {
@@ -157,6 +146,7 @@ func (s *Blog) Login(res http.ResponseWriter, req *http.Request) {
 
 		curSession.SetSessionInfo(accountSession)
 		curSession.SetOption(commonCommon.AuthAccount, accountPtr)
+		curSession.Flush(res, req)
 
 		vals := url.Values{}
 		vals = accountSession.Encode(vals)
@@ -186,7 +176,6 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 	}
 
 	curSession := s.sessionRegistry.GetSession(res, req)
-	defer curSession.Flush(res, req)
 	result := &logoutResult{}
 	for {
 		sessionInfo := curSession.GetSessionInfo()
@@ -205,6 +194,7 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 
 		curSession.RemoveOption(commonCommon.AuthAccount)
 		curSession.SetSessionInfo(accountSession)
+		curSession.Flush(res, req)
 
 		vals := url.Values{}
 		vals = accountSession.Encode(vals)

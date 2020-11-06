@@ -1035,7 +1035,7 @@ func (s *Blog) queryComments(clnt cmsClient.Client, id int, pageFilter *util.Pag
 	blogComment, _, blogErr := clnt.FilterComment(&cmsModel.Host{Code: id, Type: cmsModel.ARTICLE}, nil)
 	if blogErr != nil {
 		err = blogErr
-		log.Error("FilterComment failed, err:%s", err.Error())
+		log.Errorf("FilterComment failed, err:%s", err.Error())
 		return
 	}
 

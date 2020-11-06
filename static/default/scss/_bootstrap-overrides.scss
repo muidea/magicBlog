@@ -10,15 +10,15 @@
 }
 
 .btn-primary {
-  background-color: $primary;
-  border-color: $primary;
+  background-color: $secondary;
+  border-color: $secondary;
 
   &:hover,
   &:focus,
   &:active {
     color: $white;
-    background-color: darken($primary, 7.5) !important;
-    border-color: darken($primary, 7.5) !important;
+    background-color: darken($secondary, 7.5) !important;
+    border-color: darken($secondary, 7.5) !important;
   }
 }
 

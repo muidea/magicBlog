@@ -79,25 +79,27 @@
     <div class="row">
       <div class="col-lg-10 col-md-6 mx-auto">
         {{range $content}}
-        <div class="post-preview">
-          <div class="post-title">
-            <a href="{{.Title}}.html?pageid={{.ID}}">
-              {{.Title}}
-            </a>
+          {{if VisibleCheck .Title $isAuthOK}}
+          <div class="post-preview">
+            <div class="post-title">
+              <a href="{{.Title}}.html?pageid={{.ID}}">
+                {{.Title}}
+              </a>
+            </div>
+            <div class="post-meta">
+              <p>Posted by
+                <a href="/view/author/{{.Creater.EName}}.html">{{.Creater.EName}}</a>
+                on {{.CreateDate}}
+                {{if $isAuthOK}}
+                <span class="float-right">
+                  <a href="/view/edit.html?pageid={{.ID}}&action=update_post">更新</a> |
+                  <a href="/view/edit.html?pageid={{.ID}}&action=delete_post">删除</a>
+                </span>
+                {{end}}
+              </p>
+            </div>
           </div>
-          <div class="post-meta">
-            <p>Posted by
-              <a href="/view/author/{{.Creater.EName}}.html">{{.Creater.EName}}</a>
-              on {{.CreateDate}}
-              {{if $isAuthOK}}
-              <span class="float-right">
-                <a href="/view/edit.html?pageid={{.ID}}&action=update_post">更新</a> |
-                <a href="/view/edit.html?pageid={{.ID}}&action=delete_post">删除</a>
-              </span>
-              {{end}}
-            </p>
-          </div>
-        </div>
+          {{end}}
         {{end}}
         <!-- Pager -->
         <div class="clearfix">

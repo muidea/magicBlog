@@ -220,6 +220,15 @@ func (s *Blog) Logout(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusExpectationFailed)
 }
 
+func VisibleCheck(title string, isAuthOK bool) bool {
+	log.Printf("title:%s, isAuthOK:%v", title, isAuthOK)
+	if isReserved(title) {
+		return isAuthOK
+	}
+
+	return true
+}
+
 // View static view
 func (s *Blog) View(res http.ResponseWriter, req *http.Request) {
 	type viewResult struct {
@@ -345,7 +354,8 @@ func (s *Blog) View(res http.ResponseWriter, req *http.Request) {
 	}
 
 	fullFilePath := path.Join(s.basePath, fileName)
-	t, err := template.ParseFiles(fullFilePath)
+	funcMap := template.FuncMap{"VisibleCheck": VisibleCheck}
+	t, err := template.New(fileName).Funcs(funcMap).ParseFiles(fullFilePath)
 	if err != nil {
 		log.Println(err)
 	}

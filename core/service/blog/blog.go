@@ -27,6 +27,9 @@ const archiveCatalog = "archive_catalog"
 const systemCatalog = "system_catalog"
 const authorCatalog = "author_catalog"
 const settingTitle = "setting"
+const aboutTitle = "about"
+const contactTitle = "contact"
+const loginTitle = "login"
 
 type archiveBlogTask struct {
 	registry     *Blog
@@ -56,6 +59,17 @@ func (s *archiveBlogTask) Run() {
 	s.registry.archiveBlog()
 }
 
+func isReserved(title string) bool {
+	switch title {
+	case loginTitle, contactTitle, aboutTitle:
+		return true
+	default:
+		return false
+	}
+
+	return false
+}
+
 func (s *Blog) confirmEndpoint() (ret *commonCommon.SessionInfo, err error) {
 	cmsClient := cmsClient.NewClient(s.cmsService)
 	defer cmsClient.Release()
@@ -72,18 +86,26 @@ func (s *Blog) getCMSClient(curSession session.Session) (ret cmsClient.Client, e
 	var entityContext commonCommon.ContextInfo
 
 	cmsClient := cmsClient.NewClient(s.cmsService)
-	authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
-	if !authOK {
+	if curSession != nil {
+		authPtr, authOK := curSession.GetOption(commonCommon.AuthAccount)
+		if !authOK {
+			sessionInfo, err = s.confirmEndpoint()
+			if err != nil {
+				log.Errorf("confirmEndpoint failed, err:%s", err.Error())
+				return
+			}
+		} else {
+			sessionInfo = curSession.GetSessionInfo()
+			entityPtr := authPtr.(*casModel.Entity)
+			entityContext = casCommon.NewEntityContext(entityPtr)
+			cmsClient.AttachContext(entityContext)
+		}
+	} else {
 		sessionInfo, err = s.confirmEndpoint()
 		if err != nil {
 			log.Errorf("confirmEndpoint failed, err:%s", err.Error())
 			return
 		}
-	} else {
-		sessionInfo = curSession.GetSessionInfo()
-		entityPtr := authPtr.(*casModel.Entity)
-		entityContext = casCommon.NewEntityContext(entityPtr)
-		cmsClient.AttachContext(entityContext)
 	}
 
 	sessionInfo.Scope = commonCommon.ShareSession
@@ -590,7 +612,7 @@ func (s *Blog) archiveBlog() error {
 	}
 	defer cmsClnt.Release()
 
-	_, archives, _, commonErr := s.queryBlogCommon(cmsClnt)
+	_, archiveCatalogs, _, commonErr := s.queryBlogCommon(cmsClnt)
 	if commonErr != nil {
 		log.Error("queryBlogCommon failed, err:%s", commonErr.Error())
 		return commonErr
@@ -601,7 +623,7 @@ func (s *Blog) archiveBlog() error {
 	preTime := time.Unix(int64(preDuration.Seconds()), 0)
 	archiveName := fmt.Sprintf("%04d年%02d月", preTime.Year(), preTime.Month())
 
-	for _, val := range archives {
+	for _, val := range archiveCatalogs {
 		if archiveName == val.Name {
 			archiveCatalogPtr = val
 			break
@@ -610,7 +632,8 @@ func (s *Blog) archiveBlog() error {
 
 	if archiveCatalogPtr == nil {
 		catalogPtr, catalogErr := cmsClnt.CreateCatalog(archiveName, "create archive catalog", s.archiveCatalog)
-		if catalogErr == nil {
+		if catalogErr != nil {
+			log.Errorf("create archive catalog failed, name:%s, err:%s", archiveName, catalogErr.Error())
 			return catalogErr
 		}
 
@@ -623,6 +646,10 @@ func (s *Blog) archiveBlog() error {
 	}
 
 	for _, val := range archiveList {
+		if isReserved(val.Title) {
+			continue
+		}
+
 		catalogs := []*cmsModel.CatalogLite{archiveCatalogPtr}
 		for _, cv := range val.Catalog {
 			if cv.Name == archiveCatalogPtr.Name {
@@ -645,20 +672,59 @@ func (s *Blog) archiveBlog() error {
 	return nil
 }
 
+type postParam struct {
+	ID      int    `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Catalog string `json:"catalog"`
+}
+
+type postResult struct {
+	commonDef.Result
+	Redirect string `json:"redirect"`
+}
+
+func (s *Blog) prePostCheck(clnt cmsClient.Client, param *postParam, catalogs []*cmsModel.CatalogLite) (err error) {
+	if param.Title == settingTitle {
+		err = fmt.Errorf("系统预留标题,无法提交")
+		return
+	}
+
+	if !isReserved(param.Title) {
+		return
+	}
+
+	var systemCatalogPtr *cmsModel.CatalogLite
+	for _, val := range catalogs {
+		if val.Name == systemCatalog {
+			systemCatalogPtr = val
+			break
+		}
+	}
+
+	if systemCatalogPtr == nil {
+		err = fmt.Errorf("系统预留标题,无法使用")
+		return
+	}
+
+	articleList, articleErr := s.queryArticleList(clnt, systemCatalogPtr, nil)
+	if articleErr != nil {
+		err = articleErr
+		return
+	}
+
+	for _, val := range articleList {
+		if val.Title == param.Title && val.ID != param.ID {
+			err = fmt.Errorf("系统预留标题,无法使用")
+			return
+		}
+	}
+
+	return
+}
+
 // PostBlog post blog
 func (s *Blog) PostBlog(res http.ResponseWriter, req *http.Request) {
-	type postParam struct {
-		ID      int    `json:"id"`
-		Title   string `json:"title"`
-		Content string `json:"content"`
-		Catalog string `json:"catalog"`
-	}
-
-	type postResult struct {
-		commonDef.Result
-		Redirect string `json:"redirect"`
-	}
-
 	curSession := s.sessionRegistry.GetSession(res, req)
 
 	result := &postResult{}
@@ -690,6 +756,13 @@ func (s *Blog) PostBlog(res http.ResponseWriter, req *http.Request) {
 			log.Error("getCatalogs failed, err:%s", catalogErr.Error())
 			result.ErrorCode = commonDef.Failed
 			result.Reason = "提交Blog失败, 查询分类出错"
+			break
+		}
+
+		err = s.prePostCheck(cmsClient, param, catalogList)
+		if err != nil {
+			result.ErrorCode = commonDef.Failed
+			result.Reason = fmt.Sprintf("提交Blog失败, %s", err.Error())
 			break
 		}
 
